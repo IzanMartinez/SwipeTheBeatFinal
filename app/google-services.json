@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "668944693318",
+    "project_id": "swipethebeat",
+    "storage_bucket": "swipethebeat.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:668944693318:android:3610efa1f910e847723247",
+        "android_client_info": {
+          "package_name": "com.izamaralv.swipethebeat"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBHvGPL35vSvqEeNl3s5SN1jtyFOAK6LpU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
