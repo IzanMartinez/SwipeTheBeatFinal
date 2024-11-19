@@ -56,7 +56,6 @@ android {
 
 dependencies {
 
-    implementation("com.adamratzman:spotify-api-kotlin-core:3.8.0")
     implementation("io.coil-kt:coil-compose:2.5.0")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.7")
     implementation("androidx.compose.runtime:runtime-livedata:1.7.5")
