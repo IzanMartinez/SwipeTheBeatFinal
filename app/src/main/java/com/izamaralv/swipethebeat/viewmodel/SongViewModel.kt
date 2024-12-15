@@ -9,58 +9,76 @@ import com.izamaralv.swipethebeat.repository.SongRepository
 import kotlinx.coroutines.launch
 import android.util.Log
 
-class SongViewModel(
-    private val songRepository: SongRepository,
-    private val accessToken: String
-) : ViewModel() {
+class SongViewModel(private val songRepository: SongRepository, private val accessToken: String) : ViewModel() {
 
     private val _currentSong = MutableLiveData<Track?>()
-    val currentSong: LiveData<Track?> = _currentSong
+    val currentSong: MutableLiveData<Track?> get() = _currentSong
 
-    private val _likedSongs = MutableLiveData<List<Track>>()
-    val likedSongs: LiveData<List<Track>> = _likedSongs
+    private val likedSongsPool = mutableListOf<Track>()
+    private val likedSongIds = mutableSetOf<String>()
 
-    // Load initial recommendations, ensuring preview_url is included
+    init {
+        loadInitialRecommendations()
+    }
+
     fun loadInitialRecommendations() {
         viewModelScope.launch {
-            val recommendations = songRepository.getLast50LikedSongs(accessToken)
-            val firstSong = recommendations.firstOrNull()
-            if (firstSong != null) {
-                _currentSong.value = firstSong
-            } else {
-                _currentSong.value = null // Handle no recommendations
+            try {
+                likedSongsPool.clear()
+                likedSongIds.clear()
+                val lastLikedSongs = songRepository.getLast50LikedSongs(accessToken)
+                Log.d("SongViewModel", "Loaded liked songs: ${lastLikedSongs.map { it.name }}")
+                likedSongsPool.addAll(lastLikedSongs)
+                likedSongIds.addAll(lastLikedSongs.map { it.id })
+                searchNextTrack()
+            } catch (e: Exception) {
+                Log.e("SongViewModel", "Failed to load initial recommendations: ${e.message}")
             }
         }
     }
 
-    // Like current song and load the next one
+    private fun searchNextTrack() {
+        if (likedSongsPool.isNotEmpty()) {
+            val randomLikedSong = likedSongsPool.random()
+            searchTracks(randomLikedSong.name)
+        } else {
+            Log.e("SongViewModel", "No liked songs available for searching")
+        }
+    }
+
+    private fun searchTracks(query: String) {
+        viewModelScope.launch {
+            try {
+                Log.d("SongViewModel", "Searching tracks with query: $query")
+                val searchResults = songRepository.searchSimilarTracks(accessToken, query)
+                val filteredResults = searchResults.filterNot { likedSongIds.contains(it.id) }
+                if (filteredResults.isNotEmpty()) {
+                    val randomResult = filteredResults.random()
+                    _currentSong.value = randomResult
+                } else {
+                    Log.d("SongViewModel", "No new results found, searching next liked song")
+                    searchNextTrack()
+                }
+            } catch (e: Exception) {
+                Log.e("SongViewModel", "Failed to search tracks: ${e.message}")
+            }
+        }
+    }
+
     fun likeCurrentSong() {
-        viewModelScope.launch {
-            val current = _currentSong.value
-            if (current != null) {
-                _likedSongs.value = _likedSongs.value.orEmpty() + current
-                loadNextSong()
-            }
+        _currentSong.value?.let { song ->
+            addToPool(song)
+            searchNextTrack()
         }
     }
 
-    // Dislike current song and load the next one
     fun dislikeCurrentSong() {
-        viewModelScope.launch {
-            loadNextSong()
-        }
+        searchNextTrack()
     }
 
-    // Load the next song recommendation
-    private fun loadNextSong() {
-        viewModelScope.launch {
-            val recommendations = songRepository.getLast50LikedSongs(accessToken)
-            val nextSong = recommendations.firstOrNull { it != _currentSong.value }
-            if (nextSong != null) {
-                _currentSong.value = nextSong
-            } else {
-                _currentSong.value = null // Handle end of recommendations
-            }
-        }
+    private fun addToPool(song: Track) {
+        likedSongsPool.add(song)
+        likedSongIds.add(song.id)
+        Log.d("SongViewModel", "Adding song to pool: ${song.name}")
     }
 }

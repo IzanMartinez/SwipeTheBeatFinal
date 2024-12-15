@@ -15,7 +15,8 @@ data class Track(
     val name: String,
     val artists: List<Artist>,
     val album: Album,
-    val preview_url: String?
+    val preview_url: String?,
+    val id: String
 )
 
 data class Artist(

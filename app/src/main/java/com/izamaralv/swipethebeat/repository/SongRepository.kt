@@ -75,7 +75,8 @@ class SongRepository(context: Context) {
                             name = it.name,
                             artists = it.artists,
                             album = it.album,
-                            preview_url = it.preview_url // Map this field
+                            preview_url = it.preview_url,
+                            id = it.id
                         )
                     } ?: emptyList()
                 } else {
