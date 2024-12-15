@@ -1,24 +1,29 @@
 package com.izamaralv.swipethebeat.utils
 
 import android.content.Context
-import android.content.SharedPreferences
 
 class TokenManager(context: Context) {
-    private val prefs: SharedPreferences = context.getSharedPreferences("token_prefs", Context.MODE_PRIVATE)
+    private val sharedPreferences = context.getSharedPreferences("SpotifyTokens", Context.MODE_PRIVATE)
 
     fun saveTokens(accessToken: String, refreshToken: String) {
-        prefs.edit().putString("access_token", accessToken).putString("refresh_token", refreshToken).apply()
+        sharedPreferences.edit()
+            .putString("ACCESS_TOKEN", accessToken)
+            .putString("REFRESH_TOKEN", refreshToken)
+            .apply()
     }
 
     fun getAccessToken(): String? {
-        return prefs.getString("access_token", null)
+        return sharedPreferences.getString("ACCESS_TOKEN", null)
     }
 
     fun getRefreshToken(): String? {
-        return prefs.getString("refresh_token", null)
+        return sharedPreferences.getString("REFRESH_TOKEN", null)
     }
 
     fun clearTokens() {
-        prefs.edit().clear().apply()
+        sharedPreferences.edit()
+            .remove("ACCESS_TOKEN")
+            .remove("REFRESH_TOKEN")
+            .apply()
     }
 }

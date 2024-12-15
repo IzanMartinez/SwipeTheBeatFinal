@@ -2,6 +2,9 @@ package com.izamaralv.swipethebeat.utils
 
 import android.util.Log
 import com.izamaralv.swipethebeat.models.SongDTO
+import com.izamaralv.swipethebeat.utils.Credentials.CLIENT_ID
+import com.izamaralv.swipethebeat.utils.Credentials.CLIENT_SECRET
+import com.izamaralv.swipethebeat.utils.Credentials.REDIRECT_URI
 import okhttp3.*
 import org.json.JSONArray
 import org.json.JSONObject
@@ -11,16 +14,12 @@ object SpotifyApi {
     private val client = OkHttpClient()
 
     fun exchangeCodeForToken(code: String): Pair<String, String>? {
-        val clientId = "9ce30545b1c64f29844917fae59145c7"
-        val clientSecret = "a62d19455f554f2c8c8795e89dabde13"
-        val redirectUri = "myapp://callback"
-
         val formBody = FormBody.Builder()
             .add("grant_type", "authorization_code")
             .add("code", code)
-            .add("redirect_uri", redirectUri)
-            .add("client_id", clientId)
-            .add("client_secret", clientSecret)
+            .add("redirect_uri", REDIRECT_URI)
+            .add("client_id", CLIENT_ID)
+            .add("client_secret", CLIENT_SECRET)
             .build()
 
         val request = Request.Builder()
@@ -49,14 +48,11 @@ object SpotifyApi {
     }
 
     fun refreshAccessToken(refreshToken: String): String? {
-        val clientId = "9ce30545b1c64f29844917fae59145c7"
-        val clientSecret = "a62d19455f554f2c8c8795e89dabde13"
-
         val formBody = FormBody.Builder()
             .add("grant_type", "refresh_token")
             .add("refresh_token", refreshToken)
-            .add("client_id", clientId)
-            .add("client_secret", clientSecret)
+            .add("client_id", CLIENT_ID)
+            .add("client_secret", CLIENT_SECRET)
             .build()
 
         val request = Request.Builder()
@@ -194,7 +190,9 @@ object SpotifyApi {
             val albumCoverUrl = album.getJSONArray("images").getJSONObject(0).getString("url")
             val durationMs = item.getInt("duration_ms")
             val uri = item.getString("uri")
-            songs.add(SongDTO(id, name, artists, albumName, albumCoverUrl, durationMs, uri))
+            val previewUrl = item.optString("preview_url", null.toString()) // Use optString to handle null values
+
+            songs.add(SongDTO(id, name, artists, albumName, albumCoverUrl, durationMs, uri, previewUrl))
         }
         Log.d("SpotifyApi", "Parsed ${songs.size} songs")
         return songs

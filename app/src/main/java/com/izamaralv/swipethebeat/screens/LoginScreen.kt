@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.izamaralv.swipethebeat.R
 import com.izamaralv.swipethebeat.common.backgroundColor
+import com.izamaralv.swipethebeat.common.softComponentColor
 import com.izamaralv.swipethebeat.ui.theme.StandardComponent
 import com.izamaralv.swipethebeat.ui.theme.StandardField
 import com.izamaralv.swipethebeat.utils.startSpotifyLogin
@@ -47,7 +48,7 @@ fun LoginScreen(navController: NavHostController, modifier: Modifier = Modifier)
         ) {
             // Logo
             Image(
-                painter = painterResource(id = R.drawable.logo),
+                painter = painterResource(id = R.drawable.logo2recolor2),
                 contentDescription = "Logo",
                 modifier = Modifier
                     .requiredWidth(412.dp)
@@ -64,10 +65,9 @@ fun LoginScreen(navController: NavHostController, modifier: Modifier = Modifier)
                 ),
                 modifier = Modifier
                     .padding(top = 8.dp) // Padding between logo and title
-                    .border(border = BorderStroke(1.dp, Color.Black))
                     .padding(8.dp)
             )
-            Spacer(modifier = Modifier.height(16.dp)) // Space between title and button
+            Spacer(modifier = Modifier.height(1.dp)) // Space between title and button
         }
 
         // Spotify Login Button
@@ -81,14 +81,12 @@ fun LoginScreen(navController: NavHostController, modifier: Modifier = Modifier)
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
-                    .clip(RoundedCornerShape(40.dp))
+                    .clip(RoundedCornerShape(20.dp))
                     .background(color = StandardComponent)
                     .padding(horizontal = 25.dp, vertical = 10.dp)
                     .clickable {
                         startSpotifyLogin(
-                            context = context,
-                            clientId = "9ce30545b1c64f29844917fae59145c7",
-                            redirectUri = "myapp://callback"
+                            context = context
                         )
                     }
             ) {
@@ -123,7 +121,7 @@ fun TextLink(modifier: Modifier = Modifier) {
     ) {
         Text(
             text = "¿Necesitas ayuda? Contacta con soporte",
-            color = Color(0xff60ff35),
+            color = softComponentColor,
             textDecoration = TextDecoration.Underline,
             lineHeight = 8.75.em,
             style = TextStyle(
