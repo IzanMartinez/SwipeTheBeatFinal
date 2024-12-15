@@ -79,7 +79,7 @@ fun OldLoginScreen() {
                 .clip(RoundedCornerShape(40.dp))
                 .background(color = StandardComponent)
                 .padding(horizontal = 25.dp, vertical = 10.dp)
-                .clickable { startSpotifyLogin(context, "9ce30545b1c64f29844917fae59145c7", "http://localhost/") }
+                .clickable { startSpotifyLogin(context) }
         ) {
             Image(
                 painter = painterResource(id = R.drawable.spotify_logo),

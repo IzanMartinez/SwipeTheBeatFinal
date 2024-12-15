@@ -7,5 +7,7 @@ data class SongDTO(
     val albumName: String,
     val albumCoverUrl: String,
     val durationMs: Int,
-    val uri: String
+    val uri: String,
+    val previewUrl: String
 )
+
