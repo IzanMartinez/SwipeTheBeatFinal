@@ -96,6 +96,7 @@ dependencies {
         exclude(group = "xpp3")
     }
 
+
     implementation("androidx.compose.ui:ui-graphics") {
         exclude(group = "xmlpull")
         exclude(group = "xpp3")
@@ -121,6 +122,11 @@ dependencies {
     // Retrofit and related dependencies
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation(fileTree(mapOf(
+        "dir" to "libs",
+        "include" to listOf("*.aar", "*.jar"),
+        "exclude" to listOf("")
+    )))
 
     // Additional dependencies for testing
     testImplementation("junit:junit:4.13.2")
@@ -143,4 +149,5 @@ dependencies {
 
     implementation("com.alexstyl.swipeablecard:swipeablecard:0.1.0")
     implementation("androidx.compose.material:material-icons-extended:1.7.5")
+    implementation("com.google.code.gson:gson:2.10.1")
 }
