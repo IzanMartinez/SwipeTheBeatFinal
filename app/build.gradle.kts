@@ -150,4 +150,6 @@ dependencies {
     implementation("com.alexstyl.swipeablecard:swipeablecard:0.1.0")
     implementation("androidx.compose.material:material-icons-extended:1.7.5")
     implementation("com.google.code.gson:gson:2.10.1")
+//    implementation("com.spotify.android:spotify-app-remote:1.2.4")
+
 }

@@ -67,10 +67,18 @@ class SongViewModel(private val songRepository: SongRepository, private val acce
 
     fun likeCurrentSong() {
         _currentSong.value?.let { song ->
-            addToPool(song)
-            searchNextTrack()
+            viewModelScope.launch {
+                try {
+                    songRepository.likeTrack(accessToken, song.id) // Add this line to like the song on Spotify
+                    addToPool(song)
+                    searchNextTrack()
+                } catch (e: Exception) {
+                    Log.e("SongViewModel", "Failed to like the song: ${e.message}")
+                }
+            }
         }
     }
+
 
     fun dislikeCurrentSong() {
         searchNextTrack()

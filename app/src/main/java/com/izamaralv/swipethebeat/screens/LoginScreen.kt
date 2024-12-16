@@ -1,9 +1,9 @@
 package com.izamaralv.swipethebeat.screens
 
-import androidx.compose.foundation.BorderStroke
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -12,7 +12,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -24,10 +23,11 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.izamaralv.swipethebeat.R
 import com.izamaralv.swipethebeat.common.backgroundColor
-import com.izamaralv.swipethebeat.common.softComponentColor
-import com.izamaralv.swipethebeat.ui.theme.StandardComponent
-import com.izamaralv.swipethebeat.ui.theme.StandardField
+import com.izamaralv.swipethebeat.common.cardColor
+import com.izamaralv.swipethebeat.ui.components.HelpLink
+import com.izamaralv.swipethebeat.ui.theme.greenPastelColor
 import com.izamaralv.swipethebeat.utils.startSpotifyLogin
+import org.w3c.dom.Text
 
 @Composable
 fun LoginScreen(navController: NavHostController, modifier: Modifier = Modifier) {
@@ -36,7 +36,7 @@ fun LoginScreen(navController: NavHostController, modifier: Modifier = Modifier)
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(color = backgroundColor),
+            .background(color = backgroundColor.value),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween
     ) {
@@ -48,7 +48,7 @@ fun LoginScreen(navController: NavHostController, modifier: Modifier = Modifier)
         ) {
             // Logo
             Image(
-                painter = painterResource(id = R.drawable.logo2recolor2),
+                painter = painterResource(id = R.drawable.border_logo_green),
                 contentDescription = "Logo",
                 modifier = Modifier
                     .requiredWidth(412.dp)
@@ -57,7 +57,7 @@ fun LoginScreen(navController: NavHostController, modifier: Modifier = Modifier)
             // Title
             Text(
                 text = "Swipe The Beat",
-                color = StandardField,
+                color = greenPastelColor,
                 textAlign = TextAlign.Center,
                 lineHeight = 3.5.em,
                 style = TextStyle(
@@ -77,19 +77,17 @@ fun LoginScreen(navController: NavHostController, modifier: Modifier = Modifier)
                 .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Row(
-                horizontalArrangement = Arrangement.Center,
+            Row(horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .clip(RoundedCornerShape(20.dp))
-                    .background(color = StandardComponent)
+                    .background(color = cardColor.value)
                     .padding(horizontal = 25.dp, vertical = 10.dp)
                     .clickable {
                         startSpotifyLogin(
                             context = context
                         )
-                    }
-            ) {
+                    }) {
                 Image(
                     painter = painterResource(id = R.drawable.spotify_logo),
                     contentDescription = "Spotify Logo",
@@ -100,7 +98,7 @@ fun LoginScreen(navController: NavHostController, modifier: Modifier = Modifier)
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = "Inicia sesión con Spotify",
-                    color = StandardField,
+                    color = greenPastelColor,
                     lineHeight = 8.75.em,
                     style = TextStyle(fontSize = 16.sp)
                 )
@@ -109,25 +107,15 @@ fun LoginScreen(navController: NavHostController, modifier: Modifier = Modifier)
             Spacer(modifier = Modifier.height(40.dp)) // Space between button and text link
 
             // TextLink Composable
-            TextLink()
+            Row(
+                modifier = modifier
+            ) {
+
+                HelpLink("¿Necesitas ayuda? Envia un correo a soporte")
+                Spacer(modifier = Modifier.height(40.dp))
+            }
         }
     }
 }
 
-@Composable
-fun TextLink(modifier: Modifier = Modifier) {
-    Row(
-        modifier = modifier
-    ) {
-        Text(
-            text = "¿Necesitas ayuda? Contacta con soporte",
-            color = softComponentColor,
-            textDecoration = TextDecoration.Underline,
-            lineHeight = 8.75.em,
-            style = TextStyle(
-                fontSize = 16.sp
-            )
-        )
-        Spacer(modifier = Modifier.height(40.dp))
-    }
-}
+

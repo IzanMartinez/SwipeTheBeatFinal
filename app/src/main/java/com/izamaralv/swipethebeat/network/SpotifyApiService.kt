@@ -6,6 +6,7 @@ import com.izamaralv.swipethebeat.models.UserProfile
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Header
+import retrofit2.http.PUT
 import retrofit2.http.Query
 
 interface SpotifyApiService {
@@ -28,4 +29,10 @@ interface SpotifyApiService {
         @Query("type") type: String = "track",
         @Query("limit") limit: Int = 25
     ): Response<SearchResponse>
+
+    @PUT("v1/me/tracks")
+    suspend fun likeTrack(
+        @Header("Authorization") token: String,
+        @Query("ids") trackId: String
+    ): Response<Unit>
 }

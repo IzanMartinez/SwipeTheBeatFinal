@@ -111,6 +111,7 @@ class MainActivity : ComponentActivity() {
     }
 
 
+
     private fun checkTokenAndNavigate() {
         val tokenManager = TokenManager(applicationContext)
         val accessToken = tokenManager.getAccessToken()

@@ -1,18 +1,16 @@
 package com.izamaralv.swipethebeat.screens
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.media.MediaPlayer
+import android.net.Uri
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -42,6 +40,19 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.zIndex
 import com.izamaralv.swipethebeat.common.cardColor
 import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Slider
+import com.izamaralv.swipethebeat.ui.components.TinderCard
+import com.izamaralv.swipethebeat.utils.Credentials.CLIENT_ID
+import com.izamaralv.swipethebeat.utils.Credentials.REDIRECT_URI
+import com.izamaralv.swipethebeat.utils.SpotifyConnection
+import com.spotify.android.appremote.api.ConnectionParams
+import com.spotify.android.appremote.api.Connector
+import com.spotify.android.appremote.api.SpotifyAppRemote
+import com.spotify.protocol.types.PlayerState
+import com.spotify.protocol.types.Track
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -53,7 +64,8 @@ fun MainScreen(navController: NavHostController, profileViewModel: ProfileViewMo
     val context = LocalContext.current
     val songRepository = SongRepository(context)
 
-    // Media Player State
+    // Media Player
+    var spotifyAppRemote: SpotifyAppRemote? = null
     var mediaPlayer by remember { mutableStateOf<MediaPlayer?>(null) }
     var isPlaying by remember { mutableStateOf(false) }
 
@@ -69,6 +81,27 @@ fun MainScreen(navController: NavHostController, profileViewModel: ProfileViewMo
     val songViewModel: SongViewModel = viewModel(
         factory = SongViewModelFactory(songRepository, accessToken ?: "")
     )
+
+    LaunchedEffect(Unit) {
+        SpotifyConnection.connectToSpotify(
+            context = context,
+            clientId = CLIENT_ID,  // Replace with your actual client ID
+            redirectUri = REDIRECT_URI,  // Match your manifest configuration
+            onConnected = { appRemote ->
+                spotifyAppRemote = appRemote
+            },
+            onError = { throwable ->
+                Log.e("MainScreen", "Error connecting to Spotify: ${throwable.message}")
+            }
+        )
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            SpotifyConnection.disconnectSpotify()
+        }
+    }
+
 
     LaunchedEffect(accessToken) {
         accessToken?.let {
@@ -90,7 +123,7 @@ fun MainScreen(navController: NavHostController, profileViewModel: ProfileViewMo
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(color = backgroundColor),
+                .background(color = backgroundColor.value),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             val currentSong by songViewModel.currentSong.observeAsState()
@@ -99,87 +132,109 @@ fun MainScreen(navController: NavHostController, profileViewModel: ProfileViewMo
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(16.dp),
-                    contentAlignment = Alignment.Center
+//                        .padding(16.dp),
+                    , contentAlignment = Alignment.Center
                 ) {
-                    TinderSwipeCard(
-                        onSwipeLeft = { songViewModel.dislikeCurrentSong() },
-                        onSwipeRight = { songViewModel.likeCurrentSong() }
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .aspectRatio(0.75f)
-                                .background(cardColor, shape = RoundedCornerShape(16.dp))
-                                .padding(16.dp)
+                        TinderCard(
+                            onSwipeLeft = { songViewModel.dislikeCurrentSong() },
+                            onSwipeRight = { songViewModel.likeCurrentSong() }
                         ) {
-                            Column(
-                                modifier = Modifier.fillMaxSize(),
-                                horizontalAlignment = Alignment.CenterHorizontally
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .aspectRatio(0.75f)
+                                    .background(cardColor.value, shape = RoundedCornerShape(16.dp))
+                                    .padding(16.dp)
                             ) {
-                                Image(
-                                    painter = rememberAsyncImagePainter(song.album.images.first().url),
-                                    contentDescription = song.name,
-                                    modifier = Modifier
-                                        .size(200.dp)
-                                        .padding(8.dp)
-                                )
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Text(
-                                    text = song.name,
-                                    style = TextStyle(
-                                        color = softComponentColor,
-                                        fontSize = 24.sp,
-                                        fontWeight = FontWeight.Bold
-                                    ),
-                                    textAlign = TextAlign.Center
-                                )
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Text(
-                                    text = song.artists.joinToString(", ") { it.name },
-                                    style = TextStyle(color = softComponentColor, fontSize = 18.sp),
-                                    textAlign = TextAlign.Center
-                                )
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Text(
-                                    text = song.album.name,
-                                    style = TextStyle(color = softComponentColor, fontSize = 18.sp),
-                                    textAlign = TextAlign.Center
-                                )
-                                Spacer(modifier = Modifier.height(16.dp))
-
-                                // play button
-                                Button(
-                                    onClick = {
-                                        if (isPlaying) {
-                                            mediaPlayer?.stop()
-                                            mediaPlayer?.release()
-                                            mediaPlayer = null
-                                            isPlaying = false
-                                        } else {
-                                            mediaPlayer = MediaPlayer().apply {
-                                                setDataSource(song.preview_url)
-                                                prepare()
-                                                start()
-                                            }
-                                            isPlaying = true
-                                        }
-                                    },
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = if (isPlaying) Color.Red else Color.Green
-                                    )
+                                Column(
+                                    modifier = Modifier.fillMaxSize(),
+                                    horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
-                                    Text(text = if (isPlaying) "Stop" else "Play")
-                                }
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth(.9f)
+                                            .padding(16.dp),
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    )
+                                    {
+                                        Text(text = "✖", color = Color.Red.copy(.6f))
+                                        Text(text = "✔", color = Color.Green.copy(.6f))
+                                    }
 
+                                    Spacer(modifier = Modifier.height(20.dp))
+
+                                    Image(
+                                        painter = rememberAsyncImagePainter(song.album.images.first().url),
+                                        contentDescription = song.name,
+                                        modifier = Modifier
+                                            .size(200.dp)
+                                            .padding(8.dp)
+                                    )
+                                    Spacer(modifier = Modifier.height(12.dp))
+                                    Text(
+                                        text = song.name,
+                                        style = TextStyle(
+                                            color = softComponentColor.value,
+                                            fontSize = 24.sp,
+                                            fontWeight = FontWeight.Bold
+                                        ),
+                                        textAlign = TextAlign.Center
+                                    )
+                                    Spacer(modifier = Modifier.height(10.dp))
+                                    Text(
+                                        text = song.artists.joinToString(", ") { it.name },
+                                        style = TextStyle(
+                                            color = softComponentColor.value,
+                                            fontSize = 18.sp
+                                        ),
+                                        textAlign = TextAlign.Center
+                                    )
+                                    Spacer(modifier = Modifier.height(10.dp))
+                                    Text(
+                                        text = song.album.name,
+                                        style = TextStyle(
+                                            color = softComponentColor.value,
+                                            fontSize = 18.sp
+                                        ),
+                                        textAlign = TextAlign.Center
+                                    )
+                                    Spacer(modifier = Modifier.height(16.dp))
+
+
+                                }
                             }
+                        }
+                        // play button
+                        Button(
+                            modifier = Modifier
+                                .padding(top = 50.dp)
+                                .height(60.dp)
+                                .width(200.dp),
+
+                            onClick = {
+                                val intent = Intent(
+                                    Intent.ACTION_VIEW,
+                                    Uri.parse("spotify:track:${song.id}") // Use the Spotify URI for the song
+                                )
+                                intent.putExtra(
+                                    Intent.EXTRA_REFERRER,
+                                    Uri.parse("android-app://${context.packageName}")
+                                )
+                                context.startActivity(intent)
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = softComponentColor.value)
+                        ) {
+                            Text(text = "Play in Spotify", fontWeight = FontWeight.ExtraBold)
                         }
                     }
                 }
             } ?: run {
                 Text(
-                    text = "No song available",
-                    style = TextStyle(color = softComponentColor),
+                    text = "Cargando...",
+                    style = TextStyle(color = softComponentColor.value),
                     modifier = Modifier
                         .align(Alignment.CenterHorizontally)
                         .padding(8.dp),
@@ -190,68 +245,4 @@ fun MainScreen(navController: NavHostController, profileViewModel: ProfileViewMo
     }
 }
 
-@Composable
-fun TinderSwipeCard(
-    onSwipeLeft: () -> Unit,
-    onSwipeRight: () -> Unit,
-    content: @Composable () -> Unit
-) {
-    var offsetX by remember { mutableStateOf(0f) }
-    var offsetY by remember { mutableStateOf(0f) }
 
-    // Dynamic overlay color and opacity
-    val overlayColor = when {
-        offsetX > 0 -> Color.Green.copy(alpha = minOf(0.4f, offsetX / 600))
-        offsetX < 0 -> Color.Red.copy(alpha = minOf(0.4f, -offsetX / 600))
-        else -> Color.Transparent
-    }
-
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = Modifier
-            .fillMaxWidth(.8f)
-            .fillMaxHeight(.55f)
-//            .aspectRatio(0.75f) // Slimmer card aspect ratio
-            .graphicsLayer(
-                translationX = offsetX,
-                translationY = offsetY,
-                rotationZ = offsetX / 20
-            )
-            .pointerInput(Unit) {
-                detectDragGestures(
-                    onDrag = { change, dragAmount ->
-                        change.consume()
-                        offsetX += dragAmount.x
-                        offsetY += dragAmount.y
-                    },
-                    onDragEnd = {
-                        when {
-                            offsetX > 300 -> onSwipeRight()
-                            offsetX < -300 -> onSwipeLeft()
-                        }
-                        offsetX = 0f
-                        offsetY = 0f
-                    }
-                )
-            }
-    ) {
-        // Overlay for swipe feedback (always on top)
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .zIndex(1f) // Ensures overlay is above the card content
-                .background(overlayColor, shape = RoundedCornerShape(16.dp))
-        )
-
-        // Card content
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .zIndex(0f) // Places card content below the overlay
-                .background(cardColor, shape = RoundedCornerShape(16.dp))
-                .padding(16.dp)
-        ) {
-            content()
-        }
-    }
-}

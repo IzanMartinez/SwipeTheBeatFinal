@@ -70,24 +70,24 @@ fun CustomAuthDialog(
         title = {
             Text(
                 text = title,
-                color = textColor,
+                color = textColor.value,
                 fontSize = 35.sp,
                 fontWeight = FontWeight.ExtraBold
             )
         },
         text = {
-            Text(text = message, color = textColor, fontSize = 20.sp)
+            Text(text = message, color = textColor.value, fontSize = 20.sp)
         },
         confirmButton = {
             Button(
                 onClick = { onDismissRequest() }, colors = ButtonDefaults.buttonColors(
-                    hardComponentColor
+                    hardComponentColor.value
                 )
             ) {
                 Text(text = "OK", color = Color.Black, fontSize = 15.sp)
             }
         },
-        containerColor = backgroundColor,
+        containerColor = backgroundColor.value,
         dismissButton = null
     )
 }

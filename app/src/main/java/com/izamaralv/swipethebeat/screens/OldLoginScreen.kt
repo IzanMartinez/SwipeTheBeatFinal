@@ -37,7 +37,7 @@ fun OldLoginScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(color = backgroundColor),
+            .background(color = backgroundColor.value),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween,
     ) {
@@ -112,7 +112,7 @@ fun OldLoginScreen() {
                 text = AnnotatedString("¿Necesitas ayuda? Contacta con soporte"),
                 onClick = { /* TODO: add navController*/ },
                 style = TextStyle(
-                    textDecoration = TextDecoration.Underline, color = textColor
+                    textDecoration = TextDecoration.Underline, color = textColor.value
                 )
             )
         }

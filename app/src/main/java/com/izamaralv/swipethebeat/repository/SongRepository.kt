@@ -7,8 +7,11 @@ import com.izamaralv.swipethebeat.models.UserProfile
 import com.izamaralv.swipethebeat.network.SpotifyApiService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.net.HttpURLConnection
+import java.net.URL
 
 class SongRepository(context: Context) {
 
@@ -47,10 +50,16 @@ class SongRepository(context: Context) {
                     limit = 25
                 )
                 if (response.isSuccessful) {
-                    Log.d("SongRepository", "Liked songs response: ${response.body()?.tracks?.map { it.track.name }}")
+                    Log.d(
+                        "SongRepository",
+                        "Liked songs response: ${response.body()?.tracks?.map { it.track.name }}"
+                    )
                     response.body()?.tracks?.map { it.track } ?: emptyList()
                 } else {
-                    Log.e("SongRepository", "Failed to get last 25 liked songs: ${response.message()} (Code: ${response.code()})")
+                    Log.e(
+                        "SongRepository",
+                        "Failed to get last 25 liked songs: ${response.message()} (Code: ${response.code()})"
+                    )
                     Log.e("SongRepository", "Response body: ${response.errorBody()?.string()}")
                     emptyList()
                 }
@@ -69,18 +78,25 @@ class SongRepository(context: Context) {
                     query = query
                 )
                 if (response.isSuccessful) {
-                    Log.d("SongRepository", "Search tracks response: ${response.body()?.tracks?.items?.map { it.name }}")
+                    Log.d(
+                        "SongRepository",
+                        "Search tracks response: ${response.body()?.tracks?.items?.map { it.name }}"
+                    )
                     response.body()?.tracks?.items?.map {
                         Track(
                             name = it.name,
                             artists = it.artists,
                             album = it.album,
                             preview_url = it.preview_url,
-                            id = it.id
+                            id = it.id,
+                            uri = it.uri
                         )
                     } ?: emptyList()
                 } else {
-                    Log.e("SongRepository", "Failed to search similar tracks: ${response.message()} (Code: ${response.code()})")
+                    Log.e(
+                        "SongRepository",
+                        "Failed to search similar tracks: ${response.message()} (Code: ${response.code()})"
+                    )
                     emptyList()
                 }
             } catch (e: Exception) {
@@ -98,4 +114,22 @@ class SongRepository(context: Context) {
             }
         }
     }
+
+    suspend fun likeTrack(accessToken: String, trackId: String): Boolean {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response: Response<Unit> = apiService.likeTrack(token = "Bearer $accessToken", trackId = trackId)
+                if (response.isSuccessful) {
+                    true
+                } else {
+                    Log.e("SongRepository", "Failed to like track: ${response.message()}")
+                    false
+                }
+            } catch (e: Exception) {
+                Log.e("SongRepository", "Exception in likeTrack: ${e.message}")
+                false
+            }
+        }
+    }
 }
+
