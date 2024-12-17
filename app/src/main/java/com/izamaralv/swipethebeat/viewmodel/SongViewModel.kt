@@ -11,24 +11,28 @@ import android.util.Log
 
 class SongViewModel(private val songRepository: SongRepository, private val accessToken: String) : ViewModel() {
 
+    // Propiedad mutable que contiene la canción actual
     private val _currentSong = MutableLiveData<Track?>()
-    val currentSong: MutableLiveData<Track?> get() = _currentSong
+    val currentSong: LiveData<Track?> get() = _currentSong
 
-    private val likedSongsPool = mutableListOf<Track>()
+    // Propiedad mutable que contiene la lista de canciones favoritas
+    private val _likedSongsPool = MutableLiveData<List<Track>>()
+    val likedSongsPool: LiveData<List<Track>> get() = _likedSongsPool
     private val likedSongIds = mutableSetOf<String>()
 
+    // Inicializa las recomendaciones iniciales
     init {
         loadInitialRecommendations()
     }
 
+    // Carga las recomendaciones iniciales
     fun loadInitialRecommendations() {
         viewModelScope.launch {
             try {
-                likedSongsPool.clear()
                 likedSongIds.clear()
                 val lastLikedSongs = songRepository.getLast50LikedSongs(accessToken)
                 Log.d("SongViewModel", "Loaded liked songs: ${lastLikedSongs.map { it.name }}")
-                likedSongsPool.addAll(lastLikedSongs)
+                _likedSongsPool.value = lastLikedSongs
                 likedSongIds.addAll(lastLikedSongs.map { it.id })
                 searchNextTrack()
             } catch (e: Exception) {
@@ -37,15 +41,18 @@ class SongViewModel(private val songRepository: SongRepository, private val acce
         }
     }
 
+    // Busca la siguiente canción
     private fun searchNextTrack() {
-        if (likedSongsPool.isNotEmpty()) {
-            val randomLikedSong = likedSongsPool.random()
+        val likedSongs = _likedSongsPool.value ?: emptyList()
+        if (likedSongs.isNotEmpty()) {
+            val randomLikedSong = likedSongs.random()
             searchTracks(randomLikedSong.name)
         } else {
             Log.e("SongViewModel", "No liked songs available for searching")
         }
     }
 
+    // Realiza una búsqueda de canciones similares
     private fun searchTracks(query: String) {
         viewModelScope.launch {
             try {
@@ -65,20 +72,46 @@ class SongViewModel(private val songRepository: SongRepository, private val acce
         }
     }
 
+    // Marca la canción actual como favorita
     fun likeCurrentSong() {
         _currentSong.value?.let { song ->
-            addToPool(song)
-            searchNextTrack()
+            viewModelScope.launch {
+                try {
+                    // Añade esta línea para marcar la canción como favorita en Spotify
+                    songRepository.likeTrack(accessToken, song.id)
+                    addToPool(song)
+                    searchNextTrack()
+                } catch (e: Exception) {
+                    Log.e("SongViewModel", "Failed to like the song: ${e.message}")
+                }
+            }
         }
     }
 
+    // Omite la canción actual
     fun dislikeCurrentSong() {
         searchNextTrack()
     }
 
+    // Añade la canción al pool de canciones favoritas
     private fun addToPool(song: Track) {
-        likedSongsPool.add(song)
+        val updatedLikedSongs = _likedSongsPool.value.orEmpty().toMutableList()
+        updatedLikedSongs.add(song)
+        _likedSongsPool.value = updatedLikedSongs
         likedSongIds.add(song.id)
         Log.d("SongViewModel", "Adding song to pool: ${song.name}")
+    }
+
+    // Omite una canción específica
+    fun dislikeCurrentSong(trackId: String) {
+        viewModelScope.launch {
+            try {
+                songRepository.dislikeTrack(accessToken, trackId)
+                // Actualiza el pool de canciones favoritas eliminando la canción omitida
+                _likedSongsPool.value = _likedSongsPool.value?.filterNot { it.id == trackId }
+            } catch (e: Exception) {
+                Log.e("SongViewModel", "Failed to dislike the song: ${e.message}")
+            }
+        }
     }
 }

@@ -4,6 +4,11 @@
 
     <!-- Add the internet permission here -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
 
     <application
         android:allowBackup="true"
@@ -16,6 +21,7 @@
         android:theme="@style/Theme.SwipeTheBeat"
         tools:targetApi="34">
 
+        <!-- Main Activity -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -33,6 +39,7 @@
                 <data android:scheme="myapp" android:host="callback" />
             </intent-filter>
         </activity>
+
     </application>
 
 </manifest>

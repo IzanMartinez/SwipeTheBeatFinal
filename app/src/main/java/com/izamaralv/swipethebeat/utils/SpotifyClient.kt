@@ -24,7 +24,6 @@ object SpotifyClient {
                         // Update tokens
                         val updatedAccessToken = spotifyApi.token.accessToken
                         val updatedRefreshToken = spotifyApi.token.refreshToken
-                        val updatedExpiresIn = spotifyApi.token.expiresIn
                         if (updatedRefreshToken != null) {
                             saveTokens(updatedAccessToken, updatedRefreshToken)
                         }

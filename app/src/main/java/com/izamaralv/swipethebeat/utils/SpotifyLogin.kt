@@ -9,8 +9,11 @@ import com.izamaralv.swipethebeat.utils.Credentials.REDIRECT_URI
 fun startSpotifyLogin(context: Context) {
     val spotifyManager = SpotifyManager(context)
     var authUrl = spotifyManager.getAuthorizationUrl(CLIENT_ID, REDIRECT_URI)
-    // Ensure the login dialog always pops up
+
+    // Asegura que el cuadro de diálogo de inicio de sesión siempre aparezca
     authUrl += "&show_dialog=true"
+
+    // Crea un intent para abrir la URL de autorización de Spotify
     val intent = Intent(Intent.ACTION_VIEW, Uri.parse(authUrl))
-    context.startActivity(intent)
+    context.startActivity(intent) // Inicia la actividad para la autorización
 }
