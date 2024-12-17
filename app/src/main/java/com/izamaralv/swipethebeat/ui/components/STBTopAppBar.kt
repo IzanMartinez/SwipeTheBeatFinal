@@ -29,7 +29,6 @@ import com.izamaralv.swipethebeat.viewmodel.ProfileViewModel
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.automirrored.filled.Help
-import androidx.compose.material.icons.filled.Help
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -38,6 +37,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import coil.request.ImageRequest
 import com.izamaralv.swipethebeat.common.backgroundColor
@@ -52,29 +52,34 @@ import com.izamaralv.swipethebeat.ui.theme.pinkPastelColor
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun STBTopAppBar(profileViewModel: ProfileViewModel, onLogout: () -> Unit) {
+fun STBTopAppBar(
+    profileViewModel: ProfileViewModel,
+    onLogout: () -> Unit,
+    firstOption: String,
+    firstFunction: () -> Unit,
+    firstIcon: ImageVector
+) {
+    // Observa la URL de la imagen del perfil
     val profileImageUrl by profileViewModel.profileImageUrl.observeAsState()
     var iconMenuExpanded by remember { mutableStateOf(false) }
     var colorMenuExpanded by remember { mutableStateOf(false) }
     val context = LocalContext.current
-    // Log the profile image URL
+
+    // Registra la URL de la imagen del perfil
     Log.d("STBTopAppBar", "Profile image URL: $profileImageUrl")
 
     CenterAlignedTopAppBar(
         navigationIcon = {
-            IconButton(
-                onClick = { colorMenuExpanded = !colorMenuExpanded }) {
+            IconButton(onClick = { colorMenuExpanded = !colorMenuExpanded }) {
                 Icon(imageVector = Icons.Default.Palette, contentDescription = "palette icon")
             }
-
-
 
             DropdownMenu(
                 expanded = colorMenuExpanded,
                 onDismissRequest = { colorMenuExpanded = false },
-                modifier = Modifier
-                    .background(color = cardColor.value)
+                modifier = Modifier.background(color = cardColor.value)
             ) {
+                // Opción de color verde
                 DropdownMenuItem(
                     leadingIcon = {
                         Image(
@@ -94,6 +99,7 @@ fun STBTopAppBar(profileViewModel: ProfileViewModel, onLogout: () -> Unit) {
                     modifier = Modifier.padding(bottom = 10.dp)
                 )
 
+                // Opción de color naranja
                 DropdownMenuItem(
                     leadingIcon = {
                         Image(
@@ -111,9 +117,9 @@ fun STBTopAppBar(profileViewModel: ProfileViewModel, onLogout: () -> Unit) {
                         softComponentColor.value = orangePastelColor
                     },
                     modifier = Modifier.padding(bottom = 10.dp)
-
                 )
 
+                // Opción de color azul
                 DropdownMenuItem(
                     leadingIcon = {
                         Image(
@@ -131,9 +137,9 @@ fun STBTopAppBar(profileViewModel: ProfileViewModel, onLogout: () -> Unit) {
                         softComponentColor.value = bluePastelColor
                     },
                     modifier = Modifier.padding(bottom = 10.dp)
-
                 )
 
+                // Opción de color rojo
                 DropdownMenuItem(
                     leadingIcon = {
                         Image(
@@ -151,9 +157,9 @@ fun STBTopAppBar(profileViewModel: ProfileViewModel, onLogout: () -> Unit) {
                         softComponentColor.value = redPastelColor
                     },
                     modifier = Modifier.padding(bottom = 10.dp)
-
                 )
 
+                // Opción de color púrpura
                 DropdownMenuItem(
                     leadingIcon = {
                         Image(
@@ -171,9 +177,9 @@ fun STBTopAppBar(profileViewModel: ProfileViewModel, onLogout: () -> Unit) {
                         softComponentColor.value = purplePastelColor
                     },
                     modifier = Modifier.padding(bottom = 10.dp)
-
                 )
 
+                // Opción de color rosa
                 DropdownMenuItem(
                     leadingIcon = {
                         Image(
@@ -191,12 +197,8 @@ fun STBTopAppBar(profileViewModel: ProfileViewModel, onLogout: () -> Unit) {
                         softComponentColor.value = pinkPastelColor
                     },
                     modifier = Modifier.padding(bottom = 10.dp)
-
                 )
-
-
             }
-
         },
         title = {
             Image(
@@ -231,20 +233,24 @@ fun STBTopAppBar(profileViewModel: ProfileViewModel, onLogout: () -> Unit) {
                         contentScale = ContentScale.Crop
                     )
 
-
                     DropdownMenu(
                         expanded = iconMenuExpanded,
                         onDismissRequest = { iconMenuExpanded = false },
-                        modifier = Modifier
-                            .background(color = softComponentColor.value)
-                    )
-                    {
+                        modifier = Modifier.background(color = softComponentColor.value)
+                    ) {
+                        // Opción principal
+                        DropdownMenuItem(
+                            leadingIcon = { Icon(firstIcon, "") },
+                            text = { Text(firstOption) },
+                            onClick = {
+                                firstFunction()
+                                iconMenuExpanded = false
+                            }
+                        )
+                        // Opción de ayuda
                         DropdownMenuItem(
                             leadingIcon = {
-                                Icon(
-                                    Icons.AutoMirrored.Filled.Help,
-                                    contentDescription = "Help icon"
-                                )
+                                Icon(Icons.AutoMirrored.Filled.Help, contentDescription = "Help icon")
                             },
                             text = { Text("¿Algún problema?") },
                             onClick = {
@@ -256,13 +262,10 @@ fun STBTopAppBar(profileViewModel: ProfileViewModel, onLogout: () -> Unit) {
                                 iconMenuExpanded = false
                             }
                         )
-
+                        // Opción de cerrar sesión
                         DropdownMenuItem(
                             leadingIcon = {
-                                Icon(
-                                    Icons.AutoMirrored.Filled.ExitToApp,
-                                    contentDescription = "Logout icon"
-                                )
+                                Icon(Icons.AutoMirrored.Filled.ExitToApp, contentDescription = "Logout icon")
                             },
                             text = { Text("Cerrar sesión") },
                             onClick = {

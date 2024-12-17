@@ -10,8 +10,6 @@ import kotlinx.coroutines.withContext
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import java.net.HttpURLConnection
-import java.net.URL
 
 class SongRepository(context: Context) {
 
@@ -19,10 +17,10 @@ class SongRepository(context: Context) {
 
     init {
         val retrofit = Retrofit.Builder()
-            .baseUrl("https://api.spotify.com/")
-            .addConverterFactory(GsonConverterFactory.create())
+            .baseUrl("https://api.spotify.com/") // Base URL de la API de Spotify
+            .addConverterFactory(GsonConverterFactory.create()) // Convertidor de Gson
             .build()
-        apiService = retrofit.create(SpotifyApiService::class.java)
+        apiService = retrofit.create(SpotifyApiService::class.java) // Creación del servicio API
     }
 
     suspend fun getCurrentUserProfile(token: String): UserProfile? {
@@ -30,7 +28,7 @@ class SongRepository(context: Context) {
             try {
                 val response = apiService.getCurrentUserProfile(token = "Bearer $token")
                 if (response.isSuccessful) {
-                    response.body()
+                    response.body() // Devuelve el perfil de usuario si la respuesta es exitosa
                 } else {
                     Log.e("SongRepository", "Failed to get user profile: ${response.message()}")
                     null
@@ -54,7 +52,7 @@ class SongRepository(context: Context) {
                         "SongRepository",
                         "Liked songs response: ${response.body()?.tracks?.map { it.track.name }}"
                     )
-                    response.body()?.tracks?.map { it.track } ?: emptyList()
+                    response.body()?.tracks?.map { it.track } ?: emptyList() // Devuelve las canciones favoritas
                 } else {
                     Log.e(
                         "SongRepository",
@@ -91,7 +89,7 @@ class SongRepository(context: Context) {
                             id = it.id,
                             uri = it.uri
                         )
-                    } ?: emptyList()
+                    } ?: emptyList() // Devuelve la lista de tracks encontrados
                 } else {
                     Log.e(
                         "SongRepository",
@@ -106,27 +104,38 @@ class SongRepository(context: Context) {
         }
     }
 
-    suspend fun filterNewTracks(token: String, newTracks: List<Track>): List<Track> {
-        val likedTracks = getLast50LikedSongs(token)
-        return newTracks.filter { newTrack ->
-            likedTracks.none { likedTrack ->
-                newTrack.name == likedTrack.name && newTrack.artists == likedTrack.artists
-            }
-        }
-    }
-
     suspend fun likeTrack(accessToken: String, trackId: String): Boolean {
         return withContext(Dispatchers.IO) {
             try {
-                val response: Response<Unit> = apiService.likeTrack(token = "Bearer $accessToken", trackId = trackId)
+                val response: Response<Unit> = apiService.likeTrack(
+                    token = "Bearer $accessToken",
+                    trackId = trackId
+                )
                 if (response.isSuccessful) {
-                    true
+                    true // Retorna true si la respuesta es exitosa
                 } else {
                     Log.e("SongRepository", "Failed to like track: ${response.message()}")
                     false
                 }
             } catch (e: Exception) {
                 Log.e("SongRepository", "Exception in likeTrack: ${e.message}")
+                false
+            }
+        }
+    }
+
+    suspend fun dislikeTrack(token: String, trackId: String): Boolean {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response: Response<Unit> = apiService.removeTrackFromLibrary(token = "Bearer $token", trackId = trackId)
+                if (response.isSuccessful) {
+                    true // Retorna true si la respuesta es exitosa
+                } else {
+                    Log.e("SongRepository", "Failed to dislike track: ${response.message()}")
+                    false
+                }
+            } catch (e: Exception) {
+                Log.e("SongRepository", "Exception in dislikeTrack: ${e.message}")
                 false
             }
         }

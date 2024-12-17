@@ -7,16 +7,36 @@ import android.net.Uri
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -24,53 +44,33 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import androidx.compose.ui.platform.LocalContext
 import coil.compose.rememberAsyncImagePainter
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.izamaralv.swipethebeat.common.backgroundColor
+import com.izamaralv.swipethebeat.common.cardColor
 import com.izamaralv.swipethebeat.common.softComponentColor
 import com.izamaralv.swipethebeat.repository.SongRepository
+import com.izamaralv.swipethebeat.ui.components.NotificationHelper
 import com.izamaralv.swipethebeat.ui.components.STBTopAppBar
+import com.izamaralv.swipethebeat.ui.components.TinderCard
 import com.izamaralv.swipethebeat.utils.TokenManager
 import com.izamaralv.swipethebeat.viewmodel.ProfileViewModel
 import com.izamaralv.swipethebeat.viewmodel.SongViewModel
 import com.izamaralv.swipethebeat.viewmodel.SongViewModelFactory
-import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.zIndex
-import com.izamaralv.swipethebeat.common.cardColor
-import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Slider
-import com.izamaralv.swipethebeat.ui.components.TinderCard
-import com.izamaralv.swipethebeat.utils.Credentials.CLIENT_ID
-import com.izamaralv.swipethebeat.utils.Credentials.REDIRECT_URI
-import com.izamaralv.swipethebeat.utils.SpotifyConnection
-import com.spotify.android.appremote.api.ConnectionParams
-import com.spotify.android.appremote.api.Connector
-import com.spotify.android.appremote.api.SpotifyAppRemote
-import com.spotify.protocol.types.PlayerState
-import com.spotify.protocol.types.Track
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun MainScreen(navController: NavHostController, profileViewModel: ProfileViewModel) {
-    val displayName by profileViewModel.displayName.observeAsState()
-    val profileImageUrl by profileViewModel.profileImageUrl.observeAsState()
+    // Control de la barra de estado del sistema
+    val systemUiController = rememberSystemUiController()
+    systemUiController.setStatusBarColor(color = softComponentColor.value, darkIcons = false)
 
-    val coroutineScope = rememberCoroutineScope()
+    val displayName by profileViewModel.displayName.observeAsState()
+
     val context = LocalContext.current
     val songRepository = SongRepository(context)
 
-    // Media Player
-    var spotifyAppRemote: SpotifyAppRemote? = null
-    var mediaPlayer by remember { mutableStateOf<MediaPlayer?>(null) }
-    var isPlaying by remember { mutableStateOf(false) }
-
-
-    // Retrieve the access token dynamically
+    // Obtener el token de acceso dinámicamente
     val tokenManager = TokenManager(context)
     val accessToken = tokenManager.getAccessToken()
 
@@ -81,27 +81,6 @@ fun MainScreen(navController: NavHostController, profileViewModel: ProfileViewMo
     val songViewModel: SongViewModel = viewModel(
         factory = SongViewModelFactory(songRepository, accessToken ?: "")
     )
-
-    LaunchedEffect(Unit) {
-        SpotifyConnection.connectToSpotify(
-            context = context,
-            clientId = CLIENT_ID,  // Replace with your actual client ID
-            redirectUri = REDIRECT_URI,  // Match your manifest configuration
-            onConnected = { appRemote ->
-                spotifyAppRemote = appRemote
-            },
-            onError = { throwable ->
-                Log.e("MainScreen", "Error connecting to Spotify: ${throwable.message}")
-            }
-        )
-    }
-
-    DisposableEffect(Unit) {
-        onDispose {
-            SpotifyConnection.disconnectSpotify()
-        }
-    }
-
 
     LaunchedEffect(accessToken) {
         accessToken?.let {
@@ -117,7 +96,11 @@ fun MainScreen(navController: NavHostController, profileViewModel: ProfileViewMo
         topBar = {
             STBTopAppBar(
                 profileViewModel,
-                onLogout = { navController.navigate("login_screen") })
+                onLogout = { navController.navigate("login_screen") },
+                firstIcon = Icons.Filled.Favorite,
+                firstFunction = { navController.navigate("liked_songs_screen") },
+                firstOption = "Últimos likes"
+            )
         },
     ) {
         Column(
@@ -131,13 +114,19 @@ fun MainScreen(navController: NavHostController, profileViewModel: ProfileViewMo
             currentSong?.let { song ->
                 Box(
                     modifier = Modifier
-                        .fillMaxSize()
-//                        .padding(16.dp),
-                    , contentAlignment = Alignment.Center
+                        .fillMaxSize(),
+                    contentAlignment = Alignment.Center
                 ) {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
+                        Text(
+                            text = "Bienvenido/a ${displayName ?: "Invitado"}",
+                            color = softComponentColor.value
+                        )
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
                         TinderCard(
                             onSwipeLeft = { songViewModel.dislikeCurrentSong() },
                             onSwipeRight = { songViewModel.likeCurrentSong() }
@@ -158,8 +147,7 @@ fun MainScreen(navController: NavHostController, profileViewModel: ProfileViewMo
                                             .fillMaxWidth(.9f)
                                             .padding(16.dp),
                                         horizontalArrangement = Arrangement.SpaceBetween
-                                    )
-                                    {
+                                    ) {
                                         Text(text = "✖", color = Color.Red.copy(.6f))
                                         Text(text = "✔", color = Color.Green.copy(.6f))
                                     }
@@ -173,7 +161,9 @@ fun MainScreen(navController: NavHostController, profileViewModel: ProfileViewMo
                                             .size(200.dp)
                                             .padding(8.dp)
                                     )
+
                                     Spacer(modifier = Modifier.height(12.dp))
+
                                     Text(
                                         text = song.name,
                                         style = TextStyle(
@@ -183,7 +173,9 @@ fun MainScreen(navController: NavHostController, profileViewModel: ProfileViewMo
                                         ),
                                         textAlign = TextAlign.Center
                                     )
+
                                     Spacer(modifier = Modifier.height(10.dp))
+
                                     Text(
                                         text = song.artists.joinToString(", ") { it.name },
                                         style = TextStyle(
@@ -192,7 +184,9 @@ fun MainScreen(navController: NavHostController, profileViewModel: ProfileViewMo
                                         ),
                                         textAlign = TextAlign.Center
                                     )
+
                                     Spacer(modifier = Modifier.height(10.dp))
+
                                     Text(
                                         text = song.album.name,
                                         style = TextStyle(
@@ -201,28 +195,26 @@ fun MainScreen(navController: NavHostController, profileViewModel: ProfileViewMo
                                         ),
                                         textAlign = TextAlign.Center
                                     )
+
                                     Spacer(modifier = Modifier.height(16.dp))
-
-
                                 }
                             }
                         }
-                        // play button
-                        Button(
-                            modifier = Modifier
-                                .padding(top = 50.dp)
-                                .height(60.dp)
-                                .width(200.dp),
 
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        // Botón para reproducir en Spotify
+                        Button(
                             onClick = {
-                                val intent = Intent(
-                                    Intent.ACTION_VIEW,
-                                    Uri.parse("spotify:track:${song.id}") // Use the Spotify URI for the song
-                                )
+                                val spotifyUri = "spotify:track:${song.id}"
+                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(spotifyUri))
+
+                                // Agregar referrer opcional
                                 intent.putExtra(
                                     Intent.EXTRA_REFERRER,
                                     Uri.parse("android-app://${context.packageName}")
                                 )
+                                NotificationHelper.showPersistentNotification(context)
                                 context.startActivity(intent)
                             },
                             colors = ButtonDefaults.buttonColors(containerColor = softComponentColor.value)
@@ -244,5 +236,3 @@ fun MainScreen(navController: NavHostController, profileViewModel: ProfileViewMo
         }
     }
 }
-
-

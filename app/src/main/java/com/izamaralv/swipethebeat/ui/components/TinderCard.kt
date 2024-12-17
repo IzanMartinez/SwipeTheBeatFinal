@@ -30,10 +30,11 @@ fun TinderCard(
     onSwipeRight: () -> Unit,
     content: @Composable () -> Unit
 ) {
+    // Variables para el desplazamiento de la tarjeta
     var offsetX by remember { mutableStateOf(0f) }
     var offsetY by remember { mutableStateOf(0f) }
 
-    // Dynamic overlay color and opacity
+    // Color y opacidad de la superposición dinámica
     val overlayColor = when {
         offsetX > 0 -> greenPastelColor.copy(alpha = minOf(0.4f, offsetX / 600))
         offsetX < 0 -> redPastelColor.copy(alpha = minOf(0.4f, -offsetX / 600))
@@ -45,7 +46,6 @@ fun TinderCard(
         modifier = Modifier
             .fillMaxWidth(.8f)
             .fillMaxHeight(.55f)
-//            .aspectRatio(0.75f) // Slimmer card aspect ratio
             .graphicsLayer(
                 translationX = offsetX,
                 translationY = offsetY,
@@ -53,12 +53,14 @@ fun TinderCard(
             )
             .pointerInput(Unit) {
                 detectDragGestures(
+                    // Detecta gestos de arrastre
                     onDrag = { change, dragAmount ->
                         change.consume()
                         offsetX += dragAmount.x
                         offsetY += dragAmount.y
                     },
                     onDragEnd = {
+                        // Reacciona según la dirección del arrastre
                         when {
                             offsetX > 300 -> onSwipeRight()
                             offsetX < -300 -> onSwipeLeft()
@@ -69,19 +71,19 @@ fun TinderCard(
                 )
             }
     ) {
-        // Overlay for swipe feedback (always on top)
+        // Superposición para feedback del arrastre (siempre en la parte superior)
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .zIndex(1f) // Ensures overlay is above the card content
+                .zIndex(1f) // Asegura que la superposición esté sobre el contenido de la tarjeta
                 .background(overlayColor, shape = RoundedCornerShape(16.dp))
         )
 
-        // Card content
+        // Contenido de la tarjeta
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .zIndex(0f) // Places card content below the overlay
+                .zIndex(0f) // Coloca el contenido de la tarjeta debajo de la superposición
                 .background(cardColor.value, shape = RoundedCornerShape(16.dp))
                 .padding(16.dp)
         ) {

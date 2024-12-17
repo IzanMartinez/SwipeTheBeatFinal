@@ -27,10 +27,12 @@ object SpotifyApi {
             .post(formBody)
             .build()
 
+        // Registro de la solicitud de intercambio de código por token
         Log.d("SpotifyApi", "Exchange code for token request: ${formBody.toString()}")
 
         client.newCall(request).execute().use { response ->
             val responseBody = response.body?.string()
+            // Registro del cuerpo de la respuesta
             Log.d("SpotifyApi", "Exchange code for token response body: $responseBody")
             if (!response.isSuccessful) {
                 Log.e("SpotifyApi", "Exchange code for token failed: ${response.code} ${response.message}")
@@ -40,6 +42,7 @@ object SpotifyApi {
             if (jsonObject != null) {
                 val accessToken = jsonObject.getString("access_token")
                 val refreshToken = jsonObject.getString("refresh_token")
+                // Registro de los tokens obtenidos
                 Log.d("SpotifyApi", "Access token: $accessToken, Refresh token: $refreshToken")
                 return Pair(accessToken, refreshToken)
             }
@@ -60,10 +63,12 @@ object SpotifyApi {
             .post(formBody)
             .build()
 
+        // Registro de la solicitud de actualización de token
         Log.d("SpotifyApi", "Refresh token request: ${formBody.toString()}")
 
         client.newCall(request).execute().use { response ->
             val responseBody = response.body?.string()
+            // Registro del cuerpo de la respuesta de actualización
             Log.d("SpotifyApi", "Refresh response body: $responseBody")
             if (!response.isSuccessful) {
                 Log.e("SpotifyApi", "Refresh token failed: ${response.code} ${response.message}")
@@ -72,6 +77,7 @@ object SpotifyApi {
             val jsonObject = responseBody?.let { JSONObject(it) }
             if (jsonObject != null) {
                 val accessToken = jsonObject.getString("access_token")
+                // Registro del nuevo token de acceso
                 Log.d("SpotifyApi", "New access token: $accessToken")
                 return accessToken
             }
@@ -80,6 +86,7 @@ object SpotifyApi {
     }
 
     fun getUserProfile(accessToken: String): JSONObject? {
+        // Registro de la obtención del perfil de usuario
         Log.d("SpotifyApi", "Fetching user profile with access token: $accessToken")
         val request = Request.Builder()
             .url("https://api.spotify.com/v1/me")
@@ -88,6 +95,7 @@ object SpotifyApi {
 
         client.newCall(request).execute().use { response ->
             val responseBody = response.body?.string()
+            // Registro del cuerpo de la respuesta del perfil de usuario
             Log.d("SpotifyApi", "User profile response body: $responseBody")
             if (!response.isSuccessful) {
                 Log.e("SpotifyApi", "Failed to fetch user profile: ${response.code} ${response.message}")
@@ -99,102 +107,5 @@ object SpotifyApi {
             }
             return responseBody?.let { JSONObject(it) }
         }
-    }
-
-    fun getUserTopTracks(accessToken: String): List<SongDTO>? {
-        Log.d("SpotifyApi", "Fetching user top tracks with access token: $accessToken")
-        val request = Request.Builder()
-            .url("https://api.spotify.com/v1/me/top/tracks")
-            .addHeader("Authorization", "Bearer $accessToken")
-            .build()
-
-        client.newCall(request).execute().use { response ->
-            val responseBody = response.body?.string()
-            Log.d("SpotifyApi", "User top tracks response body: $responseBody")
-            if (!response.isSuccessful) {
-                Log.e("SpotifyApi", "Failed to fetch user top tracks: ${response.code} ${response.message}")
-                throw IOException("Unexpected code $response")
-            }
-            val jsonObject = responseBody?.let { JSONObject(it) }
-            val items = jsonObject?.getJSONArray("items")
-            return items?.let { parseSongs(it) }
-        }
-    }
-
-    fun getUserLikedSongs(accessToken: String): List<SongDTO>? {
-        Log.d("SpotifyApi", "Fetching user liked songs with access token: $accessToken")
-        val request = Request.Builder()
-            .url("https://api.spotify.com/v1/me/tracks")
-            .addHeader("Authorization", "Bearer $accessToken")
-            .build()
-
-        client.newCall(request).execute().use { response ->
-            val responseBody = response.body?.string()
-            Log.d("SpotifyApi", "User liked songs response body: $responseBody")
-            if (!response.isSuccessful) {
-                Log.e("SpotifyApi", "Failed to fetch user liked songs: ${response.code} ${response.message}")
-                throw IOException("Unexpected code $response")
-            }
-            val jsonObject = responseBody?.let { JSONObject(it) }
-            val items = jsonObject?.getJSONArray("items")
-            return items?.let { parseSongs(it) }
-        }
-    }
-
-    fun getRecommendations(accessToken: String): List<SongDTO>? {
-        val seedTracks = getSeedTracks(accessToken)
-        Log.d("SpotifyApi", "Fetching recommendations with seed tracks: $seedTracks")
-        val request = Request.Builder()
-            .url("https://api.spotify.com/v1/recommendations?seed_tracks=$seedTracks")
-            .addHeader("Authorization", "Bearer $accessToken")
-            .build()
-
-        client.newCall(request).execute().use { response ->
-            val responseBody = response.body?.string()
-            Log.d("SpotifyApi", "Recommendations response body: $responseBody")
-            if (!response.isSuccessful) {
-                Log.e("SpotifyApi", "Failed to fetch recommendations: ${response.code} ${response.message}")
-                throw IOException("Unexpected code $response")
-            }
-            val jsonObject = responseBody?.let { JSONObject(it) }
-            val items = jsonObject?.getJSONArray("tracks")
-            return items?.let { parseSongs(it) }
-        }
-    }
-
-    private fun getSeedTracks(accessToken: String): String {
-        Log.d("SpotifyApi", "Getting seed tracks with access token: $accessToken")
-        val likedSongs = getUserLikedSongs(accessToken) ?: emptyList()
-        val topTracks = getUserTopTracks(accessToken) ?: emptyList()
-        Log.d("SpotifyApi", "Liked songs: ${likedSongs.size}, Top tracks: ${topTracks.size}")
-        val seedTracks = likedSongs + topTracks
-        val seedTrackIds = seedTracks.joinToString(",") { it.id }
-        Log.d("SpotifyApi", "Seed track IDs: $seedTrackIds")
-        return seedTrackIds
-    }
-
-    private fun parseSongs(items: JSONArray): List<SongDTO> {
-        Log.d("SpotifyApi", "Parsing songs from items: ${items.length()}")
-        val songs = mutableListOf<SongDTO>()
-        for (i in 0 until items.length()) {
-            val item = items.getJSONObject(i)
-            val id = item.getString("id")
-            val name = item.getString("name")
-            val artists = item.getJSONArray("artists").let { artistsArray ->
-                List(artistsArray.length()) { index ->
-                    artistsArray.getJSONObject(index).getString("name")
-                }
-            }
-            val album = item.getJSONObject("album")
-            val albumName = album.getString("name")
-            val albumCoverUrl = album.getJSONArray("images").getJSONObject(0).getString("url")
-            val durationMs = item.getInt("duration_ms")
-            val uri = item.getString("uri")
-            val previewUrl = item.optString("preview_url", null.toString()) // Use optString to handle null values
-
-            songs.add(SongDTO(id, name, artists, albumName, albumCoverUrl, durationMs, uri, previewUrl))
-        }
-        Log.d("SpotifyApi", "Parsed ${songs.size} songs")
-        return songs
     }
 }
