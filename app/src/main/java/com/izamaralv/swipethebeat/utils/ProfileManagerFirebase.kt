@@ -1,14 +1,14 @@
 package com.izamaralv.swipethebeat.utils
 
 import android.util.Log
+import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.auth.auth
 
 class ProfileManagerFirebase {
-
-    private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
+    private val firebaseAuth = Firebase.auth
 
     fun getCurrentUser(): FirebaseUser? {
         return firebaseAuth.currentUser
@@ -31,4 +31,5 @@ class ProfileManagerFirebase {
                 onComplete(null)
             }
     }
+
 }
