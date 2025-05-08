@@ -9,9 +9,9 @@
               <option name="connection">
                 <ConnectionSetting>
                   <option name="appId" value="com.izamaralv.swipethebeat" />
-                  <option name="mobileSdkAppId" value="1:668944693318:android:3610efa1f910e847723247" />
-                  <option name="projectId" value="swipethebeat" />
-                  <option name="projectNumber" value="668944693318" />
+                  <option name="mobileSdkAppId" value="1:981721519001:android:7b59065cfb038f984ab908" />
+                  <option name="projectId" value="swipe-the-beat" />
+                  <option name="projectNumber" value="981721519001" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />
