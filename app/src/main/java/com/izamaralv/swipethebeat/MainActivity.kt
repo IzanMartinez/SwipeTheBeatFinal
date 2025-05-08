@@ -1,6 +1,5 @@
 package com.izamaralv.swipethebeat
 
-import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -10,19 +9,15 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.izamaralv.swipethebeat.navigation.NavGraph
 import com.izamaralv.swipethebeat.ui.components.NotificationHelper
 import com.izamaralv.swipethebeat.ui.theme.SwipeTheBeatTheme
 import com.izamaralv.swipethebeat.utils.Credentials
-import com.izamaralv.swipethebeat.utils.ProfileManager
 import com.izamaralv.swipethebeat.utils.SpotifyManager
 import com.izamaralv.swipethebeat.utils.TokenManager
 import com.izamaralv.swipethebeat.viewmodel.InitializationViewModel
-import com.izamaralv.swipethebeat.viewmodel.ProfileViewModel
 
 class MainActivity : ComponentActivity() {
     // Declaración de variables para la navegación y gestión de Spotify y perfiles
@@ -36,19 +31,6 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         // Solicita permisos para notificaciones en versiones superiores a TIRAMISU
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.POST_NOTIFICATIONS
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(Manifest.permission.POST_NOTIFICATIONS),
-                    100 // Código de solicitud, puede ser cualquier número
-                )
-            }
-        }
 
         // Crea el canal de notificaciones
         NotificationHelper.createNotificationChannel(this)
@@ -56,7 +38,6 @@ class MainActivity : ComponentActivity() {
         // Inicializa los gestores
         spotifyManager = SpotifyManager(applicationContext)
         profileManager = ProfileManager(applicationContext, profileViewModel)
-
         // Obtiene el perfil del usuario al iniciar
         fetchUserProfileOnStart()
 
@@ -68,7 +49,7 @@ class MainActivity : ComponentActivity() {
                         navController = rememberNavController()
                         NavGraph(
                             navController = navController,
-                            profileViewModel = profileViewModel,
+                            profileViewModel = profileViewModel
                         )
                         checkTokenAndNavigate()
                     }
@@ -84,9 +65,7 @@ class MainActivity : ComponentActivity() {
         val expiresIn = 3600
 
         if (accessToken != null && refreshToken != null) {
-            // Inicializa el cliente de Spotify y obtiene el perfil del usuario
             spotifyManager.initializeSpotifyClient(accessToken, refreshToken, expiresIn)
-            spotifyManager.initializeSongRepository(accessToken)
             profileManager.fetchUserProfile(accessToken)
             initializationViewModel.setInitialized()
         } else {
@@ -111,9 +90,8 @@ class MainActivity : ComponentActivity() {
                 val code = uri.getQueryParameter("code")
                 code?.let {
                     spotifyManager.exchangeCodeForToken(it) { accessToken, refreshToken ->
-                        Log.d("MainActivity", "Access Token: $accessToken") // Registra el token también aquí
+                        Log.d("MainActivity", "Access Token: $accessToken")
                         spotifyManager.initializeSpotifyClient(accessToken, refreshToken, 3600)
-                        spotifyManager.initializeSongRepository(accessToken)
                         profileManager.fetchUserProfile(accessToken)
 
                         runOnUiThread {
@@ -121,20 +99,6 @@ class MainActivity : ComponentActivity() {
                             navController.navigate("main_screen") {
                                 popUpTo("login_screen") { inclusive = true }
                             }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private fun checkTokenAndNavigate() {
-        val tokenManager = TokenManager(applicationContext)
-        val accessToken = tokenManager.getAccessToken()
-        if (accessToken != null) {
-            navController.navigate("main_screen") {
-                popUpTo("login_screen") { inclusive = true }
-            }
         }
     }
 
@@ -142,3 +106,4 @@ class MainActivity : ComponentActivity() {
         spotifyManager.logout(navController)
     }
 }
+
