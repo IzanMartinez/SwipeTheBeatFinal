@@ -14,11 +14,11 @@ class LoginViewModel : ViewModel() {
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
 
     fun login(onSuccess: () -> Unit) {
-        auth.signInWithEmailAndPassword(email, password)
+        auth.signInWithEmailAndPassword(email.copy(), password.copy())
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     onSuccess()
-                } else {
+                } else {                                                                                                                                                                                                                                                 
                     errorMessage = task.exception?.message ?: "Login failed"
                 }
             }
