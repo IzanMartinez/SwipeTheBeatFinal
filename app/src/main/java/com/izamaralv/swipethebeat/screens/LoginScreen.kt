@@ -12,11 +12,9 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -24,9 +22,10 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -34,6 +33,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
@@ -45,14 +45,23 @@ import com.izamaralv.swipethebeat.common.backgroundColor
 import com.izamaralv.swipethebeat.common.cardColor
 import com.izamaralv.swipethebeat.ui.components.HelpLink
 import com.izamaralv.swipethebeat.ui.theme.greenPastelColor
-import com.izamaralv.swipethebeat.utils.startSpotifyLogin
-import okhttp3.internal.wait
+import com.izamaralv.swipethebeat.viewmodel.LoginViewModel
 
 @Composable
 fun LoginScreen(navController: NavHostController, modifier: Modifier = Modifier) {
+    val viewModel: LoginViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+
     // Control de la barra de estado del sistema
+    val email = viewModel.email.value
+    val password = viewModel.password.value
+    val errorMessage = viewModel.errorMessage.value
+    val onEmailChange = { newEmail: String -> viewModel.onEmailChange(newEmail) }
+    val onPasswordChange = { newPassword: String -> viewModel.onPasswordChange(newPassword) }
+    val onLoginClick = { viewModel.login(navController)}
+
+
+
     val systemUiController = rememberSystemUiController()
-    var email by remember { mutableStateOf("") }
     systemUiController.setStatusBarColor(color = backgroundColor.value, darkIcons = false)
 
     val context = LocalContext.current
@@ -113,9 +122,9 @@ fun LoginScreen(navController: NavHostController, modifier: Modifier = Modifier)
 
             TextField(
                 value = email,
-                onValueChange = { email = it },
+                onValueChange = onEmailChange,
                 placeholder = {  },
-                modifier = Modifier
+            modifier = Modifier
                     .fillMaxWidth(.7f)
                     .clip(RoundedCornerShape(20.dp))
                     .border(2.dp, Color.White, RoundedCornerShape(20.dp)) // Adds a white border
@@ -144,8 +153,9 @@ fun LoginScreen(navController: NavHostController, modifier: Modifier = Modifier)
             )
 
             TextField(
-                value = email,
-                onValueChange = { email = it },
+
+                value = password,
+                onValueChange = onPasswordChange,
                 modifier = Modifier
                     .fillMaxWidth(.7f)
                     .clip(RoundedCornerShape(20.dp))
@@ -157,8 +167,9 @@ fun LoginScreen(navController: NavHostController, modifier: Modifier = Modifier)
                     unfocusedIndicatorColor = Color.Transparent, // Removes blue underline
                     focusedIndicatorColor = Color.Transparent
                 ),
+                visualTransformation = PasswordVisualTransformation(),
                 textStyle = TextStyle(fontSize = 16.sp, color = Color.White),
-                singleLine = true
+                singleLine = true,
             )
 
             Spacer(modifier = Modifier.height(30.dp))
@@ -167,55 +178,27 @@ fun LoginScreen(navController: NavHostController, modifier: Modifier = Modifier)
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
-                    .fillMaxWidth(.7f)
-                    .clip(RoundedCornerShape(20.dp))
-                    .clickable { }
-                    .background(color = greenPastelColor)
-                    .padding(horizontal = 25.dp, vertical = 10.dp)
-            ) {
-                Text(
-                    text = "Inicia sesión",
-                    color = Color.Black,
-                    lineHeight = 8.75.em,
-                    style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold) // Added bold styling
-                )
-            }
+                                    .fillMaxWidth(.7f)
+                                        .clip(RoundedCornerShape(20.dp))
+                                        .clickable(onClick = onLoginClick)
 
 
+                                    }
+                                    .background(color = greenPastelColor)
+                                    .padding(horizontal = 25.dp, vertical = 10.dp)
+                            ) {
+                                Text(
+                                    text = "Inicia sesión",
+                                    color = Color.Black,
+                                    lineHeight = 8.75.em,
+                                    style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold) // Added bold styling
+                                )
+                            }
+                            if (errorMessage != null) {
+                                Text(text = errorMessage, color = Color.Red)
+                            }
+            
 
-//        // Botón de inicio de sesión con Spotify
-//        Column(
-//            modifier = Modifier
-//                .padding(bottom = 32.dp)
-//                .fillMaxWidth(),
-//            horizontalAlignment = Alignment.CenterHorizontally
-//        ) {
-//            Row(
-//                horizontalArrangement = Arrangement.Center,
-//                verticalAlignment = Alignment.CenterVertically,
-//                modifier = Modifier
-//                    .clip(RoundedCornerShape(20.dp))
-//                    .background(color = cardColor.value)
-//                    .padding(horizontal = 25.dp, vertical = 10.dp)
-//                    .clickable {
-//                        startSpotifyLogin(context = context)
-//                    }
-//            ) {
-//                Image(
-//                    painter = painterResource(id = R.drawable.spotify_logo),
-//                    contentDescription = "Spotify Logo",
-//                    modifier = Modifier
-//                        .requiredWidth(41.dp)
-//                        .requiredHeight(38.dp)
-//                )
-//                Spacer(modifier = Modifier.width(8.dp))
-//                Text(
-//                    text = "Inicia sesión con Spotify",
-//                    color = greenPastelColor,
-//                    lineHeight = 8.75.em,
-//                    style = TextStyle(fontSize = 16.sp)
-//                )
-//            }
 
             Spacer(modifier = Modifier.height(40.dp)) // Espacio entre el botón y el enlace de texto
 
@@ -226,4 +209,4 @@ fun LoginScreen(navController: NavHostController, modifier: Modifier = Modifier)
             }
         }
     }
-}
+
