@@ -14,7 +14,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.auth.FirebaseAuth
 import com.izamaralv.swipethebeat.navigation.NavGraph
-import com.izamaralv.swipethebeat.utils.ProfileManager
 import com.izamaralv.swipethebeat.ui.components.NotificationHelper
 import com.izamaralv.swipethebeat.ui.theme.SwipeTheBeatTheme
 import com.izamaralv.swipethebeat.utils.ProfileManagerFirebase
@@ -50,7 +49,7 @@ class MainActivity : ComponentActivity() {
         NotificationHelper.createNotificationChannel(this)
 
         // Initialize ProfileManagerFirebase
-        profileManagerFirebase = ProfileManagerFirebase(applicationContext)
+        profileManagerFirebase = ProfileManagerFirebase()
 
 
         fetchUserProfileOnStart()
