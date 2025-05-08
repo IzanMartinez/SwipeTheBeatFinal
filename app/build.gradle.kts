@@ -10,7 +10,7 @@ plugins {
 
 android {
     namespace = "com.izamaralv.swipethebeat"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.izamaralv.swipethebeat"
@@ -71,6 +71,8 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-auth-ktx")
 
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.9.0")
+
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation("com.squareup.okhttp3:okhttp:4.9.1")
@@ -98,6 +100,7 @@ dependencies {
     implementation("androidx.compose.material3:material3")
     implementation("androidx.navigation:navigation-runtime-ktx:2.8.4")
     implementation("androidx.navigation:navigation-compose:2.8.4")
+    implementation("com.google.firebase:firebase-firestore-ktx:25.1.4")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")

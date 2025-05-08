@@ -17,6 +17,11 @@ import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -34,6 +39,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
@@ -52,7 +59,9 @@ import okhttp3.internal.wait
 fun LoginScreen(navController: NavHostController, modifier: Modifier = Modifier) {
     // Control de la barra de estado del sistema
     val systemUiController = rememberSystemUiController()
+    var passwordVisible by remember { mutableStateOf(false) }
     var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
     systemUiController.setStatusBarColor(color = backgroundColor.value, darkIcons = false)
 
     val context = LocalContext.current
@@ -101,7 +110,8 @@ fun LoginScreen(navController: NavHostController, modifier: Modifier = Modifier)
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            Text(text = "Correo electrónico",
+            Text(
+                text = "Correo electrónico",
                 modifier = Modifier
                     .padding(bottom = 10.dp, start = 10.dp)
                     .fillMaxWidth(.7f),
@@ -114,7 +124,7 @@ fun LoginScreen(navController: NavHostController, modifier: Modifier = Modifier)
             TextField(
                 value = email,
                 onValueChange = { email = it },
-                placeholder = {  },
+                placeholder = { },
                 modifier = Modifier
                     .fillMaxWidth(.7f)
                     .clip(RoundedCornerShape(20.dp))
@@ -133,7 +143,8 @@ fun LoginScreen(navController: NavHostController, modifier: Modifier = Modifier)
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            Text(text = "Contraseña",
+            Text(
+                text = "Contraseña",
                 modifier = Modifier
                     .padding(bottom = 10.dp, start = 10.dp)
                     .fillMaxWidth(.7f),
@@ -143,23 +154,36 @@ fun LoginScreen(navController: NavHostController, modifier: Modifier = Modifier)
                 ),
             )
 
+            // password field
             TextField(
-                value = email,
-                onValueChange = { email = it },
+                value = password,
+                onValueChange = { password = it },
                 modifier = Modifier
                     .fillMaxWidth(.7f)
                     .clip(RoundedCornerShape(20.dp))
                     .border(2.dp, Color.White, RoundedCornerShape(20.dp)) // Adds a white border
                     .background(cardColor.value), // Maintains the background change
                 colors = TextFieldDefaults.colors(
-                    unfocusedContainerColor = cardColor.value, // Ensures full background color
+                    unfocusedContainerColor = cardColor.value,
                     focusedContainerColor = cardColor.value,
-                    unfocusedIndicatorColor = Color.Transparent, // Removes blue underline
+                    unfocusedIndicatorColor = Color.Transparent,
                     focusedIndicatorColor = Color.Transparent
                 ),
                 textStyle = TextStyle(fontSize = 16.sp, color = Color.White),
-                singleLine = true
+                singleLine = true,
+                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(), // Toggle visibility
+                trailingIcon = {
+                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                        Icon(
+                            imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                            contentDescription = "Toggle password visibility",
+                            tint = Color.White
+                        )
+                    }
+                }
             )
+
+
 
             Spacer(modifier = Modifier.height(30.dp))
 
@@ -177,45 +201,12 @@ fun LoginScreen(navController: NavHostController, modifier: Modifier = Modifier)
                     text = "Inicia sesión",
                     color = Color.Black,
                     lineHeight = 8.75.em,
-                    style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold) // Added bold styling
+                    style = TextStyle(
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold
+                    ) // Added bold styling
                 )
             }
-
-
-
-//        // Botón de inicio de sesión con Spotify
-//        Column(
-//            modifier = Modifier
-//                .padding(bottom = 32.dp)
-//                .fillMaxWidth(),
-//            horizontalAlignment = Alignment.CenterHorizontally
-//        ) {
-//            Row(
-//                horizontalArrangement = Arrangement.Center,
-//                verticalAlignment = Alignment.CenterVertically,
-//                modifier = Modifier
-//                    .clip(RoundedCornerShape(20.dp))
-//                    .background(color = cardColor.value)
-//                    .padding(horizontal = 25.dp, vertical = 10.dp)
-//                    .clickable {
-//                        startSpotifyLogin(context = context)
-//                    }
-//            ) {
-//                Image(
-//                    painter = painterResource(id = R.drawable.spotify_logo),
-//                    contentDescription = "Spotify Logo",
-//                    modifier = Modifier
-//                        .requiredWidth(41.dp)
-//                        .requiredHeight(38.dp)
-//                )
-//                Spacer(modifier = Modifier.width(8.dp))
-//                Text(
-//                    text = "Inicia sesión con Spotify",
-//                    color = greenPastelColor,
-//                    lineHeight = 8.75.em,
-//                    style = TextStyle(fontSize = 16.sp)
-//                )
-//            }
 
             Spacer(modifier = Modifier.height(40.dp)) // Espacio entre el botón y el enlace de texto
 
