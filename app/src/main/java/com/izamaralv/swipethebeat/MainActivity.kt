@@ -70,7 +70,7 @@ class MainActivity : ComponentActivity() {
                             navController = navController,
                             profileViewModel = profileViewModel,
                         )
-                        checkTokenAndNavigate()
+//                        checkTokenAndNavigate()
                     }
                 }
             }
@@ -128,15 +128,15 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun checkTokenAndNavigate() {
-        val tokenManager = TokenManager(applicationContext)
-        val accessToken = tokenManager.getAccessToken()
-        if (accessToken != null) {
-            navController.navigate("main_screen") {
-                popUpTo("login_screen") { inclusive = true }
-            }
-        }
-    }
+//    private fun checkTokenAndNavigate() {
+//        val tokenManager = TokenManager(applicationContext)
+//        val accessToken = tokenManager.getAccessToken()
+//        if (accessToken != null) {
+//            navController.navigate("main_screen") {
+//                popUpTo("login_screen") { inclusive = true }
+//            }
+//        }
+//    }
 
     private fun logout() {
         spotifyManager.logout(navController)
