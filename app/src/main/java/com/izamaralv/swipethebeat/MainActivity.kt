@@ -14,6 +14,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.auth.FirebaseAuth
 import com.izamaralv.swipethebeat.navigation.NavGraph
+import com.izamaralv.swipethebeat.utils.ProfileManager
 import com.izamaralv.swipethebeat.ui.components.NotificationHelper
 import com.izamaralv.swipethebeat.ui.theme.SwipeTheBeatTheme
 import com.izamaralv.swipethebeat.utils.ProfileManagerFirebase
@@ -23,7 +24,7 @@ import com.izamaralv.swipethebeat.viewmodel.ProfileViewModel
 class MainActivity : ComponentActivity() {
     // Declaración de variables para la navegación y gestión de Spotify y perfiles
     private lateinit var navController:NavHostController
-    private lateinit var profileManager: ProfileManagerFirebase
+    private lateinit var profileManagerFirebase: ProfileManagerFirebase
     private val profileViewModel: ProfileViewModel by viewModels()
     private val initializationViewModel: InitializationViewModel by viewModels()
 
@@ -48,10 +49,10 @@ class MainActivity : ComponentActivity() {
         // Crea el canal de notificaciones
         NotificationHelper.createNotificationChannel(this)
 
-        // Inicializa los gestores
-        profileManager = ProfileManager(applicationContext, profileViewModel)
+        // Initialize ProfileManagerFirebase
+        profileManagerFirebase = ProfileManagerFirebase(applicationContext)
 
-        // Obtiene el perfil del usuario al iniciar
+
         fetchUserProfileOnStart()
 
         // Observa el estado de inicialización y establece el contenido
@@ -71,13 +72,12 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun checkUserAndNavigate() {
-        lifecycleScope.launchWhenCreated {
-            val auth = FirebaseAuth.getInstance()
-            val currentUser = auth.currentUser
-            if (currentUser != null) {
+   private fun checkUserAndNavigate() {
+        val auth = FirebaseAuth.getInstance()
+        val currentUser = auth.currentUser
+        if (currentUser != null) {
                 // User is logged in, go to main screen
-                navController.navigate("main_screen") {
+            navController.navigate("main_screen") {
                     popUpTo("login_screen") { inclusive = true }
                 }
             } else {
@@ -89,6 +89,21 @@ class MainActivity : ComponentActivity() {
                 }
                 initializationViewModel.setInitialized()
             }
+        }
+     private fun fetchUserProfileOnStart() {
+        val auth = FirebaseAuth.getInstance()
+        val currentUser = auth.currentUser
+        if (currentUser != null) {
+            // If user is logged in, try to obtain user info
+            val userId = currentUser.uid
+            profileManagerFirebase.getUserData(userId) { user ->
+                if (user != null) {
+                  // user info updated
+                }
+            }
+           checkUserAndNavigate()
+        }else{
+            checkUserAndNavigate()
         }
     }
 }
