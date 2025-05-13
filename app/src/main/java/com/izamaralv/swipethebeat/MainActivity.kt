@@ -16,6 +16,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.auth.FirebaseAuth
 import com.izamaralv.swipethebeat.navigation.NavGraph
+import com.izamaralv.swipethebeat.repository.UserRepository
 import com.izamaralv.swipethebeat.ui.components.NotificationHelper
 import com.izamaralv.swipethebeat.ui.theme.SwipeTheBeatTheme
 import com.izamaralv.swipethebeat.utils.Credentials
@@ -91,19 +92,30 @@ class MainActivity : ComponentActivity() {
         val expiresIn = 3600
 
         if (accessToken != null && refreshToken != null) {
+            // ✅ Initialize Spotify components
             spotifyManager.initializeSpotifyClient(accessToken, refreshToken, expiresIn)
             spotifyManager.initializeSongRepository(accessToken)
             profileManager.fetchUserProfile(accessToken)
 
-            // ✅ Run the network request on a background thread
+            // ✅ Use coroutine for background processing
             CoroutineScope(Dispatchers.IO).launch {
-                val spotifyUserId = SpotifyApi.getUserId(accessToken)
+                val spotifyUserProfile = SpotifyApi.getUserProfile(accessToken) // ✅ Fetch latest Spotify data
+                val spotifyUserId = spotifyUserProfile?.get("user_id")
 
-                withContext(Dispatchers.Main) { // ✅ Moves result back to the main thread safely
+                withContext(Dispatchers.Main) { // ✅ Ensure UI updates happen on the main thread
                     if (spotifyUserId.isNullOrEmpty()) {
                         Log.e("Firestore", "❌ Spotify User ID is null—Firestore can't retrieve profile!")
                     } else {
                         Log.d("Firestore", "✅ Using Spotify User ID: $spotifyUserId for Firestore")
+
+                        // ✅ Ensure data is properly formatted for Firestore
+                        val userProfileMap = spotifyUserProfile.mapValues { it.value ?: "" }
+                        Log.d("Firestore", "✅ Updating Firestore with latest Spotify profile data: $userProfileMap")
+
+                        // ✅ Call Firestore update function in UserRepository
+                        val userRepository = UserRepository()
+                        userRepository.saveUserToFirestore(userProfileMap)
+
                         profileViewModel.loadUserProfile(spotifyUserId)
                     }
 
@@ -111,6 +123,7 @@ class MainActivity : ComponentActivity() {
                 }
             }
         } else {
+            // ✅ Start the OAuth authentication flow if no tokens exist
             initiateOAuthFlow()
         }
     }

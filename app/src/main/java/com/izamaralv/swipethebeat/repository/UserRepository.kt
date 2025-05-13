@@ -75,9 +75,4 @@ class UserRepository {
                 Log.e("Firestore", "Firestore connection error: ${it.message}")
             }
     }
-
-
-
-
-
 }
