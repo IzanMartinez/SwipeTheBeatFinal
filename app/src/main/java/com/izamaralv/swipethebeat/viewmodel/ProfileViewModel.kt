@@ -1,27 +1,36 @@
 package com.izamaralv.swipethebeat.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.izamaralv.swipethebeat.repository.UserRepository
 
 class ProfileViewModel : ViewModel() {
-    // Propiedad mutable que contiene el nombre del usuario
-    private val _displayName = MutableLiveData<String>()
-    // Propiedad pública para observar el nombre del usuario
-    val displayName: LiveData<String> get() = _displayName
+    private val userRepository = UserRepository()
 
-    // Propiedad mutable que contiene la URL de la imagen del perfil del usuario
+    private val _displayName = MutableLiveData<String>()
+    val displayName: LiveData<String> get() = _displayName
     private val _profileImageUrl = MutableLiveData<String>()
-    // Propiedad pública para observar la URL de la imagen del perfil del usuario
     val profileImageUrl: LiveData<String> get() = _profileImageUrl
 
-    // Función para establecer el nombre del usuario
-    fun setDisplayName(name: String) {
-        _displayName.postValue(name)
+    fun saveUser(userData: Map<String, String>) {
+        Log.d("ProfileViewModel", "Saving user to Firestore: $userData") // ✅ Log before storing
+        userRepository.saveUserToFirestore(userData)
     }
 
-    // Función para establecer la URL de la imagen del perfil del usuario
-    fun setProfileImageUrl(url: String) {
-        _profileImageUrl.postValue(url)
+    fun loadUserProfile(userId: String) {
+        Log.d("ProfileViewModel", "Loading user profile for ID: $userId") // ✅ Log before retrieving
+        userRepository.getUserFromFirestore(userId) { userData ->
+            if (userData != null) {
+                Log.d("ProfileViewModel", "User data retrieved: $userData") // ✅ Log retrieved data
+                _displayName.postValue(userData["name"] ?: "No Name")
+                _profileImageUrl.postValue(userData["avatar_url"] ?: "")
+            } else {
+                Log.e("ProfileViewModel", "User not found in Firestore!") // ✅ Log if no user exists
+            }
+        }
     }
+
 }
+

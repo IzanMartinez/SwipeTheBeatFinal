@@ -78,21 +78,17 @@ object SpotifyApi {
     }
 
     fun getUserProfile(accessToken: String): Map<String, String?>? {
-        // Registro de la obtención del perfil de usuario
         Log.d("SpotifyApi", "Fetching user profile with access token: $accessToken")
+
         val request = Request.Builder().url("https://api.spotify.com/v1/me")
             .addHeader("Authorization", "Bearer $accessToken").build()
 
         client.newCall(request).execute().use { response ->
             val responseBody = response.body?.string()
-            // Registro del cuerpo de la respuesta del perfil de usuario
             Log.d("SpotifyApi", "User profile response body: $responseBody")
 
             if (!response.isSuccessful) {
-                Log.e(
-                    "SpotifyApi",
-                    "Failed to fetch user profile: ${response.code} ${response.message}"
-                )
+                Log.e("SpotifyApi", "Failed to fetch user profile: ${response.code} ${response.message}")
                 if (response.code == 401) {
                     throw IOException("401 Unauthorized - Token may be expired")
                 } else {
@@ -101,27 +97,42 @@ object SpotifyApi {
             }
 
             val jsonObject = responseBody?.let { JSONObject(it) }
-            return jsonObject?.let {
-                val spotifyUserId = it.getString("id") // Registro del ID de Spotify del usuario
-                val displayName = it.optString("display_name") // Registro del nombre de usuario
-                val email = it.optString("email") // Registro del email del usuario
-                val avatarUrl = it.optJSONArray("images")?.optJSONObject(0)
-                    ?.optString("url") // Registro de la URL de la imagen de avatar")
-
-                Log.d(
-                    "SpotifyApi",
-                    "User Info Retrieved: ID=$spotifyUserId, Name=$displayName, Email=$email"
-                )
-
-                mapOf(
-                    "user_id" to spotifyUserId,
-                    "name" to displayName,
-                    "email" to email,
-                    "avatar_url" to avatarUrl
-                )
+            if (jsonObject == null) {
+                Log.e("SpotifyApi", "❌ No JSON response received from Spotify API!")
+                return null
             }
+
+            val spotifyUserId = jsonObject.optString("id")
+            if (spotifyUserId.isNullOrEmpty()) {
+                Log.e("SpotifyApi", "❌ Extracted User ID is null or missing in API response!")
+                return null
+            }
+
+            val displayName = jsonObject.optString("display_name")
+            val email = jsonObject.optString("email")
+            val avatarUrl = jsonObject.optJSONArray("images")?.optJSONObject(0)?.optString("url")
+
+            Log.d("SpotifyApi", "✅ User Info Retrieved: ID=$spotifyUserId, Name=$displayName, Email=$email")
+
+            return mapOf(
+                "user_id" to spotifyUserId,
+                "name" to displayName,
+                "email" to email,
+                "avatar_url" to avatarUrl
+            )
+        }
+    }
+    fun getUserId(accessToken: String): String? {
+        val userProfile = getUserProfile(accessToken)
+        val userId = userProfile?.get("user_id")
+
+        if (userId.isNullOrEmpty()) {
+            Log.e("SpotifyApi", "❌ Extracted User ID is null or missing!")
+            return null
         }
 
-
+        Log.d("SpotifyApi", "✅ Extracted Spotify User ID: $userId")
+        return userId
     }
+
 }

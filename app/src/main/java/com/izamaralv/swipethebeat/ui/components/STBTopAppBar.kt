@@ -81,6 +81,7 @@ fun STBTopAppBar(
             ) {
                 // Opción de color verde
                 DropdownMenuItem(
+
                     leadingIcon = {
                         Image(
                             painter = painterResource(R.drawable.green),
