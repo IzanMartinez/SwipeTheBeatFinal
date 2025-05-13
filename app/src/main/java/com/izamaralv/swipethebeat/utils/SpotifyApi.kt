@@ -1,5 +1,6 @@
 package com.izamaralv.swipethebeat.utils
 
+import android.content.Context
 import android.util.Log
 import com.izamaralv.swipethebeat.models.SongDTO
 import com.izamaralv.swipethebeat.utils.Credentials.CLIENT_ID
@@ -77,7 +78,7 @@ object SpotifyApi {
         return null
     }
 
-    fun getUserProfile(accessToken: String): Map<String, String?>? {
+    fun getUserProfile(accessToken: String, context: Context): Map<String, String?>? {
         Log.d("SpotifyApi", "Fetching user profile with access token: $accessToken")
 
         val request = Request.Builder().url("https://api.spotify.com/v1/me")
@@ -86,15 +87,13 @@ object SpotifyApi {
         client.newCall(request).execute().use { response ->
             val responseBody = response.body?.string()
             Log.d("SpotifyApi", "User profile response body: $responseBody")
-
-            if (!response.isSuccessful) {
-                Log.e("SpotifyApi", "Failed to fetch user profile: ${response.code} ${response.message}")
-                if (response.code == 401) {
-                    throw IOException("401 Unauthorized - Token may be expired")
-                } else {
-                    throw IOException("Unexpected code $response")
+            if (response.code == 401) { // 🔥 El token ha expirado -> refresca
+                val newAccessToken = refreshAccessToken(TokenManager(context).getRefreshToken() ?: "")
+                if (newAccessToken != null) {
+                    return getUserProfile(newAccessToken, context) // 🔄 Retry with new token
                 }
             }
+
 
             val jsonObject = responseBody?.let { JSONObject(it) }
             if (jsonObject == null) {
@@ -122,17 +121,17 @@ object SpotifyApi {
             )
         }
     }
-    fun getUserId(accessToken: String): String? {
-        val userProfile = getUserProfile(accessToken)
-        val userId = userProfile?.get("user_id")
-
-        if (userId.isNullOrEmpty()) {
-            Log.e("SpotifyApi", "❌ Extracted User ID is null or missing!")
-            return null
-        }
-
-        Log.d("SpotifyApi", "✅ Extracted Spotify User ID: $userId")
-        return userId
-    }
+//    fun getUserId(accessToken: String): String? {
+//        val userProfile = getUserProfile(accessToken)
+//        val userId = userProfile?.get("user_id")
+//
+//        if (userId.isNullOrEmpty()) {
+//            Log.e("SpotifyApi", "❌ Extracted User ID is null or missing!")
+//            return null
+//        }
+//
+//        Log.d("SpotifyApi", "✅ Extracted Spotify User ID: $userId")
+//        return userId
+//    }
 
 }

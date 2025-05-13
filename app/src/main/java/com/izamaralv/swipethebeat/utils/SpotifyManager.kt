@@ -73,51 +73,6 @@ class SpotifyManager(private val context: Context) {
         return authorizationUrl
     }
 
-    fun getCurrentUserId(context: Context): String? {
-        val tokenManager = TokenManager(context)
-        val accessToken = tokenManager.getAccessToken()
-
-        if (accessToken.isNullOrEmpty()) {
-            Log.e("SpotifyManager", "❌ Access token is null or empty—cannot fetch user ID")
-            return null
-        }
-
-        return try {
-            val url = "https://api.spotify.com/v1/me"
-            val connection = URL(url).openConnection() as HttpURLConnection
-            connection.requestMethod = "GET"
-            connection.setRequestProperty("Authorization", "Bearer $accessToken")
-            connection.connect()
-
-            val responseCode = connection.responseCode
-            Log.d("SpotifyManager", "🔍 Spotify API Response Code: $responseCode")
-
-            if (responseCode == 200) {
-                val response = connection.inputStream.bufferedReader().use { it.readText() }
-                Log.d("SpotifyManager", "✅ Spotify API Response: $response")
-
-                val jsonObject = JSONObject(response)
-                val userId = jsonObject.optString("id")
-
-                if (userId.isNullOrEmpty()) {
-                    Log.e("SpotifyManager", "❌ Extracted User ID is null or empty!")
-                    return null
-                }
-
-                Log.d("SpotifyManager", "✅ Extracted Spotify User ID: $userId")
-                return userId
-            } else {
-                Log.e("SpotifyManager", "❌ Failed to fetch user ID: HTTP $responseCode")
-                null
-            }
-        } catch (e: Exception) {
-            Log.e("SpotifyManager", "❌ Error fetching user ID: ${e.message}")
-            null
-        }
-    }
-
-
-
     fun logout(navController: NavHostController) {
         // Limpia los tokens y navega a la pantalla de inicio de sesión
         val tokenManager = TokenManager(context)

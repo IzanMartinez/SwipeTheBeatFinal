@@ -99,7 +99,7 @@ class MainActivity : ComponentActivity() {
 
             // ✅ Use coroutine for background processing
             CoroutineScope(Dispatchers.IO).launch {
-                val spotifyUserProfile = SpotifyApi.getUserProfile(accessToken) // ✅ Fetch latest Spotify data
+                val spotifyUserProfile = SpotifyApi.getUserProfile(accessToken, applicationContext) // ✅ Fetch latest Spotify data
                 val spotifyUserId = spotifyUserProfile?.get("user_id")
 
                 withContext(Dispatchers.Main) { // ✅ Ensure UI updates happen on the main thread

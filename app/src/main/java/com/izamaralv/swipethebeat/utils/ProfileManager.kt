@@ -14,7 +14,7 @@ class ProfileManager(private val context: Context, private val profileViewModel:
         Log.d("ProfileManager", "Fetching user profile with accessToken = $accessToken")
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val userProfile = SpotifyApi.getUserProfile(accessToken)
+                val userProfile = SpotifyApi.getUserProfile(accessToken, context)
                 Log.d("ProfileManager", "User profile fetched: $userProfile")
 
                 userProfile?.let { profile ->

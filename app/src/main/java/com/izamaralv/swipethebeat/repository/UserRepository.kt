@@ -26,7 +26,7 @@ class UserRepository {
         Log.d("Firestore", "🔍 Attempting to save user: $userId with data: $user")
 
         firestore.collection("users")
-            .document(userId) // ✅ Using the user ID as the document name
+            .document(userId) // ✅ Usar el ID del usuario como documento
             .set(user)
             .addOnSuccessListener {
                 Log.d("Firestore", "✅ User data saved successfully for ID: $userId")
@@ -66,13 +66,28 @@ class UserRepository {
             }
     }
 
-    fun testFirestoreConnection() {
-        firestore.collection("test").document("connection").get()
-            .addOnSuccessListener {
-                Log.d("Firestore", "Test document fetched: $it")
+    fun initializeUserProfile(userId: String, userData: Map<String, String>) {
+        val userRef = firestore.collection("users").document(userId)
+
+        userRef.get().addOnSuccessListener { document ->
+            if (!document.exists()) {
+                // 🔥 El usuario no existe, crearlo en Firestore
+                userRef.set(userData)
+                    .addOnSuccessListener {
+                        Log.d("Firestore", "✅ New user profile created: $userData")
+
+                        // ✅ Iniciar la colección de canciones favoritas
+                        firestore.collection("users").document(userId).collection("liked_songs")
+                            .document("initial_song") // Crea un placeholder
+                            .set(mapOf("info" to "Liked songs will be stored here"))
+                    }
+                    .addOnFailureListener { e ->
+                        Log.e("Firestore", "❌ Error creating user profile: ${e.message}")
+                    }
+            } else {
+                Log.d("Firestore", "✅ User already exists in Firestore: $userId")
             }
-            .addOnFailureListener {
-                Log.e("Firestore", "Firestore connection error: ${it.message}")
-            }
+        }
     }
+
 }
