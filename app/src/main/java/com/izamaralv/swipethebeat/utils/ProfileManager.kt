@@ -20,18 +20,22 @@ class ProfileManager(private val context: Context, private val profileViewModel:
                 Log.d("ProfileManager", "User profile fetched: $userProfile")
 
                 userProfile?.let { profile ->
-                    Log.d("ProfileManager", "User profile JSON: ${profile.toString(2)}")
-                    val displayName = profile.optString("display_name", "No Name")
-                    val profileImageUrl = profile.getJSONArray("images").optJSONObject(0)?.getString("url") ?: ""
+                    Log.d("ProfileManager", "User profile JSON: $profile") // Just print the map
+
+                    val displayName = profile["name"] ?: "No Name"
+                    val profileImageUrl = profile["avatar_url"] ?: ""
+                    Log.d("ProfileManager", "User display name: $displayName")
+                    Log.d("ProfileManager", "User profile image URL: $profileImageUrl")
 
                     Log.d("ProfileManager", "User display name: $displayName")
                     Log.d("ProfileManager", "User profile image URL: $profileImageUrl")
 
-                    // Actualiza el ViewModel con el nombre y la URL de la imagen del perfil
+                    // Update ViewModel with name and profile image
                     profileViewModel.setDisplayName(displayName)
                     profileViewModel.setProfileImageUrl(profileImageUrl)
                     Log.d("ProfileManager", "ProfileViewModel updated")
                 }
+
             } catch (e: IOException) {
                 Log.e("ProfileManager", "Failed to fetch user profile: ${e.message}")
                 if (e.message?.contains("401 Unauthorized") == true) {
