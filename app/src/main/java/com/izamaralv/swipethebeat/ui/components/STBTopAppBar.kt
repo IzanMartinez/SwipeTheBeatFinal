@@ -209,8 +209,22 @@ fun STBTopAppBar(
             )
         },
         actions = {
+
             profileImageUrl?.let { url ->
-                val painter = rememberAsyncImagePainter(
+//                val painter = painterResource(id = R.drawable.default_profile)
+
+                val painter = if (profileImageUrl.isNullOrEmpty()){
+                    painterResource(id = R.drawable.default_profile)
+                } else {
+                    rememberAsyncImagePainter(
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(url)
+                            .crossfade(true)
+                            .build()
+                    )
+                }
+
+                    rememberAsyncImagePainter(
                     model = ImageRequest.Builder(LocalContext.current)
                         .data(url)
                         .crossfade(true)
@@ -219,6 +233,7 @@ fun STBTopAppBar(
                 Log.d("STBTopAppBar", "Loading profile image from URL: $url")
                 Box(
                     modifier = Modifier
+                        .padding(end = 10.dp)
                         .size(40.dp)
                         .clip(CircleShape)
                         .border(2.dp, backgroundColor.value, CircleShape)

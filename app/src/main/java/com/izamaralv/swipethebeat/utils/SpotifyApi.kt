@@ -48,7 +48,7 @@ object SpotifyApi {
         return null
     }
 
-    fun refreshAccessToken(refreshToken: String): String? {
+    private fun refreshAccessToken(refreshToken: String): String? {
         val formBody =
             FormBody.Builder().add("grant_type", "refresh_token").add("refresh_token", refreshToken)
                 .add("client_id", CLIENT_ID).add("client_secret", CLIENT_SECRET).build()
