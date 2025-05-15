@@ -49,6 +49,7 @@ import com.izamaralv.swipethebeat.ui.theme.orangePastelColor
 import com.izamaralv.swipethebeat.ui.theme.purplePastelColor
 import com.izamaralv.swipethebeat.ui.theme.redPastelColor
 import com.izamaralv.swipethebeat.ui.theme.pinkPastelColor
+import com.izamaralv.swipethebeat.utils.changeColor
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -65,6 +66,7 @@ fun STBTopAppBar(
     var colorMenuExpanded by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
+
     // Registra la URL de la imagen del perfil
     Log.d("STBTopAppBar", "Profile image URL: $profileImageUrl")
 
@@ -74,131 +76,8 @@ fun STBTopAppBar(
                 Icon(imageVector = Icons.Default.Palette, contentDescription = "palette icon")
             }
 
-            DropdownMenu(
-                expanded = colorMenuExpanded,
-                onDismissRequest = { colorMenuExpanded = false },
-                modifier = Modifier.background(color = cardColor.value)
-            ) {
-                // Opción de color verde
-                DropdownMenuItem(
-
-                    leadingIcon = {
-                        Image(
-                            painter = painterResource(R.drawable.green),
-                            contentDescription = "Green color",
-                            modifier = Modifier
-                                .size(40.dp)
-                                .clip(CircleShape),
-                            contentScale = ContentScale.Crop
-                        )
-                    },
-                    text = { Text("Green", color = greenPastelColor) },
-                    onClick = {
-                        colorMenuExpanded = false
-                        softComponentColor.value = greenPastelColor
-                    },
-                    modifier = Modifier.padding(bottom = 10.dp)
-                )
-
-                // Opción de color naranja
-                DropdownMenuItem(
-                    leadingIcon = {
-                        Image(
-                            painter = painterResource(R.drawable.orange),
-                            contentDescription = "Orange color",
-                            modifier = Modifier
-                                .size(40.dp)
-                                .clip(CircleShape),
-                            contentScale = ContentScale.Crop
-                        )
-                    },
-                    text = { Text("Orange", color = orangePastelColor) },
-                    onClick = {
-                        colorMenuExpanded = false
-                        softComponentColor.value = orangePastelColor
-                    },
-                    modifier = Modifier.padding(bottom = 10.dp)
-                )
-
-                // Opción de color azul
-                DropdownMenuItem(
-                    leadingIcon = {
-                        Image(
-                            painter = painterResource(R.drawable.blue),
-                            contentDescription = "Blue color",
-                            modifier = Modifier
-                                .size(40.dp)
-                                .clip(CircleShape),
-                            contentScale = ContentScale.Crop
-                        )
-                    },
-                    text = { Text("Blue", color = bluePastelColor) },
-                    onClick = {
-                        colorMenuExpanded = false
-                        softComponentColor.value = bluePastelColor
-                    },
-                    modifier = Modifier.padding(bottom = 10.dp)
-                )
-
-                // Opción de color rojo
-                DropdownMenuItem(
-                    leadingIcon = {
-                        Image(
-                            painter = painterResource(R.drawable.red),
-                            contentDescription = "Red color",
-                            modifier = Modifier
-                                .size(40.dp)
-                                .clip(CircleShape),
-                            contentScale = ContentScale.Crop
-                        )
-                    },
-                    text = { Text("Red", color = redPastelColor) },
-                    onClick = {
-                        colorMenuExpanded = false
-                        softComponentColor.value = redPastelColor
-                    },
-                    modifier = Modifier.padding(bottom = 10.dp)
-                )
-
-                // Opción de color púrpura
-                DropdownMenuItem(
-                    leadingIcon = {
-                        Image(
-                            painter = painterResource(R.drawable.purple),
-                            contentDescription = "Purple color",
-                            modifier = Modifier
-                                .size(40.dp)
-                                .clip(CircleShape),
-                            contentScale = ContentScale.Crop
-                        )
-                    },
-                    text = { Text("Purple", color = purplePastelColor) },
-                    onClick = {
-                        colorMenuExpanded = false
-                        softComponentColor.value = purplePastelColor
-                    },
-                    modifier = Modifier.padding(bottom = 10.dp)
-                )
-
-                // Opción de color rosa
-                DropdownMenuItem(
-                    leadingIcon = {
-                        Image(
-                            painter = painterResource(R.drawable.pink),
-                            contentDescription = "Pink color",
-                            modifier = Modifier
-                                .size(40.dp)
-                                .clip(CircleShape),
-                            contentScale = ContentScale.Crop
-                        )
-                    },
-                    text = { Text("Pink", color = pinkPastelColor) },
-                    onClick = {
-                        colorMenuExpanded = false
-                        softComponentColor.value = pinkPastelColor
-                    },
-                    modifier = Modifier.padding(bottom = 10.dp)
-                )
+            if (colorMenuExpanded) {
+                ColorPickerMenu(profileViewModel = profileViewModel, onDismiss = { colorMenuExpanded = false })
             }
         },
         title = {

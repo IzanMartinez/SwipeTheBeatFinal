@@ -4,9 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.izamaralv.swipethebeat.screens.LikedSongsScreen
-import com.izamaralv.swipethebeat.screens.LoginScreen
-import com.izamaralv.swipethebeat.screens.MainScreen
+import com.izamaralv.swipethebeat.screens.*
 import com.izamaralv.swipethebeat.viewmodel.ProfileViewModel
 
 @Composable
@@ -23,6 +21,10 @@ fun NavGraph(navController: NavHostController, profileViewModel: ProfileViewMode
         composable(route = Screen.LikedSongs.route) {
             // Pantalla de canciones favoritas
             LikedSongsScreen(navController = navController, profileViewModel = profileViewModel)
+        }
+        composable(route = Screen.Profile.route) {
+            // Pantalla de perfil
+            ProfileScreen(navController = navController, profileViewModel = profileViewModel)
         }
     }
 }

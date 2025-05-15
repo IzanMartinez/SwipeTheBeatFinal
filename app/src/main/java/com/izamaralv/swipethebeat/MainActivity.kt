@@ -30,6 +30,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import androidx.core.net.toUri
 
 class MainActivity : ComponentActivity() {
     // Declaración de variables para la navegación y gestión de Spotify y perfiles
@@ -132,7 +133,7 @@ class MainActivity : ComponentActivity() {
         val clientId = Credentials.CLIENT_ID
         val redirectUri = Credentials.REDIRECT_URI
         val authorizationUrl = spotifyManager.getAuthorizationUrl(clientId, redirectUri)
-        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(authorizationUrl))
+        val intent = Intent(Intent.ACTION_VIEW, authorizationUrl.toUri())
         startActivity(intent)
     }
 

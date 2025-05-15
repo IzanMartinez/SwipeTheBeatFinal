@@ -4,6 +4,7 @@ import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
 
 class UserRepository {
+
     private val firestore = FirebaseFirestore.getInstance().apply {
         Log.d("Firestore", "Firestore instance initialized: $this")
     }
@@ -20,7 +21,8 @@ class UserRepository {
             "user_id" to userId,
             "name" to userData["name"],
             "email" to userData["email"],
-            "avatar_url" to userData["avatar_url"]
+            "avatar_url" to userData["avatar_url"],
+            "profile_color" to userData["profile_color"]
         )
 
         Log.d("Firestore", "🔍 Attempting to save user: $userId with data: $user")
@@ -52,6 +54,7 @@ class UserRepository {
                     document.getString("name")?.let { userData["name"] = it }
                     document.getString("email")?.let { userData["email"] = it }
                     document.getString("avatar_url")?.let { userData["avatar_url"] = it }
+                    document.getString("profile_color")?.let { userData["profile_color"] = it }
 
                     Log.d("Firestore", "User data retrieved: $userData")
                     onResult(userData)
@@ -89,5 +92,18 @@ class UserRepository {
             }
         }
     }
+
+    fun updateUserColor(userId: String, color: String) {
+        FirebaseFirestore.getInstance().collection("users")
+            .document(userId)
+            .update("profile_color", color) // ✅ Update only the color field
+            .addOnSuccessListener {
+                Log.d("Firestore", "✅ Profile color updated successfully to: $color")
+            }
+            .addOnFailureListener { e ->
+                Log.e("Firestore", "❌ Error updating profile color: ${e.message}")
+            }
+    }
+
 
 }
