@@ -11,6 +11,9 @@ import kotlinx.coroutines.launch
 import com.izamaralv.swipethebeat.viewmodel.SongViewModel
 import com.izamaralv.swipethebeat.repository.SongRepository
 import com.izamaralv.swipethebeat.viewmodel.SongViewModelFactory
+import org.json.JSONObject
+import java.net.HttpURLConnection
+import java.net.URL
 
 class SpotifyManager(private val context: Context) {
 
@@ -78,4 +81,7 @@ class SpotifyManager(private val context: Context) {
             popUpTo("main_screen") { inclusive = true }
         }
     }
-}
+
+
+    }
+

@@ -23,6 +23,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -57,6 +58,7 @@ import com.izamaralv.swipethebeat.utils.TokenManager
 import com.izamaralv.swipethebeat.viewmodel.ProfileViewModel
 import com.izamaralv.swipethebeat.viewmodel.SongViewModel
 import com.izamaralv.swipethebeat.viewmodel.SongViewModelFactory
+import androidx.core.net.toUri
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -109,6 +111,7 @@ fun MainScreen(navController: NavHostController, profileViewModel: ProfileViewMo
                 .background(color = backgroundColor.value),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+
             val currentSong by songViewModel.currentSong.observeAsState()
 
             currentSong?.let { song ->
@@ -205,14 +208,15 @@ fun MainScreen(navController: NavHostController, profileViewModel: ProfileViewMo
 
                         // Botón para reproducir en Spotify
                         Button(
+//                            modifier = Modifier.size(),
                             onClick = {
                                 val spotifyUri = "spotify:track:${song.id}"
-                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(spotifyUri))
+                                val intent = Intent(Intent.ACTION_VIEW, spotifyUri.toUri())
 
                                 // Agregar referrer opcional
                                 intent.putExtra(
                                     Intent.EXTRA_REFERRER,
-                                    Uri.parse("android-app://${context.packageName}")
+                                    "android-app://${context.packageName}".toUri()
                                 )
                                 NotificationHelper.showPersistentNotification(context)
                                 context.startActivity(intent)

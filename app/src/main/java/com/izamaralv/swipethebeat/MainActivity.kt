@@ -14,15 +14,22 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.google.firebase.auth.FirebaseAuth
 import com.izamaralv.swipethebeat.navigation.NavGraph
+import com.izamaralv.swipethebeat.repository.UserRepository
 import com.izamaralv.swipethebeat.ui.components.NotificationHelper
 import com.izamaralv.swipethebeat.ui.theme.SwipeTheBeatTheme
 import com.izamaralv.swipethebeat.utils.Credentials
 import com.izamaralv.swipethebeat.utils.ProfileManager
+import com.izamaralv.swipethebeat.utils.SpotifyApi
 import com.izamaralv.swipethebeat.utils.SpotifyManager
 import com.izamaralv.swipethebeat.utils.TokenManager
 import com.izamaralv.swipethebeat.viewmodel.InitializationViewModel
 import com.izamaralv.swipethebeat.viewmodel.ProfileViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MainActivity : ComponentActivity() {
     // Declaración de variables para la navegación y gestión de Spotify y perfiles
@@ -81,16 +88,42 @@ class MainActivity : ComponentActivity() {
         val tokenManager = TokenManager(applicationContext)
         val accessToken = tokenManager.getAccessToken()
         val refreshToken = tokenManager.getRefreshToken()
+
         val expiresIn = 3600
 
         if (accessToken != null && refreshToken != null) {
-            // Inicializa el cliente de Spotify y obtiene el perfil del usuario
+            // ✅ Initialize Spotify components
             spotifyManager.initializeSpotifyClient(accessToken, refreshToken, expiresIn)
             spotifyManager.initializeSongRepository(accessToken)
             profileManager.fetchUserProfile(accessToken)
-            initializationViewModel.setInitialized()
+
+            // ✅ Use coroutine for background processing
+            CoroutineScope(Dispatchers.IO).launch {
+                val spotifyUserProfile = SpotifyApi.getUserProfile(accessToken, applicationContext) // ✅ Fetch latest Spotify data
+                val spotifyUserId = spotifyUserProfile?.get("user_id")
+
+                withContext(Dispatchers.Main) { // ✅ Ensure UI updates happen on the main thread
+                    if (spotifyUserId.isNullOrEmpty()) {
+                        Log.e("Firestore", "❌ Spotify User ID is null—Firestore can't retrieve profile!")
+                    } else {
+                        Log.d("Firestore", "✅ Using Spotify User ID: $spotifyUserId for Firestore")
+
+                        // ✅ Ensure data is properly formatted for Firestore
+                        val userProfileMap = spotifyUserProfile.mapValues { it.value ?: "" }
+                        Log.d("Firestore", "✅ Updating Firestore with latest Spotify profile data: $userProfileMap")
+
+                        // ✅ Call Firestore update function in UserRepository
+                        val userRepository = UserRepository()
+                        userRepository.saveUserToFirestore(userProfileMap)
+
+                        profileViewModel.loadUserProfile(spotifyUserId)
+                    }
+
+                    initializationViewModel.setInitialized()
+                }
+            }
         } else {
-            // Inicia el flujo de autenticación OAuth si no hay tokens
+            // ✅ Start the OAuth authentication flow if no tokens exist
             initiateOAuthFlow()
         }
     }
