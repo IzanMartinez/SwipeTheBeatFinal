@@ -1,7 +1,6 @@
 package com.izamaralv.swipethebeat.ui.components
 
 import android.content.Intent
-import android.net.Uri
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -17,7 +16,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
@@ -41,15 +39,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import coil.request.ImageRequest
 import com.izamaralv.swipethebeat.common.backgroundColor
-import com.izamaralv.swipethebeat.common.cardColor
 import com.izamaralv.swipethebeat.common.softComponentColor
-import com.izamaralv.swipethebeat.ui.theme.bluePastelColor
-import com.izamaralv.swipethebeat.ui.theme.greenPastelColor
-import com.izamaralv.swipethebeat.ui.theme.orangePastelColor
-import com.izamaralv.swipethebeat.ui.theme.purplePastelColor
-import com.izamaralv.swipethebeat.ui.theme.redPastelColor
-import com.izamaralv.swipethebeat.ui.theme.pinkPastelColor
-import com.izamaralv.swipethebeat.utils.changeColor
+import androidx.core.net.toUri
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -60,15 +51,23 @@ fun STBTopAppBar(
     firstFunction: () -> Unit,
     firstIcon: ImageVector
 ) {
-    // Observa la URL de la imagen del perfil
-    val profileImageUrl by profileViewModel.profileImageUrl.observeAsState()
     var iconMenuExpanded by remember { mutableStateOf(false) }
     var colorMenuExpanded by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
+    // ✅ Optimized profile image selection logic
+    val painter = if (profileViewModel.getProfileImageUrl().isEmpty()) {
+        painterResource(id = R.drawable.default_profile)
+    } else {
+        rememberAsyncImagePainter(
+            model = ImageRequest.Builder(context)
+                .data(profileViewModel.getProfileImageUrl())
+                .crossfade(true)
+                .build()
+        )
+    }
 
-    // Registra la URL de la imagen del perfil
-    Log.d("STBTopAppBar", "Profile image URL: $profileImageUrl")
+    Log.d("STBTopAppBar", "Loading profile image from URL: ${profileViewModel.getProfileImageUrl()}")
 
     CenterAlignedTopAppBar(
         navigationIcon = {
@@ -77,7 +76,10 @@ fun STBTopAppBar(
             }
 
             if (colorMenuExpanded) {
-                ColorPickerMenu(profileViewModel = profileViewModel, onDismiss = { colorMenuExpanded = false })
+                ColorPickerMenu(
+                    profileViewModel = profileViewModel,
+                    onDismiss = { colorMenuExpanded = false }
+                )
             }
         },
         title = {
@@ -88,87 +90,57 @@ fun STBTopAppBar(
             )
         },
         actions = {
-
-            profileImageUrl?.let { url ->
-//                val painter = painterResource(id = R.drawable.default_profile)
-
-                val painter = if (profileImageUrl.isNullOrEmpty()){
-                    painterResource(id = R.drawable.default_profile)
-                } else {
-                    rememberAsyncImagePainter(
-                        model = ImageRequest.Builder(LocalContext.current)
-                            .data(url)
-                            .crossfade(true)
-                            .build()
-                    )
-                }
-
-                    rememberAsyncImagePainter(
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data(url)
-                        .crossfade(true)
-                        .build()
-                )
-                Log.d("STBTopAppBar", "Loading profile image from URL: $url")
-                Box(
+            Box(
+                modifier = Modifier
+                    .padding(end = 10.dp)
+                    .size(40.dp)
+                    .clip(CircleShape)
+                    .border(2.dp, backgroundColor.value, CircleShape)
+                    .clickable { iconMenuExpanded = !iconMenuExpanded }
+            ) {
+                Image(
+                    painter = painter,
+                    contentDescription = "Profile Image",
                     modifier = Modifier
-                        .padding(end = 10.dp)
                         .size(40.dp)
                         .clip(CircleShape)
-                        .border(2.dp, backgroundColor.value, CircleShape)
-                        .clickable { iconMenuExpanded = !iconMenuExpanded }
-                ) {
-                    Image(
-                        painter = painter,
-                        contentDescription = "Profile Image",
-                        modifier = Modifier
-                            .size(40.dp)
-                            .clip(CircleShape)
-                            .border(2.dp, backgroundColor.value, CircleShape),
-                        contentScale = ContentScale.Crop
-                    )
+                        .border(2.dp, backgroundColor.value, CircleShape),
+                    contentScale = ContentScale.Crop
+                )
 
-                    DropdownMenu(
-                        expanded = iconMenuExpanded,
-                        onDismissRequest = { iconMenuExpanded = false },
-                        modifier = Modifier.background(color = softComponentColor.value)
-                    ) {
-                        // Opción principal
-                        DropdownMenuItem(
-                            leadingIcon = { Icon(firstIcon, "") },
-                            text = { Text(firstOption) },
-                            onClick = {
-                                firstFunction()
-                                iconMenuExpanded = false
+                DropdownMenu(
+                    expanded = iconMenuExpanded,
+                    onDismissRequest = { iconMenuExpanded = false },
+                    modifier = Modifier.background(color = softComponentColor.value)
+                ) {
+                    DropdownMenuItem(
+                        leadingIcon = { Icon(firstIcon, "") },
+                        text = { Text(firstOption) },
+                        onClick = {
+                            firstFunction()
+                            iconMenuExpanded = false
+                        }
+                    )
+                    DropdownMenuItem(
+                        leadingIcon = { Icon(Icons.AutoMirrored.Filled.Help, contentDescription = "Help icon") },
+                        text = { Text("¿Algún problema?") },
+                        onClick = {
+                            val intent = Intent(Intent.ACTION_SENDTO).apply {
+                                data = "mailto:swipethebeathelp@gmail.com".toUri()
+                                putExtra(Intent.EXTRA_SUBJECT, "Need assistance")
                             }
-                        )
-                        // Opción de ayuda
-                        DropdownMenuItem(
-                            leadingIcon = {
-                                Icon(Icons.AutoMirrored.Filled.Help, contentDescription = "Help icon")
-                            },
-                            text = { Text("¿Algún problema?") },
-                            onClick = {
-                                val intent = Intent(Intent.ACTION_SENDTO).apply {
-                                    data = Uri.parse("mailto:swipethebeathelp@gmail.com")
-                                    putExtra(Intent.EXTRA_SUBJECT, "Need assistance")
-                                }
-                                context.startActivity(intent)
-                                iconMenuExpanded = false
-                            }
-                        )
-                        // Opción de cerrar sesión
-                        DropdownMenuItem(
-                            leadingIcon = {
-                                Icon(Icons.AutoMirrored.Filled.ExitToApp, contentDescription = "Logout icon")
-                            },
-                            text = { Text("Cerrar sesión") },
-                            onClick = {
-                                onLogout()
-                                iconMenuExpanded = false
-                            }
-                        )
-                    }
+                            context.startActivity(intent)
+                            iconMenuExpanded = false
+                        }
+                    )
+                    DropdownMenuItem(
+                        leadingIcon = { Icon(Icons.AutoMirrored.Filled.ExitToApp, contentDescription = "Logout icon") },
+                        text = { Text("Cerrar sesión") },
+                        onClick = {
+                            onLogout()
+                            iconMenuExpanded = false
+                        }
+                    )
                 }
             }
         },
@@ -177,4 +149,3 @@ fun STBTopAppBar(
         )
     )
 }
-

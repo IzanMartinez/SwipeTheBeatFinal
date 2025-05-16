@@ -59,9 +59,7 @@ fun ColorPickerMenu(
                 },
                 text = { Text(colorName, color = colorValue) },
                 onClick = {
-                    profileViewModel.userId.value?.let { userId ->
-                        changeColor(colorValue, userId, profileViewModel)
-                    }
+                    changeColor(colorValue, profileViewModel.getUserId(), profileViewModel)
                     onDismiss()
                 },
                 modifier = Modifier.padding(bottom = 10.dp)
