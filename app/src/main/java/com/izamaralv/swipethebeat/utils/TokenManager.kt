@@ -1,6 +1,8 @@
 package com.izamaralv.swipethebeat.utils
 
 import android.content.Context
+import android.util.Log
+import androidx.core.content.edit
 
 class TokenManager(context: Context) {
     // Accede a las preferencias compartidas para almacenar los tokens de Spotify
@@ -8,10 +10,10 @@ class TokenManager(context: Context) {
 
     // Guarda los tokens de acceso y actualización en las preferencias compartidas
     fun saveTokens(accessToken: String, refreshToken: String) {
-        sharedPreferences.edit()
-            .putString("ACCESS_TOKEN", accessToken)
-            .putString("REFRESH_TOKEN", refreshToken)
-            .apply()
+        sharedPreferences.edit {
+            putString("ACCESS_TOKEN", accessToken)
+                .putString("REFRESH_TOKEN", refreshToken)
+        }
     }
 
     // Recupera el token de acceso almacenado
@@ -26,10 +28,16 @@ class TokenManager(context: Context) {
 
     // Limpia los tokens almacenados en las preferencias compartidas
     fun clearTokens() {
-        sharedPreferences.edit()
-            .remove("ACCESS_TOKEN")
-            .remove("REFRESH_TOKEN")
-            .apply()
+        sharedPreferences.edit {
+            remove("ACCESS_TOKEN")
+                .remove("REFRESH_TOKEN")
+        }
     }
+
+        // ✅ New function to store the refreshed access token
+        fun saveAccessToken(newAccessToken: String) {
+            sharedPreferences.edit { putString("ACCESS_TOKEN", newAccessToken) }
+            Log.d("TokenManager", "✅ Saved new access token: $newAccessToken")
+        }
 }
 

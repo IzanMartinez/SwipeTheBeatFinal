@@ -28,6 +28,7 @@ class ProfileViewModel : ViewModel() {
 
     fun loadUserProfile(userId: String) {
         Log.d("ProfileViewModel", "Loading user profile for ID: $userId")
+
         userRepository.getUserFromFirestore(userId) { userData ->
             if (userData != null) {
                 Log.d("ProfileViewModel", "User data retrieved: $userData")
@@ -35,14 +36,20 @@ class ProfileViewModel : ViewModel() {
                 this.userId = userData["user_id"] ?: ""
                 this.displayName = userData["name"] ?: "Invitado"
                 this.profileImageUrl = userData["avatar_url"] ?: ""
-                this.profileColor = userData["profile_color"] ?: "#3be477"
 
-                softComponentColor.value = Color(profileColor.toColorInt())
+                val storedColorHex = userData["profile_color"] ?: "#3be477" // ✅ Firestore stored color
+
+                // ✅ Immediately update the global color variable
+                softComponentColor.value = Color(storedColorHex.toColorInt())
+
+                Log.d("ProfileViewModel", "✅ Profile color applied from Firestore: $storedColorHex")
             } else {
                 Log.e("ProfileViewModel", "User not found in Firestore!")
             }
         }
     }
+
+
 
 
     fun changeColor(userId: String, newColor: String) {

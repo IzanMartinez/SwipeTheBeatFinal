@@ -51,15 +51,23 @@ fun STBTopAppBar(
     firstFunction: () -> Unit,
     firstIcon: ImageVector
 ) {
-    // Observa la URL de la imagen del perfil
-    val profileImageUrl = profileViewModel.getProfileImageUrl()
     var iconMenuExpanded by remember { mutableStateOf(false) }
     var colorMenuExpanded by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
+    // ✅ Optimized profile image selection logic
+    val painter = if (profileViewModel.getProfileImageUrl().isEmpty()) {
+        painterResource(id = R.drawable.default_profile)
+    } else {
+        rememberAsyncImagePainter(
+            model = ImageRequest.Builder(context)
+                .data(profileViewModel.getProfileImageUrl())
+                .crossfade(true)
+                .build()
+        )
+    }
 
-    // Registra la URL de la imagen del perfil
-    Log.d("STBTopAppBar", "Profile image URL: $profileImageUrl")
+    Log.d("STBTopAppBar", "Loading profile image from URL: ${profileViewModel.getProfileImageUrl()}")
 
     CenterAlignedTopAppBar(
         navigationIcon = {
@@ -68,7 +76,10 @@ fun STBTopAppBar(
             }
 
             if (colorMenuExpanded) {
-                ColorPickerMenu(profileViewModel = profileViewModel, onDismiss = { colorMenuExpanded = false })
+                ColorPickerMenu(
+                    profileViewModel = profileViewModel,
+                    onDismiss = { colorMenuExpanded = false }
+                )
             }
         },
         title = {
@@ -79,87 +90,57 @@ fun STBTopAppBar(
             )
         },
         actions = {
-
-            profileImageUrl.let { url ->
-        //                val painter = painterResource(id = R.drawable.default_profile)
-
-                val painter = if (profileImageUrl.isEmpty()){
-                    painterResource(id = R.drawable.default_profile)
-                } else {
-                    rememberAsyncImagePainter(
-                        model = ImageRequest.Builder(LocalContext.current)
-                            .data(url)
-                            .crossfade(true)
-                            .build()
-                    )
-                }
-
-                rememberAsyncImagePainter(
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data(url)
-                        .crossfade(true)
-                        .build()
-                )
-                Log.d("STBTopAppBar", "Loading profile image from URL: $url")
-                Box(
+            Box(
+                modifier = Modifier
+                    .padding(end = 10.dp)
+                    .size(40.dp)
+                    .clip(CircleShape)
+                    .border(2.dp, backgroundColor.value, CircleShape)
+                    .clickable { iconMenuExpanded = !iconMenuExpanded }
+            ) {
+                Image(
+                    painter = painter,
+                    contentDescription = "Profile Image",
                     modifier = Modifier
-                        .padding(end = 10.dp)
                         .size(40.dp)
                         .clip(CircleShape)
-                        .border(2.dp, backgroundColor.value, CircleShape)
-                        .clickable { iconMenuExpanded = !iconMenuExpanded }
-                ) {
-                    Image(
-                        painter = painter,
-                        contentDescription = "Profile Image",
-                        modifier = Modifier
-                            .size(40.dp)
-                            .clip(CircleShape)
-                            .border(2.dp, backgroundColor.value, CircleShape),
-                        contentScale = ContentScale.Crop
-                    )
+                        .border(2.dp, backgroundColor.value, CircleShape),
+                    contentScale = ContentScale.Crop
+                )
 
-                    DropdownMenu(
-                        expanded = iconMenuExpanded,
-                        onDismissRequest = { iconMenuExpanded = false },
-                        modifier = Modifier.background(color = softComponentColor.value)
-                    ) {
-                        // Opción principal
-                        DropdownMenuItem(
-                            leadingIcon = { Icon(firstIcon, "") },
-                            text = { Text(firstOption) },
-                            onClick = {
-                                firstFunction()
-                                iconMenuExpanded = false
+                DropdownMenu(
+                    expanded = iconMenuExpanded,
+                    onDismissRequest = { iconMenuExpanded = false },
+                    modifier = Modifier.background(color = softComponentColor.value)
+                ) {
+                    DropdownMenuItem(
+                        leadingIcon = { Icon(firstIcon, "") },
+                        text = { Text(firstOption) },
+                        onClick = {
+                            firstFunction()
+                            iconMenuExpanded = false
+                        }
+                    )
+                    DropdownMenuItem(
+                        leadingIcon = { Icon(Icons.AutoMirrored.Filled.Help, contentDescription = "Help icon") },
+                        text = { Text("¿Algún problema?") },
+                        onClick = {
+                            val intent = Intent(Intent.ACTION_SENDTO).apply {
+                                data = "mailto:swipethebeathelp@gmail.com".toUri()
+                                putExtra(Intent.EXTRA_SUBJECT, "Need assistance")
                             }
-                        )
-                        // Opción de ayuda
-                        DropdownMenuItem(
-                            leadingIcon = {
-                                Icon(Icons.AutoMirrored.Filled.Help, contentDescription = "Help icon")
-                            },
-                            text = { Text("¿Algún problema?") },
-                            onClick = {
-                                val intent = Intent(Intent.ACTION_SENDTO).apply {
-                                    data = "mailto:swipethebeathelp@gmail.com".toUri()
-                                    putExtra(Intent.EXTRA_SUBJECT, "Need assistance")
-                                }
-                                context.startActivity(intent)
-                                iconMenuExpanded = false
-                            }
-                        )
-                        // Opción de cerrar sesión
-                        DropdownMenuItem(
-                            leadingIcon = {
-                                Icon(Icons.AutoMirrored.Filled.ExitToApp, contentDescription = "Logout icon")
-                            },
-                            text = { Text("Cerrar sesión") },
-                            onClick = {
-                                onLogout()
-                                iconMenuExpanded = false
-                            }
-                        )
-                    }
+                            context.startActivity(intent)
+                            iconMenuExpanded = false
+                        }
+                    )
+                    DropdownMenuItem(
+                        leadingIcon = { Icon(Icons.AutoMirrored.Filled.ExitToApp, contentDescription = "Logout icon") },
+                        text = { Text("Cerrar sesión") },
+                        onClick = {
+                            onLogout()
+                            iconMenuExpanded = false
+                        }
+                    )
                 }
             }
         },
@@ -168,4 +149,3 @@ fun STBTopAppBar(
         )
     )
 }
-
