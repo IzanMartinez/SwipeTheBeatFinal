@@ -1,7 +1,6 @@
 package com.izamaralv.swipethebeat.ui.components
 
 import android.content.Intent
-import android.net.Uri
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -17,7 +16,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
@@ -41,15 +39,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import coil.request.ImageRequest
 import com.izamaralv.swipethebeat.common.backgroundColor
-import com.izamaralv.swipethebeat.common.cardColor
 import com.izamaralv.swipethebeat.common.softComponentColor
-import com.izamaralv.swipethebeat.ui.theme.bluePastelColor
-import com.izamaralv.swipethebeat.ui.theme.greenPastelColor
-import com.izamaralv.swipethebeat.ui.theme.orangePastelColor
-import com.izamaralv.swipethebeat.ui.theme.purplePastelColor
-import com.izamaralv.swipethebeat.ui.theme.redPastelColor
-import com.izamaralv.swipethebeat.ui.theme.pinkPastelColor
-import com.izamaralv.swipethebeat.utils.changeColor
+import androidx.core.net.toUri
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -61,7 +52,7 @@ fun STBTopAppBar(
     firstIcon: ImageVector
 ) {
     // Observa la URL de la imagen del perfil
-    val profileImageUrl by profileViewModel.profileImageUrl.observeAsState()
+    val profileImageUrl = profileViewModel.getProfileImageUrl()
     var iconMenuExpanded by remember { mutableStateOf(false) }
     var colorMenuExpanded by remember { mutableStateOf(false) }
     val context = LocalContext.current
@@ -89,10 +80,10 @@ fun STBTopAppBar(
         },
         actions = {
 
-            profileImageUrl?.let { url ->
-//                val painter = painterResource(id = R.drawable.default_profile)
+            profileImageUrl.let { url ->
+        //                val painter = painterResource(id = R.drawable.default_profile)
 
-                val painter = if (profileImageUrl.isNullOrEmpty()){
+                val painter = if (profileImageUrl.isEmpty()){
                     painterResource(id = R.drawable.default_profile)
                 } else {
                     rememberAsyncImagePainter(
@@ -103,7 +94,7 @@ fun STBTopAppBar(
                     )
                 }
 
-                    rememberAsyncImagePainter(
+                rememberAsyncImagePainter(
                     model = ImageRequest.Builder(LocalContext.current)
                         .data(url)
                         .crossfade(true)
@@ -150,7 +141,7 @@ fun STBTopAppBar(
                             text = { Text("¿Algún problema?") },
                             onClick = {
                                 val intent = Intent(Intent.ACTION_SENDTO).apply {
-                                    data = Uri.parse("mailto:swipethebeathelp@gmail.com")
+                                    data = "mailto:swipethebeathelp@gmail.com".toUri()
                                     putExtra(Intent.EXTRA_SUBJECT, "Need assistance")
                                 }
                                 context.startActivity(intent)

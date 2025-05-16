@@ -2,8 +2,6 @@ package com.izamaralv.swipethebeat.screens
 
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.media.MediaPlayer
-import android.net.Uri
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -23,17 +21,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -67,7 +60,7 @@ fun MainScreen(navController: NavHostController, profileViewModel: ProfileViewMo
     val systemUiController = rememberSystemUiController()
     systemUiController.setStatusBarColor(color = softComponentColor.value, darkIcons = false)
 
-    val displayName by profileViewModel.displayName.observeAsState()
+    val displayName = profileViewModel.getDisplayName()
 
     val context = LocalContext.current
     val songRepository = SongRepository(context)
@@ -124,7 +117,7 @@ fun MainScreen(navController: NavHostController, profileViewModel: ProfileViewMo
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = "Bienvenido/a ${displayName ?: "Invitado"}",
+                            text = "Bienvenido/a $displayName",
                             color = softComponentColor.value
                         )
 
