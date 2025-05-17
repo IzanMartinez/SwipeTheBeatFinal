@@ -6,26 +6,26 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.izamaralv.swipethebeat.screens.*
 import com.izamaralv.swipethebeat.viewmodel.ProfileViewModel
+import com.izamaralv.swipethebeat.viewmodel.SearchViewModel
 
 @Composable
-fun NavGraph(navController: NavHostController, profileViewModel: ProfileViewModel) {
+fun NavGraph(navController: NavHostController, profileViewModel: ProfileViewModel, searchViewModel: SearchViewModel) {
     NavHost(navController = navController, startDestination = Screen.Login.route) {
         composable(route = Screen.Login.route) {
-            // Pantalla de inicio de sesión
             LoginScreen(navController = navController)
         }
         composable(route = Screen.Main.route) {
-            // Pantalla principal
             MainScreen(navController = navController, profileViewModel = profileViewModel)
         }
         composable(route = Screen.LikedSongs.route) {
-            // Pantalla de canciones favoritas
             LikedSongsScreen(navController = navController, profileViewModel = profileViewModel)
         }
         composable(route = Screen.Profile.route) {
-            // Pantalla de perfil
-            ProfileScreen(navController = navController, profileViewModel = profileViewModel)
+            ProfileScreen(
+                navController = navController,
+                profileViewModel = profileViewModel,
+                searchViewModel = searchViewModel // ✅ Pass SearchViewModel
+            )
         }
     }
 }
-

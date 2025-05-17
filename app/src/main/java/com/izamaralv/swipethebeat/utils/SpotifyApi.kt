@@ -2,13 +2,10 @@ package com.izamaralv.swipethebeat.utils
 
 import android.content.Context
 import android.util.Log
-import androidx.compose.ui.platform.LocalContext
-import com.izamaralv.swipethebeat.models.SongDTO
 import com.izamaralv.swipethebeat.utils.Credentials.CLIENT_ID
 import com.izamaralv.swipethebeat.utils.Credentials.CLIENT_SECRET
 import com.izamaralv.swipethebeat.utils.Credentials.REDIRECT_URI
 import okhttp3.*
-import org.json.JSONArray
 import org.json.JSONObject
 import java.io.IOException
 
@@ -129,17 +126,4 @@ object SpotifyApi {
             )
         }
     }
-//    fun getUserId(accessToken: String): String? {
-//        val userProfile = getUserProfile(accessToken)
-//        val userId = userProfile?.get("user_id")
-//
-//        if (userId.isNullOrEmpty()) {
-//            Log.e("SpotifyApi", "❌ Extracted User ID is null or missing!")
-//            return null
-//        }
-//
-//        Log.d("SpotifyApi", "✅ Extracted Spotify User ID: $userId")
-//        return userId
-//    }
-
 }

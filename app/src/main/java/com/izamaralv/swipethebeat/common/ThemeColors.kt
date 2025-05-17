@@ -13,5 +13,7 @@ import androidx.core.graphics.toColorInt
 var backgroundColor = mutableStateOf(StandardBackground) // Color de fondo estándar
 var cardColor = mutableStateOf(StandardCard) // Color de las tarjetas estándar
 var softComponentColor = mutableStateOf(StandardField) // Color de los componentes suaves
+var textColor = mutableStateOf(Color.White) // Color del texto
+var basicBorder = mutableStateOf(Color.Black) // Color del borde básico
 
 

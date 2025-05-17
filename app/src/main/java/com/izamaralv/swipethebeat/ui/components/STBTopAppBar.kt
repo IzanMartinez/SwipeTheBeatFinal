@@ -75,12 +75,12 @@ fun STBTopAppBar(
                 Icon(imageVector = Icons.Default.Palette, contentDescription = "palette icon")
             }
 
-            if (colorMenuExpanded) {
-                ColorPickerMenu(
-                    profileViewModel = profileViewModel,
-                    onDismiss = { colorMenuExpanded = false }
-                )
-            }
+//            if (colorMenuExpanded) {
+//                ColorPickerMenu(
+//                    profileViewModel = profileViewModel,
+//                    onDismiss = { colorMenuExpanded = false }
+//                )
+//            }
         },
         title = {
             Image(

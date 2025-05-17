@@ -31,17 +31,25 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import androidx.core.net.toUri
+import com.izamaralv.swipethebeat.repository.SongRepository
+import com.izamaralv.swipethebeat.viewmodel.SearchViewModel
 
 class MainActivity : ComponentActivity() {
+
     // Declaración de variables para la navegación y gestión de Spotify y perfiles
     private lateinit var navController: NavHostController
     private lateinit var spotifyManager: SpotifyManager
     private lateinit var profileManager: ProfileManager
     private val profileViewModel: ProfileViewModel by viewModels()
     private val initializationViewModel: InitializationViewModel by viewModels()
+    private lateinit var searchViewModel: SearchViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val songRepository = SongRepository(applicationContext)
+        searchViewModel = SearchViewModel(songRepository) // ✅ Manual creation
+        Log.d("MainActivity", "🚀 SearchViewModel initialized: $searchViewModel")
 
         // Solicita permisos para notificaciones en versiones superiores a TIRAMISU
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -60,7 +68,6 @@ class MainActivity : ComponentActivity() {
 
         // Crea el canal de notificaciones
         NotificationHelper.createNotificationChannel(this)
-
         // Inicializa los gestores
         spotifyManager = SpotifyManager(applicationContext)
         profileManager = ProfileManager(applicationContext, profileViewModel)
@@ -77,6 +84,7 @@ class MainActivity : ComponentActivity() {
                         NavGraph(
                             navController = navController,
                             profileViewModel = profileViewModel,
+                            searchViewModel = searchViewModel // ✅ Include SearchViewModel
                         )
                         checkTokenAndNavigate()
                     }
@@ -152,7 +160,7 @@ class MainActivity : ComponentActivity() {
 
                         runOnUiThread {
                             initializationViewModel.setInitialized()
-                            navController.navigate("main_screen") {
+                            navController.navigate("profile_screen") {
                                 popUpTo("login_screen") { inclusive = true }
                             }
                         }
@@ -166,7 +174,7 @@ class MainActivity : ComponentActivity() {
         val tokenManager = TokenManager(applicationContext)
         val accessToken = tokenManager.getAccessToken()
         if (accessToken != null) {
-            navController.navigate("main_screen") {
+            navController.navigate("profile_screen") {
                 popUpTo("login_screen") { inclusive = true }
             }
         }

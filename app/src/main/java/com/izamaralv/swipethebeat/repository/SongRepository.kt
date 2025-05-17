@@ -140,5 +140,27 @@ class SongRepository(context: Context) {
             }
         }
     }
+    suspend fun searchArtists(token: String, query: String): List<String> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = apiService.searchArtists(
+                    token = "Bearer $token",
+                    query = query
+                )
+
+                if (response.isSuccessful) {
+                    Log.d("SongRepository", "Search artists response: ${response.body()?.artists?.items?.map { it.name }}")
+                    response.body()?.artists?.items?.map { it.name } ?: emptyList() // ✅ Returns artist names only
+                } else {
+                    Log.e("SongRepository", "Failed to search artists: ${response.message()} (Code: ${response.code()})")
+                    emptyList()
+                }
+            } catch (e: Exception) {
+                Log.e("SongRepository", "Exception in searchArtists: ${e.message}")
+                emptyList()
+            }
+        }
+    }
+
 }
 
