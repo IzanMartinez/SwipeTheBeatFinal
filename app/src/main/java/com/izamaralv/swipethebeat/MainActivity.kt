@@ -3,7 +3,6 @@ package com.izamaralv.swipethebeat
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -14,7 +13,6 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.google.firebase.auth.FirebaseAuth
 import com.izamaralv.swipethebeat.navigation.NavGraph
 import com.izamaralv.swipethebeat.repository.UserRepository
 import com.izamaralv.swipethebeat.ui.components.NotificationHelper
@@ -132,7 +130,7 @@ class MainActivity : ComponentActivity() {
                 }
             }
         } else {
-            // ✅ Start the OAuth authentication flow if no tokens exist
+            // ✅ Start the OAuth authentication flow if no tokens exists
             initiateOAuthFlow()
         }
     }

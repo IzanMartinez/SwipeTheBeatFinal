@@ -2,6 +2,7 @@ package com.izamaralv.swipethebeat.ui.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -24,6 +25,7 @@ import com.izamaralv.swipethebeat.ui.theme.redPastelColor
 import com.izamaralv.swipethebeat.viewmodel.ProfileViewModel
 import androidx.compose.foundation.lazy.LazyRow // ✅ Use LazyRow for horizontal scrolling
 import androidx.compose.foundation.lazy.items
+import com.izamaralv.swipethebeat.utils.changeColor
 
 @Composable
 fun ColorPickerMenu(profileViewModel: ProfileViewModel) {
@@ -48,10 +50,11 @@ fun ColorPickerMenu(profileViewModel: ProfileViewModel) {
                 painter = painterResource(drawableId),
                 contentDescription = "Color option",
                 modifier = Modifier
-                    .size(40.dp) // ✅ Maintains compact size
+                    .size(40.dp)
                     .clip(CircleShape)
-                    .background(colorValue) // ✅ Ensures color stands out
-                    .padding(horizontal = 8.dp), // ✅ Adds separation between icons
+                    .background(colorValue)
+                    .padding(horizontal = 8.dp)
+                    .clickable{changeColor(colorValue, profileViewModel.getUserId(), profileViewModel)},
                 contentScale = ContentScale.Crop
             )
         }
