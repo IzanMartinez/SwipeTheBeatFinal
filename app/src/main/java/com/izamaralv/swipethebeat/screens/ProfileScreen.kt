@@ -7,6 +7,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,7 +18,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.Icon
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,6 +40,7 @@ import coil.request.ImageRequest
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.izamaralv.swipethebeat.R
 import com.izamaralv.swipethebeat.common.backgroundColor
+import com.izamaralv.swipethebeat.common.cardBorderColor
 import com.izamaralv.swipethebeat.common.cardColor
 import com.izamaralv.swipethebeat.common.softComponentColor
 import com.izamaralv.swipethebeat.common.textColor
@@ -57,7 +62,6 @@ fun ProfileScreen(
     val context = LocalContext.current
 
     val profileImageUrl = profileViewModel.getProfileImageUrl()
-    val displayName = profileViewModel.getDisplayName()
 
     val tokenManager = TokenManager(context)
     val accessToken = tokenManager.getAccessToken()
@@ -75,21 +79,52 @@ fun ProfileScreen(
             .fillMaxSize()
             .background(color = backgroundColor.value)
     ) {
-        Box(
-            modifier = Modifier
-                .padding(top = 40.dp)
-                .align(Alignment.CenterHorizontally)
-        ) {
-            Image(
-                painter = painter,
-                contentDescription = "Profile Image",
+
+        Spacer(modifier = Modifier.height(40.dp))
+
+        Box(modifier = Modifier.fillMaxWidth()) {
+
+            Button(
+                onClick = { navController.popBackStack() },
                 modifier = Modifier
-                    .size(250.dp)
-                    .clip(CircleShape)
-                    .border(5.dp, softComponentColor.value, CircleShape),
-                contentScale = ContentScale.Crop
-            )
+                    .padding(start = 10.dp, top = 0.dp)
+                    .size(60.dp),
+                shape = CircleShape, // ✅ Makes ripple effect round
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = Color.Transparent,
+                    contentColor = softComponentColor.value
+                ),
+                elevation = ButtonDefaults.elevation(0.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Back",
+                    tint = softComponentColor.value,
+                    modifier = Modifier.size(40.dp)
+                )
+            }
+
+
+
+
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Image(
+                    painter = painter,
+                    contentDescription = "Profile Image",
+                    modifier = Modifier
+                        .size(250.dp)
+                        .clip(CircleShape)
+                        .border(5.dp, softComponentColor.value, CircleShape),
+                    contentScale = ContentScale.Crop
+                )
+            }
         }
+
+
 
         Spacer(modifier = Modifier.height(40.dp))
 
@@ -99,7 +134,7 @@ fun ProfileScreen(
                 .fillMaxWidth()
                 .height(470.dp)
                 .background(color = cardColor.value, shape = RoundedCornerShape(16.dp))
-                .border(5.dp, softComponentColor.value, RoundedCornerShape(16.dp)),
+                .border(5.dp, cardBorderColor.value, RoundedCornerShape(16.dp)),
         ) {
             Column(
                 verticalArrangement = Arrangement.SpaceEvenly, modifier = Modifier.height(100.dp)

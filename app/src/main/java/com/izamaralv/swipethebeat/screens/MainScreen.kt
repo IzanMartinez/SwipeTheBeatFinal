@@ -16,11 +16,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -210,13 +212,11 @@ fun MainScreen(navController: NavHostController, profileViewModel: ProfileViewMo
                         Spacer(modifier = Modifier.height(16.dp))
 
                         // Botón para reproducir en Spotify
-                        Button(
-//                            modifier = Modifier.size(),
+                        IconButton(
                             onClick = {
                                 val spotifyUri = "spotify:track:${song.id}"
                                 val intent = Intent(Intent.ACTION_VIEW, spotifyUri.toUri())
 
-                                // Agregar referrer opcional
                                 intent.putExtra(
                                     Intent.EXTRA_REFERRER,
                                     "android-app://${context.packageName}".toUri()
@@ -224,10 +224,19 @@ fun MainScreen(navController: NavHostController, profileViewModel: ProfileViewMo
                                 NotificationHelper.showPersistentNotification(context)
                                 context.startActivity(intent)
                             },
-                            colors = ButtonDefaults.buttonColors(containerColor = softComponentColor.value)
+                            modifier = Modifier
+                                .size(60.dp) // ✅ Keeps a slightly larger button for the circular background
+                                .background(softComponentColor.value, shape = CircleShape) // ✅ Adds round background (placeholder color)
                         ) {
-                            Text(text = "Play in Spotify", fontWeight = FontWeight.ExtraBold)
+                            Icon(
+                                imageVector = Icons.Default.PlayArrow,
+                                contentDescription = "Play",
+                                tint = Color.Black, // ✅ Makes the icon stand out against the background
+                                modifier = Modifier.size(40.dp)
+                            )
                         }
+
+
                     }
                 }
             } ?: run {
