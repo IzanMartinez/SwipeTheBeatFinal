@@ -1,11 +1,9 @@
 package com.izamaralv.swipethebeat.screens
 
 import android.util.Log
-import android.widget.Space
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,22 +15,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Scaffold
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Palette
-import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -42,10 +36,10 @@ import coil.request.ImageRequest
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.izamaralv.swipethebeat.R
 import com.izamaralv.swipethebeat.common.backgroundColor
-import com.izamaralv.swipethebeat.common.basicBorder
 import com.izamaralv.swipethebeat.common.cardColor
 import com.izamaralv.swipethebeat.common.softComponentColor
 import com.izamaralv.swipethebeat.common.textColor
+import com.izamaralv.swipethebeat.navigation.Screen
 import com.izamaralv.swipethebeat.ui.components.ArtistSearchBar
 import com.izamaralv.swipethebeat.ui.components.ColorPickerMenu
 import com.izamaralv.swipethebeat.utils.TokenManager
@@ -103,8 +97,9 @@ fun ProfileScreen(
             modifier = Modifier
                 .padding(horizontal = 15.dp)
                 .fillMaxWidth()
-                .height(500.dp)
+                .height(470.dp)
                 .background(color = cardColor.value, shape = RoundedCornerShape(16.dp))
+                .border(5.dp, softComponentColor.value, RoundedCornerShape(16.dp)),
         ) {
             Column(
                 verticalArrangement = Arrangement.SpaceEvenly, modifier = Modifier.height(100.dp)
@@ -125,7 +120,7 @@ fun ProfileScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(30.dp))
 
             Column(
                 verticalArrangement = Arrangement.SpaceEvenly, modifier = Modifier.height(120.dp)
@@ -154,9 +149,27 @@ fun ProfileScreen(
 
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(100.dp))
 
             ColorPickerMenu(profileViewModel)
+
+        }
+
+
+
+        Box(
+            modifier = Modifier
+                .padding(top = 40.dp)
+                .align(Alignment.CenterHorizontally)
+        ) {
+            Button(
+                onClick = {navController.navigate(Screen.Login.route)},
+                colors = ButtonDefaults.buttonColors(Color.Red),
+            ) {
+                Text(text = "Cerrar sesión", style = TextStyle(color = Color.White, fontWeight = FontWeight.Bold))
+            }
         }
     }
 }
+
+

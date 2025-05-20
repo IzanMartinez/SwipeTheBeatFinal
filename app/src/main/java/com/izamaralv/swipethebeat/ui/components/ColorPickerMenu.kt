@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -22,10 +24,8 @@ import com.izamaralv.swipethebeat.ui.theme.orangePastelColor
 import com.izamaralv.swipethebeat.ui.theme.pinkPastelColor
 import com.izamaralv.swipethebeat.ui.theme.purplePastelColor
 import com.izamaralv.swipethebeat.ui.theme.redPastelColor
-import com.izamaralv.swipethebeat.viewmodel.ProfileViewModel
-import androidx.compose.foundation.lazy.LazyRow // ✅ Use LazyRow for horizontal scrolling
-import androidx.compose.foundation.lazy.items
 import com.izamaralv.swipethebeat.utils.changeColor
+import com.izamaralv.swipethebeat.viewmodel.ProfileViewModel
 
 @Composable
 fun ColorPickerMenu(profileViewModel: ProfileViewModel) {
@@ -52,9 +52,9 @@ fun ColorPickerMenu(profileViewModel: ProfileViewModel) {
                 modifier = Modifier
                     .size(40.dp)
                     .clip(CircleShape)
+                    .clickable{changeColor(colorValue, profileViewModel.getUserId(), profileViewModel)}
                     .background(colorValue)
-                    .padding(horizontal = 8.dp)
-                    .clickable{changeColor(colorValue, profileViewModel.getUserId(), profileViewModel)},
+                    .padding(horizontal = 8.dp),
                 contentScale = ContentScale.Crop
             )
         }

@@ -36,7 +36,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.graphics.toColorInt
+import androidx.core.net.toUri
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
@@ -44,6 +44,7 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.izamaralv.swipethebeat.common.backgroundColor
 import com.izamaralv.swipethebeat.common.cardColor
 import com.izamaralv.swipethebeat.common.softComponentColor
+import com.izamaralv.swipethebeat.navigation.Screen
 import com.izamaralv.swipethebeat.repository.SongRepository
 import com.izamaralv.swipethebeat.ui.components.NotificationHelper
 import com.izamaralv.swipethebeat.ui.components.STBTopAppBar
@@ -52,8 +53,6 @@ import com.izamaralv.swipethebeat.utils.TokenManager
 import com.izamaralv.swipethebeat.viewmodel.ProfileViewModel
 import com.izamaralv.swipethebeat.viewmodel.SongViewModel
 import com.izamaralv.swipethebeat.viewmodel.SongViewModelFactory
-import androidx.core.net.toUri
-import com.izamaralv.swipethebeat.utils.changeColor
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -102,9 +101,9 @@ fun MainScreen(navController: NavHostController, profileViewModel: ProfileViewMo
         topBar = {
             STBTopAppBar(
                 profileViewModel,
-                onLogout = { navController.navigate("login_screen") },
+                onLogout = { navController.navigate(Screen.Login.route) },
                 firstIcon = Icons.Filled.Favorite,
-                firstFunction = { navController.navigate("liked_songs_screen") },
+                firstFunction = { navController.navigate(Screen.LikedSongs.route) },
                 firstOption = "Últimos likes"
             )
         },
