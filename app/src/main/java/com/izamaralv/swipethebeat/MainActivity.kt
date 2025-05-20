@@ -11,9 +11,12 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.izamaralv.swipethebeat.navigation.NavGraph
+import com.izamaralv.swipethebeat.navigation.Screen
+import com.izamaralv.swipethebeat.repository.SongRepository
 import com.izamaralv.swipethebeat.repository.UserRepository
 import com.izamaralv.swipethebeat.ui.components.NotificationHelper
 import com.izamaralv.swipethebeat.ui.theme.SwipeTheBeatTheme
@@ -24,13 +27,11 @@ import com.izamaralv.swipethebeat.utils.SpotifyManager
 import com.izamaralv.swipethebeat.utils.TokenManager
 import com.izamaralv.swipethebeat.viewmodel.InitializationViewModel
 import com.izamaralv.swipethebeat.viewmodel.ProfileViewModel
+import com.izamaralv.swipethebeat.viewmodel.SearchViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import androidx.core.net.toUri
-import com.izamaralv.swipethebeat.repository.SongRepository
-import com.izamaralv.swipethebeat.viewmodel.SearchViewModel
 
 class MainActivity : ComponentActivity() {
 
@@ -158,7 +159,7 @@ class MainActivity : ComponentActivity() {
 
                         runOnUiThread {
                             initializationViewModel.setInitialized()
-                            navController.navigate("profile_screen") {
+                            navController.navigate(Screen.Profile.route) {
                                 popUpTo("login_screen") { inclusive = true }
                             }
                         }
@@ -172,7 +173,7 @@ class MainActivity : ComponentActivity() {
         val tokenManager = TokenManager(applicationContext)
         val accessToken = tokenManager.getAccessToken()
         if (accessToken != null) {
-            navController.navigate("profile_screen") {
+            navController.navigate(Screen.Profile.route) {
                 popUpTo("login_screen") { inclusive = true }
             }
         }
