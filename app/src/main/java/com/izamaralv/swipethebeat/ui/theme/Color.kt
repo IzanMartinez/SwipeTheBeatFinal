@@ -21,3 +21,6 @@ val redPastelColor = Color(0xFFb15057)
 val purplePastelColor = Color(0xFFC680FF)
 val pinkPastelColor = Color(0xFFD99AC5)
 val yellowHighContrastColor = Color(0xFFFFE600)
+
+val greenBrilliantColor = Color(0xFF00FF00)
+val redBrilliantColor = Color(0xFFFF0000)
