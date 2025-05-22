@@ -103,10 +103,10 @@ fun MainScreen(navController: NavHostController, profileViewModel: ProfileViewMo
         topBar = {
             STBTopAppBar(
                 profileViewModel,
-                onLogout = { navController.navigate(Screen.Login.route) },
-                firstIcon = Icons.Filled.Favorite,
-                firstFunction = { navController.navigate(Screen.LikedSongs.route) },
-                firstOption = "Últimos likes"
+                navController = navController,
+                customIcon = Icons.Filled.Favorite,
+                customFunction = { navController.navigate(Screen.LikedSongs.route) },
+                customText = "Últimos likes"
             )
         },
     ) {

@@ -11,9 +11,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.automirrored.filled.Help
-import androidx.compose.material.icons.filled.Palette
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -36,21 +36,23 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
+import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.izamaralv.swipethebeat.R
 import com.izamaralv.swipethebeat.common.backgroundColor
 import com.izamaralv.swipethebeat.common.softComponentColor
+import com.izamaralv.swipethebeat.navigation.Screen
 import com.izamaralv.swipethebeat.viewmodel.ProfileViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun STBTopAppBar(
     profileViewModel: ProfileViewModel,
-    onLogout: () -> Unit,
-    firstOption: String,
-    firstFunction: () -> Unit,
-    firstIcon: ImageVector
+    navController: NavController,
+    customText: String,
+    customFunction: () -> Unit,
+    customIcon: ImageVector
 ) {
     var iconMenuExpanded by remember { mutableStateOf(false) }
     var colorMenuExpanded by remember { mutableStateOf(false) }
@@ -75,8 +77,8 @@ fun STBTopAppBar(
 
     CenterAlignedTopAppBar(
         navigationIcon = {
-            IconButton(onClick = { colorMenuExpanded = !colorMenuExpanded }) {
-                Icon(imageVector = Icons.Default.Palette, contentDescription = "palette icon")
+            IconButton(onClick = { /*TODO: nav to homeScreen*/ }) {
+                Icon(imageVector = Icons.Default.Home, contentDescription = "home icon")
             }
         },
         title = {
@@ -113,46 +115,46 @@ fun STBTopAppBar(
                     DropdownMenuItem(
                         leadingIcon = {
                             Icon(
-                                firstIcon,
-                                contentDescription = "",
+                                Icons.Default.Person,
+                                contentDescription = "Profile icon",
                                 tint = Color.Black
                             )
-                        }, // ✅ Red icon
-                        text = { Text(firstOption, color = Color.Black) }, // ✅ Red text
+                        },
+                        text = { Text("Perfil", color = Color.Black) },
                         onClick = {
-                            firstFunction()
+                            navController.navigate(Screen.Profile.route)
                             iconMenuExpanded = false
                         }
                     )
                     DropdownMenuItem(
                         leadingIcon = {
                             Icon(
-                                Icons.AutoMirrored.Filled.Help,
+                                customIcon,
+                                contentDescription = "",
+                                tint = Color.Black
+                            )
+                        },
+                        text = { Text(customText, color = Color.Black) },
+                        onClick = {
+                            customFunction()
+                            iconMenuExpanded = false
+                        }
+                    )
+                    DropdownMenuItem(
+                        leadingIcon = {
+                            Icon(
+                                Icons.AutoMirrored.Default.Help,
                                 contentDescription = "Help icon",
                                 tint = Color.Black
                             )
                         },
-                        text = { Text("¿Algún problema?", color = Color.Black) }, // ✅ Red text
+                        text = { Text("¿Algún problema?", color = Color.Black) },
                         onClick = {
                             val intent = Intent(Intent.ACTION_SENDTO).apply {
                                 data = "mailto:swipethebeathelp@gmail.com".toUri()
                                 putExtra(Intent.EXTRA_SUBJECT, "Need assistance")
                             }
                             context.startActivity(intent)
-                            iconMenuExpanded = false
-                        }
-                    )
-                    DropdownMenuItem(
-                        leadingIcon = {
-                            Icon(
-                                Icons.AutoMirrored.Filled.ExitToApp,
-                                contentDescription = "Logout icon",
-                                tint = Color.Black
-                            )
-                        },
-                        text = { Text("Cerrar sesión", color = Color.Black) }, // ✅ Red text
-                        onClick = {
-                            onLogout()
                             iconMenuExpanded = false
                         }
                     )
