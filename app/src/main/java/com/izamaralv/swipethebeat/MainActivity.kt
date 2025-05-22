@@ -130,7 +130,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun initiateOAuthFlow() {
-        val clientId = Credentials.CLIENT_ID
+        val clientId = Credentials.SPOTIFY_CLIENT_ID
         val redirectUri = Credentials.REDIRECT_URI
         val authorizationUrl = spotifyManager.getAuthorizationUrl(clientId, redirectUri)
         val intent = Intent(Intent.ACTION_VIEW, authorizationUrl.toUri())
@@ -170,9 +170,5 @@ class MainActivity : ComponentActivity() {
                 popUpTo("login_screen") { inclusive = true }
             }
         }
-    }
-
-    private fun logout() {
-        spotifyManager.logout(navController)
     }
 }

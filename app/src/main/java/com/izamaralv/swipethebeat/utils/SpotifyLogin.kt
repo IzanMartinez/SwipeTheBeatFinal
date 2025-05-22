@@ -2,14 +2,13 @@ package com.izamaralv.swipethebeat.utils
 
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
-import com.izamaralv.swipethebeat.utils.Credentials.CLIENT_ID
-import com.izamaralv.swipethebeat.utils.Credentials.REDIRECT_URI
 import androidx.core.net.toUri
+import com.izamaralv.swipethebeat.utils.Credentials.REDIRECT_URI
+import com.izamaralv.swipethebeat.utils.Credentials.SPOTIFY_CLIENT_ID
 
 fun startSpotifyLogin(context: Context) {
     val spotifyManager = SpotifyManager(context)
-    var authUrl = spotifyManager.getAuthorizationUrl(CLIENT_ID, REDIRECT_URI)
+    var authUrl = spotifyManager.getAuthorizationUrl(SPOTIFY_CLIENT_ID, REDIRECT_URI)
 
     // Asegura que el cuadro de diálogo de inicio de sesión siempre aparezca
     authUrl += "&show_dialog=true"

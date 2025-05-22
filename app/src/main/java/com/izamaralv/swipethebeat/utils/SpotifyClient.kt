@@ -4,10 +4,10 @@ import android.util.Log
 import com.adamratzman.spotify.SpotifyClientApi
 import com.adamratzman.spotify.models.Token
 import com.adamratzman.spotify.spotifyClientApi
-import kotlinx.coroutines.runBlocking
-import com.izamaralv.swipethebeat.utils.Credentials.CLIENT_ID
-import com.izamaralv.swipethebeat.utils.Credentials.CLIENT_SECRET
 import com.izamaralv.swipethebeat.utils.Credentials.REDIRECT_URI
+import com.izamaralv.swipethebeat.utils.Credentials.SPOTIFY_CLIENT_ID
+import com.izamaralv.swipethebeat.utils.Credentials.SPOTIFY_CLIENT_SECRET
+import kotlinx.coroutines.runBlocking
 
 object SpotifyClient {
     lateinit var spotifyApi: SpotifyClientApi
@@ -17,7 +17,7 @@ object SpotifyClient {
             try {
                 Log.d("SpotifyClient", "Initializing Spotify API...")
                 val token = Token(accessToken, refreshToken, expiresIn)
-                spotifyApi = spotifyClientApi(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, token) {
+                spotifyApi = spotifyClientApi(SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, REDIRECT_URI, token) {
                     automaticRefresh = true
                     onTokenRefresh = {
                         Log.d("SpotifyClient", "Token refreshed at ${System.currentTimeMillis()}")

@@ -2,10 +2,12 @@ package com.izamaralv.swipethebeat.utils
 
 import android.content.Context
 import android.util.Log
-import com.izamaralv.swipethebeat.utils.Credentials.CLIENT_ID
-import com.izamaralv.swipethebeat.utils.Credentials.CLIENT_SECRET
 import com.izamaralv.swipethebeat.utils.Credentials.REDIRECT_URI
-import okhttp3.*
+import com.izamaralv.swipethebeat.utils.Credentials.SPOTIFY_CLIENT_ID
+import com.izamaralv.swipethebeat.utils.Credentials.SPOTIFY_CLIENT_SECRET
+import okhttp3.FormBody
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import org.json.JSONObject
 import java.io.IOException
 
@@ -14,8 +16,8 @@ object SpotifyApi {
 
     fun exchangeCodeForToken(code: String): Pair<String, String>? {
         val formBody = FormBody.Builder().add("grant_type", "authorization_code").add("code", code)
-            .add("redirect_uri", REDIRECT_URI).add("client_id", CLIENT_ID)
-            .add("client_secret", CLIENT_SECRET).build()
+            .add("redirect_uri", REDIRECT_URI).add("client_id", SPOTIFY_CLIENT_ID)
+            .add("client_secret", SPOTIFY_CLIENT_SECRET).build()
 
         val request =
             Request.Builder().url("https://accounts.spotify.com/api/token").post(formBody).build()
@@ -50,8 +52,8 @@ object SpotifyApi {
         val formBody = FormBody.Builder()
             .add("grant_type", "refresh_token")
             .add("refresh_token", refreshToken)
-            .add("client_id", CLIENT_ID)
-            .add("client_secret", CLIENT_SECRET)
+            .add("client_id", SPOTIFY_CLIENT_ID)
+            .add("client_secret", SPOTIFY_CLIENT_SECRET)
             .build()
 
         val request = Request.Builder()
