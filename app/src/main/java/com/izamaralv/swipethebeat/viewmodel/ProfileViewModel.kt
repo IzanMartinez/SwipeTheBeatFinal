@@ -2,19 +2,20 @@ package com.izamaralv.swipethebeat.viewmodel
 
 import android.util.Log
 import androidx.compose.ui.graphics.Color
+import androidx.core.graphics.toColorInt
 import androidx.lifecycle.ViewModel
 import com.izamaralv.swipethebeat.common.softComponentColor
 import com.izamaralv.swipethebeat.repository.UserRepository
-import androidx.core.graphics.toColorInt
+import com.izamaralv.swipethebeat.utils.changeColor
 
 class ProfileViewModel : ViewModel() {
     private val userRepository = UserRepository()
 
     // ✅ Replace LiveData with simple variables
     private var userId: String = ""
-    private var displayName: String = "Invitado"
+    private var displayName: String = ""
     private var profileImageUrl: String = ""
-    private var profileColor: String = "#3be477"
+    private var profileColor: String = ""
 
     fun getUserId(): String = userId
     fun getDisplayName(): String = displayName
@@ -37,12 +38,12 @@ class ProfileViewModel : ViewModel() {
                 this.displayName = userData["name"] ?: "Invitado"
                 this.profileImageUrl = userData["avatar_url"] ?: ""
 
-                val storedColorHex = userData["profile_color"] ?: "#3be477" // ✅ Firestore stored color
+                this.profileColor = userData["profile_color"] ?: "#4444"
 
                 // ✅ Immediately update the global color variable
-                softComponentColor.value = Color(storedColorHex.toColorInt())
-
-                Log.d("ProfileViewModel", "✅ Profile color applied from Firestore: $storedColorHex")
+                softComponentColor.value = Color(profileColor.toColorInt())
+                changeColor(Color(profileColor.toColorInt()), userId, this)
+                Log.d("ProfileViewModel", "✅ Profile color applied from Firestore: $profileColor")
             } else {
                 Log.e("ProfileViewModel", "User not found in Firestore!")
             }
@@ -52,7 +53,7 @@ class ProfileViewModel : ViewModel() {
 
 
 
-    fun changeColor(userId: String, newColor: String) {
+    fun changeColorInFirebase(userId: String, newColor: String) {
         Log.d("ProfileViewModel", "🔄 Updating profile color in Firestore: $newColor")
 
         profileColor = newColor

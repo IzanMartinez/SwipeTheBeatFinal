@@ -40,6 +40,7 @@ class ProfileManager(private val context: Context, private val profileViewModel:
                         profile.mapValues { it.value ?: "" }
                             .toMutableMap() // Convierte valores nulos en cadenas vacías
                     nonNullProfile["profile_color"] = hexColor // ✅ Store the color before saving
+                    Log.d("ProfileManagerColor", "Hex Color: $hexColor")
                     // Store data in Firestore
                     profileViewModel.saveUser(nonNullProfile)
 
