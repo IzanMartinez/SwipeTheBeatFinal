@@ -2,9 +2,9 @@ package com.izamaralv.swipethebeat.screens
 
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,11 +36,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.izamaralv.swipethebeat.common.backgroundColor
+import com.izamaralv.swipethebeat.common.cardBorderColor
 import com.izamaralv.swipethebeat.common.cardColor
 import com.izamaralv.swipethebeat.common.softComponentColor
 import com.izamaralv.swipethebeat.repository.SongRepository
@@ -116,12 +118,13 @@ fun LikedSongsScreen(
                             .fillMaxWidth()
                             .padding(8.dp)
                             .background(color = cardColor.value, shape = RoundedCornerShape(16.dp))
+                            .border(1.dp, cardBorderColor.value, shape = RoundedCornerShape(16.dp))
                             .clickable {
                                 val spotifyUri = "spotify:track:${song.id}"
-                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(spotifyUri))
+                                val intent = Intent(Intent.ACTION_VIEW, spotifyUri.toUri())
                                 intent.putExtra(
                                     Intent.EXTRA_REFERRER,
-                                    Uri.parse("android-app://${context.packageName}")
+                                    "android-app://${context.packageName}".toUri()
                                 )
                                 context.startActivity(intent)
                             }

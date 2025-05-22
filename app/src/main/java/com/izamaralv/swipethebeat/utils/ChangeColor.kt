@@ -32,7 +32,8 @@ fun changeColor(color: Color, userId: String, profileViewModel: ProfileViewModel
     }
         // ✅ Convert color to HEX format for Firestore storage
         val hexColor = String.format("#%06X", (color.toArgb() and 0xFFFFFF))
+        Log.d("ProfileViewModel", "✅ Profile color applied: $hexColor")
 
         // ✅ Update Firestore and ViewModel
-        profileViewModel.changeColor(userId, hexColor)
+        profileViewModel.changeColorInFirebase(userId, hexColor)
 }

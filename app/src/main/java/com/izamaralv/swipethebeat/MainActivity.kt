@@ -19,7 +19,6 @@ import com.izamaralv.swipethebeat.navigation.Screen
 import com.izamaralv.swipethebeat.repository.SongRepository
 import com.izamaralv.swipethebeat.repository.UserRepository
 import com.izamaralv.swipethebeat.ui.components.NotificationHelper
-import com.izamaralv.swipethebeat.ui.theme.SwipeTheBeatTheme
 import com.izamaralv.swipethebeat.utils.Credentials
 import com.izamaralv.swipethebeat.utils.ProfileManager
 import com.izamaralv.swipethebeat.utils.SpotifyApi
@@ -50,47 +49,39 @@ class MainActivity : ComponentActivity() {
         searchViewModel = SearchViewModel(songRepository) // ✅ Manual creation
         Log.d("MainActivity", "🚀 SearchViewModel initialized: $searchViewModel")
 
-        // Solicita permisos para notificaciones en versiones superiores a TIRAMISU
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.POST_NOTIFICATIONS
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(Manifest.permission.POST_NOTIFICATIONS),
-                    100 // Código de solicitud, puede ser cualquier número
-                )
-            }
+        // ✅ Handle notification permissions
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.POST_NOTIFICATIONS), 100)
         }
 
-        // Crea el canal de notificaciones
+        // ✅ Create notification channel
         NotificationHelper.createNotificationChannel(this)
-        // Inicializa los gestores
+
+        // ✅ Initialize managers
         spotifyManager = SpotifyManager(applicationContext)
         profileManager = ProfileManager(applicationContext, profileViewModel)
 
-        // Obtiene el perfil del usuario al iniciar
+        // ✅ Fetch user profile on startup
         fetchUserProfileOnStart()
 
-        // Observa el estado de inicialización y establece el contenido
+        // ✅ Observe initialization state and set the UI content
         initializationViewModel.isInitialized.observe(this) { isInitialized ->
             if (isInitialized) {
                 setContent {
-                    SwipeTheBeatTheme {
-                        navController = rememberNavController()
-                        NavGraph(
-                            navController = navController,
-                            profileViewModel = profileViewModel,
-                            searchViewModel = searchViewModel // ✅ Include SearchViewModel
-                        )
-                        checkTokenAndNavigate()
-                    }
+                    navController = rememberNavController()
+                    NavGraph(
+                        navController = navController,
+                        profileViewModel = profileViewModel,
+                        searchViewModel = searchViewModel
+                    )
+
+                    checkTokenAndNavigate()
                 }
             }
         }
     }
+
 
     private fun fetchUserProfileOnStart() {
         val tokenManager = TokenManager(applicationContext)
@@ -120,8 +111,10 @@ class MainActivity : ComponentActivity() {
                         val userProfileMap = spotifyUserProfile.mapValues { it.value ?: "" }
                         Log.d("Firestore", "✅ Updating Firestore with latest Spotify profile data: $userProfileMap")
 
+
                         // ✅ Call Firestore update function in UserRepository
                         val userRepository = UserRepository()
+
                         userRepository.saveUserToFirestore(userProfileMap)
 
                         profileViewModel.loadUserProfile(spotifyUserId)
