@@ -2,12 +2,10 @@ package com.izamaralv.swipethebeat.utils
 
 import android.content.Context
 import android.util.Log
-import com.izamaralv.swipethebeat.models.SongDTO
 import com.izamaralv.swipethebeat.utils.Credentials.CLIENT_ID
 import com.izamaralv.swipethebeat.utils.Credentials.CLIENT_SECRET
 import com.izamaralv.swipethebeat.utils.Credentials.REDIRECT_URI
 import okhttp3.*
-import org.json.JSONArray
 import org.json.JSONObject
 import java.io.IOException
 
@@ -48,31 +46,37 @@ object SpotifyApi {
         return null
     }
 
-    fun refreshAccessToken(refreshToken: String): String? {
-        val formBody =
-            FormBody.Builder().add("grant_type", "refresh_token").add("refresh_token", refreshToken)
-                .add("client_id", CLIENT_ID).add("client_secret", CLIENT_SECRET).build()
+    private fun refreshAccessToken(context: Context, refreshToken: String): String? {
+        val formBody = FormBody.Builder()
+            .add("grant_type", "refresh_token")
+            .add("refresh_token", refreshToken)
+            .add("client_id", CLIENT_ID)
+            .add("client_secret", CLIENT_SECRET)
+            .build()
 
-        val request =
-            Request.Builder().url("https://accounts.spotify.com/api/token").post(formBody).build()
-
-        // Registro de la solicitud de actualización de token
-        Log.d("SpotifyApi", "Refresh token request: ${formBody.toString()}")
+        val request = Request.Builder()
+            .url("https://accounts.spotify.com/api/token")
+            .post(formBody)
+            .build()
 
         client.newCall(request).execute().use { response ->
             val responseBody = response.body?.string()
-            // Registro del cuerpo de la respuesta de actualización
             Log.d("SpotifyApi", "Refresh response body: $responseBody")
+
             if (!response.isSuccessful) {
                 Log.e("SpotifyApi", "Refresh token failed: ${response.code} ${response.message}")
                 throw IOException("Unexpected code $response")
             }
+
             val jsonObject = responseBody?.let { JSONObject(it) }
-            if (jsonObject != null) {
-                val accessToken = jsonObject.getString("access_token")
-                // Registro del nuevo token de acceso
-                Log.d("SpotifyApi", "New access token: $accessToken")
-                return accessToken
+            val newAccessToken = jsonObject?.getString("access_token")
+
+            if (newAccessToken != null) {
+                Log.d("SpotifyApi", "New access token: $newAccessToken")
+
+                // ✅ Store the new access token globally in TokenManager
+                TokenManager(context).saveAccessToken(newAccessToken)
+                return newAccessToken
             }
         }
         return null
@@ -88,7 +92,8 @@ object SpotifyApi {
             val responseBody = response.body?.string()
             Log.d("SpotifyApi", "User profile response body: $responseBody")
             if (response.code == 401) { // 🔥 El token ha expirado -> refresca
-                val newAccessToken = refreshAccessToken(TokenManager(context).getRefreshToken() ?: "")
+                val newAccessToken = refreshAccessToken(context, TokenManager(context).getRefreshToken() ?: "")
+                Log.d("SpotifyApi", "Refreshed access token: $newAccessToken")
                 if (newAccessToken != null) {
                     return getUserProfile(newAccessToken, context) // 🔄 Retry with new token
                 }
@@ -121,17 +126,4 @@ object SpotifyApi {
             )
         }
     }
-//    fun getUserId(accessToken: String): String? {
-//        val userProfile = getUserProfile(accessToken)
-//        val userId = userProfile?.get("user_id")
-//
-//        if (userId.isNullOrEmpty()) {
-//            Log.e("SpotifyApi", "❌ Extracted User ID is null or missing!")
-//            return null
-//        }
-//
-//        Log.d("SpotifyApi", "✅ Extracted Spotify User ID: $userId")
-//        return userId
-//    }
-
 }

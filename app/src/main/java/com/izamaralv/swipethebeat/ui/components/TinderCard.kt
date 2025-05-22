@@ -1,6 +1,7 @@
 package com.izamaralv.swipethebeat.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -20,6 +21,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import com.izamaralv.swipethebeat.common.cardBorderColor
 import com.izamaralv.swipethebeat.common.cardColor
 import com.izamaralv.swipethebeat.ui.theme.greenPastelColor
 import com.izamaralv.swipethebeat.ui.theme.redPastelColor
@@ -85,6 +87,7 @@ fun TinderCard(
                 .fillMaxSize()
                 .zIndex(0f) // Coloca el contenido de la tarjeta debajo de la superposición
                 .background(cardColor.value, shape = RoundedCornerShape(16.dp))
+                .border(3.dp, cardBorderColor.value, RoundedCornerShape(16.dp))
                 .padding(16.dp)
         ) {
             content()

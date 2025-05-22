@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import com.izamaralv.swipethebeat.utils.Credentials.CLIENT_ID
 import com.izamaralv.swipethebeat.utils.Credentials.REDIRECT_URI
+import androidx.core.net.toUri
 
 fun startSpotifyLogin(context: Context) {
     val spotifyManager = SpotifyManager(context)
@@ -14,6 +15,6 @@ fun startSpotifyLogin(context: Context) {
     authUrl += "&show_dialog=true"
 
     // Crea un intent para abrir la URL de autorización de Spotify
-    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(authUrl))
+    val intent = Intent(Intent.ACTION_VIEW, authUrl.toUri())
     context.startActivity(intent) // Inicia la actividad para la autorización
 }

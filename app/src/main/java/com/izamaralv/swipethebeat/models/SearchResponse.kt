@@ -4,8 +4,21 @@ import com.google.gson.annotations.SerializedName
 
 // Respuesta de búsqueda
 data class SearchResponse(
-    @SerializedName("tracks") val tracks: TrackList // Lista de tracks encontrados
+    @SerializedName("tracks") val tracks: TrackList?, // ✅ Nullable if searching artists
+    @SerializedName("artists") val artists: ArtistList? // 🔥 Add support for artist search
 )
+
+data class ArtistList(
+    @SerializedName("items") val items: List<Artist> // ✅ Artists list from search results
+)
+
+data class Artist(
+    val id: String, // ID del artista
+    val name: String, // Nombre del artista
+    @SerializedName("images") val images: List<Image>? // ✅ Some artists have images, some don’t
+)
+ {
+}
 
 // Lista de tracks
 data class TrackList(
@@ -20,12 +33,6 @@ data class Track(
     val preview_url: String?, // URL de vista previa
     val id: String, // ID del track
     val uri: String // URI del track
-)
-
-// Información de un artista
-data class Artist(
-    val id: String, // ID del artista
-    val name: String // Nombre del artista
 )
 
 // Información de un álbum

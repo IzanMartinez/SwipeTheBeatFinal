@@ -2,6 +2,8 @@ package com.izamaralv.swipethebeat.utils
 
 import android.content.Context
 import android.util.Log
+import androidx.compose.ui.graphics.toArgb
+import com.izamaralv.swipethebeat.common.softComponentColor
 import com.izamaralv.swipethebeat.viewmodel.ProfileViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -17,16 +19,28 @@ class ProfileManager(private val context: Context, private val profileViewModel:
                 val userProfile = SpotifyApi.getUserProfile(accessToken, context)
                 Log.d("ProfileManager", "User profile fetched: $userProfile")
 
+
+
                 userProfile?.let { profile ->
                     val userId = profile["user_id"] ?: ""
                     val displayName = profile["name"] ?: "No Name"
                     val email = profile["email"] ?: "No Email"
                     val profileImageUrl = profile["avatar_url"] ?: ""
 
-                    Log.d("ProfileManager", "User ID: $userId, Name: $displayName, Email: $email, Image URL: $profileImageUrl")
+                    val hexColor =
+                        String.format("#%06X", (softComponentColor.value.toArgb() and 0xFFFFFF))
 
-                    val nonNullProfile = profile.mapValues { it.value ?: "" } // Convierte valores nulos en cadenas vacías
 
+                    Log.d(
+                        "ProfileManager",
+                        "User ID: $userId, Name: $displayName, Email: $email, Image URL: $profileImageUrl, Hex Color: $hexColor"
+                    )
+
+                    val nonNullProfile =
+                        profile.mapValues { it.value ?: "" }
+                            .toMutableMap() // Convierte valores nulos en cadenas vacías
+                    nonNullProfile["profile_color"] = hexColor // ✅ Store the color before saving
+                    Log.d("ProfileManagerColor", "Hex Color: $hexColor")
                     // Store data in Firestore
                     profileViewModel.saveUser(nonNullProfile)
 

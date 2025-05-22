@@ -43,5 +43,14 @@ interface SpotifyApiService {
         @Header("Authorization") token: String,
         @Query("ids") trackId: String
     ): Response<Unit> // Eliminar track de favoritos
+
+    @GET("v1/search")
+    suspend fun searchArtists(
+        @Header("Authorization") token: String,
+        @Query("q") query: String,
+        @Query("type") type: String = "artist", // 🔥 Change to "artist"
+        @Query("limit") limit: Int = 10
+    ): Response<SearchResponse> // Buscar artistas
+
 }
 

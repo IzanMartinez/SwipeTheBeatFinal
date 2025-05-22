@@ -2,8 +2,6 @@ package com.izamaralv.swipethebeat.screens
 
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.media.MediaPlayer
-import android.net.Uri
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -18,11 +16,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -30,10 +29,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -43,6 +38,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
@@ -50,6 +46,7 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.izamaralv.swipethebeat.common.backgroundColor
 import com.izamaralv.swipethebeat.common.cardColor
 import com.izamaralv.swipethebeat.common.softComponentColor
+import com.izamaralv.swipethebeat.navigation.Screen
 import com.izamaralv.swipethebeat.repository.SongRepository
 import com.izamaralv.swipethebeat.ui.components.NotificationHelper
 import com.izamaralv.swipethebeat.ui.components.STBTopAppBar
@@ -58,18 +55,26 @@ import com.izamaralv.swipethebeat.utils.TokenManager
 import com.izamaralv.swipethebeat.viewmodel.ProfileViewModel
 import com.izamaralv.swipethebeat.viewmodel.SongViewModel
 import com.izamaralv.swipethebeat.viewmodel.SongViewModelFactory
-import androidx.core.net.toUri
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun MainScreen(navController: NavHostController, profileViewModel: ProfileViewModel) {
+
+
+    val displayName = profileViewModel.getDisplayName()
+
+    val context = LocalContext.current
+
+    LaunchedEffect(Unit) {
+        profileViewModel.loadUserProfile(profileViewModel.getUserId()) // ✅ Load Firestore color
+    }
+
+
+
     // Control de la barra de estado del sistema
     val systemUiController = rememberSystemUiController()
     systemUiController.setStatusBarColor(color = softComponentColor.value, darkIcons = false)
 
-    val displayName by profileViewModel.displayName.observeAsState()
-
-    val context = LocalContext.current
     val songRepository = SongRepository(context)
 
     // Obtener el token de acceso dinámicamente
@@ -98,10 +103,10 @@ fun MainScreen(navController: NavHostController, profileViewModel: ProfileViewMo
         topBar = {
             STBTopAppBar(
                 profileViewModel,
-                onLogout = { navController.navigate("login_screen") },
-                firstIcon = Icons.Filled.Favorite,
-                firstFunction = { navController.navigate("liked_songs_screen") },
-                firstOption = "Últimos likes"
+                navController = navController,
+                customIcon = Icons.Filled.Favorite,
+                customFunction = { navController.navigate(Screen.LikedSongs.route) },
+                customText = "Últimos likes"
             )
         },
     ) {
@@ -124,7 +129,7 @@ fun MainScreen(navController: NavHostController, profileViewModel: ProfileViewMo
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = "Bienvenido/a ${displayName ?: "Invitado"}",
+                            text = "Bienvenido/a $displayName",
                             color = softComponentColor.value
                         )
 
@@ -207,13 +212,11 @@ fun MainScreen(navController: NavHostController, profileViewModel: ProfileViewMo
                         Spacer(modifier = Modifier.height(16.dp))
 
                         // Botón para reproducir en Spotify
-                        Button(
-//                            modifier = Modifier.size(),
+                        IconButton(
                             onClick = {
                                 val spotifyUri = "spotify:track:${song.id}"
                                 val intent = Intent(Intent.ACTION_VIEW, spotifyUri.toUri())
 
-                                // Agregar referrer opcional
                                 intent.putExtra(
                                     Intent.EXTRA_REFERRER,
                                     "android-app://${context.packageName}".toUri()
@@ -221,10 +224,19 @@ fun MainScreen(navController: NavHostController, profileViewModel: ProfileViewMo
                                 NotificationHelper.showPersistentNotification(context)
                                 context.startActivity(intent)
                             },
-                            colors = ButtonDefaults.buttonColors(containerColor = softComponentColor.value)
+                            modifier = Modifier
+                                .size(60.dp) // ✅ Keeps a slightly larger button for the circular background
+                                .background(softComponentColor.value, shape = CircleShape) // ✅ Adds round background (placeholder color)
                         ) {
-                            Text(text = "Play in Spotify", fontWeight = FontWeight.ExtraBold)
+                            Icon(
+                                imageVector = Icons.Default.PlayArrow,
+                                contentDescription = "Play",
+                                tint = Color.Black, // ✅ Makes the icon stand out against the background
+                                modifier = Modifier.size(40.dp)
+                            )
                         }
+
+
                     }
                 }
             } ?: run {
