@@ -11,7 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -23,8 +23,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.izamaralv.swipethebeat.common.cardBorderColor
 import com.izamaralv.swipethebeat.common.cardColor
-import com.izamaralv.swipethebeat.ui.theme.greenPastelColor
-import com.izamaralv.swipethebeat.ui.theme.redPastelColor
+import com.izamaralv.swipethebeat.ui.theme.greenBrilliantColor
+import com.izamaralv.swipethebeat.ui.theme.redBrilliantColor
 
 @Composable
 fun TinderCard(
@@ -33,13 +33,13 @@ fun TinderCard(
     content: @Composable () -> Unit
 ) {
     // Variables para el desplazamiento de la tarjeta
-    var offsetX by remember { mutableStateOf(0f) }
-    var offsetY by remember { mutableStateOf(0f) }
+    var offsetX by remember { mutableFloatStateOf(0f) }
+    var offsetY by remember { mutableFloatStateOf(0f) }
 
     // Color y opacidad de la superposición dinámica
     val overlayColor = when {
-        offsetX > 0 -> greenPastelColor.copy(alpha = minOf(0.4f, offsetX / 600))
-        offsetX < 0 -> redPastelColor.copy(alpha = minOf(0.4f, -offsetX / 600))
+        offsetX > 0 -> greenBrilliantColor.copy(alpha = minOf(0.4f, offsetX / 600))
+        offsetX < 0 -> redBrilliantColor.copy(alpha = minOf(0.4f, -offsetX / 600))
         else -> Color.Transparent
     }
 

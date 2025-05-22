@@ -16,11 +16,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -33,6 +37,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -43,6 +48,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.izamaralv.swipethebeat.R
 import com.izamaralv.swipethebeat.common.backgroundColor
 import com.izamaralv.swipethebeat.common.cardColor
 import com.izamaralv.swipethebeat.common.softComponentColor
@@ -68,7 +74,6 @@ fun MainScreen(navController: NavHostController, profileViewModel: ProfileViewMo
     LaunchedEffect(Unit) {
         profileViewModel.loadUserProfile(profileViewModel.getUserId()) // ✅ Load Firestore color
     }
-
 
 
     // Control de la barra de estado del sistema
@@ -130,8 +135,43 @@ fun MainScreen(navController: NavHostController, profileViewModel: ProfileViewMo
                     ) {
                         Text(
                             text = "Bienvenido/a $displayName",
-                            color = softComponentColor.value
+                            color = softComponentColor.value,
+                            modifier = Modifier.padding(bottom = 20.dp)
                         )
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceEvenly
+                        ) {
+                            Image(
+                                painter = painterResource(R.drawable.red_arrow),
+                                contentDescription = "Red Arrow",
+                                modifier = Modifier
+                                    .size(50.dp)
+                                    .padding(top = 10.dp)
+                            )
+
+                            Button(
+                                onClick = { /* TODO */ },
+                                colors = ButtonDefaults.buttonColors(containerColor = softComponentColor.value),
+                            ) {
+                                Text(text = "Save", color = Color.Black)
+                                Spacer(modifier = Modifier.width(8.dp)) // ✅ Spacing between text & icon
+                                Icon(
+                                    imageVector = Icons.Filled.AccessTime,
+                                    contentDescription = "Save for later",
+                                    tint = Color.Black
+                                )
+                            }
+
+                            Image(
+                                painter = painterResource(R.drawable.green_arrow),
+                                contentDescription = "Green Arrow",
+                                modifier = Modifier
+                                    .size(50.dp)
+                                    .padding(top = 10.dp)
+                            )
+                        }
 
                         Spacer(modifier = Modifier.height(16.dp))
 
@@ -150,15 +190,7 @@ fun MainScreen(navController: NavHostController, profileViewModel: ProfileViewMo
                                     modifier = Modifier.fillMaxSize(),
                                     horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth(.9f)
-                                            .padding(16.dp),
-                                        horizontalArrangement = Arrangement.SpaceBetween
-                                    ) {
-                                        Text(text = "✖", color = Color.Red.copy(.6f))
-                                        Text(text = "✔", color = Color.Green.copy(.6f))
-                                    }
+
 
                                     Spacer(modifier = Modifier.height(20.dp))
 
@@ -226,7 +258,10 @@ fun MainScreen(navController: NavHostController, profileViewModel: ProfileViewMo
                             },
                             modifier = Modifier
                                 .size(60.dp) // ✅ Keeps a slightly larger button for the circular background
-                                .background(softComponentColor.value, shape = CircleShape) // ✅ Adds round background (placeholder color)
+                                .background(
+                                    softComponentColor.value,
+                                    shape = CircleShape
+                                ) // ✅ Adds round background (placeholder color)
                         ) {
                             Icon(
                                 imageVector = Icons.Default.PlayArrow,
