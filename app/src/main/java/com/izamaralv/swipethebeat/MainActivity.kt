@@ -153,7 +153,7 @@ class MainActivity : ComponentActivity() {
                         runOnUiThread {
                             initializationViewModel.setInitialized()
                             navController.navigate(Screen.Profile.route) {
-                                popUpTo("login_screen") { inclusive = true }
+                                popUpTo(Screen.Login.route) { inclusive = true }
                             }
                         }
                     }
