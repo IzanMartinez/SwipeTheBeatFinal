@@ -37,38 +37,24 @@ fun NavGraph(
                 searchViewModel = searchViewModel // ✅ Pass SearchViewModel
             )
         }
-        composable(route = Screen.ArtistPicker1.route) {
-            ArtistPickerScreen(
-                searchViewModel = searchViewModel,
-                onArtistSelected = { chosen ->
-                    navController.previousBackStackEntry
-                        ?.savedStateHandle
-                        ?.set("pickedArtist1", chosen)
-                    navController.popBackStack()
-                }
-            )
+        composable(Screen.ArtistPicker1.route) {
+            ArtistPickerScreen(searchViewModel) { chosen ->
+                profileViewModel.changeFavoriteArtist(0, chosen)
+                navController.popBackStack()
+            }
         }
-        composable(route = Screen.ArtistPicker2.route) {
-            ArtistPickerScreen(
-                searchViewModel = searchViewModel,
-                onArtistSelected = { chosen ->
-                    navController.previousBackStackEntry
-                        ?.savedStateHandle
-                        ?.set("pickedArtist2", chosen)
-                    navController.popBackStack()
-                }
-            )
+        composable(Screen.ArtistPicker2.route) {
+            ArtistPickerScreen(searchViewModel) { chosen ->
+                profileViewModel.changeFavoriteArtist(1, chosen)
+                navController.popBackStack()
+            }
         }
-        composable(route = Screen.ArtistPicker3.route) {
-            ArtistPickerScreen(
-                searchViewModel = searchViewModel,
-                onArtistSelected = { chosen ->
-                    navController.previousBackStackEntry
-                        ?.savedStateHandle
-                        ?.set("pickedArtist3", chosen)
-                    navController.popBackStack()
-                }
-            )
+        composable(Screen.ArtistPicker3.route) {
+            ArtistPickerScreen(searchViewModel) { chosen ->
+                profileViewModel.changeFavoriteArtist(2, chosen)
+                navController.popBackStack()
+            }
         }
+
     }
 }
