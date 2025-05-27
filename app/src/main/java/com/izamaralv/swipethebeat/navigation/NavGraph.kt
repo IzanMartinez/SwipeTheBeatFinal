@@ -20,6 +20,7 @@ fun NavGraph(
     searchViewModel: SearchViewModel,
     songViewModel: SongViewModel
 ) {
+
     NavHost(navController = navController, startDestination = Screen.Login.route) {
         composable(route = Screen.Login.route) {
             LoginScreen(navController = navController)
@@ -37,38 +38,41 @@ fun NavGraph(
                 searchViewModel = searchViewModel // ✅ Pass SearchViewModel
             )
         }
-        composable(route = Screen.ArtistPicker1.route) {
+        composable(Screen.ArtistPicker1.route) {
+            val fav = profileViewModel.favoriteArtist1
+            val excl = listOf(profileViewModel.favoriteArtist2, profileViewModel.favoriteArtist3)
             ArtistPickerScreen(
-                searchViewModel = searchViewModel,
-                onArtistSelected = { chosen ->
-                    navController.previousBackStackEntry
-                        ?.savedStateHandle
-                        ?.set("pickedArtist1", chosen)
-                    navController.popBackStack()
-                }
-            )
+                searchViewModel,
+                fav,
+                excl
+            ) { chosen ->
+                profileViewModel.changeFavoriteArtist(0, chosen)
+                navController.popBackStack()
+            }
         }
-        composable(route = Screen.ArtistPicker2.route) {
+        composable(Screen.ArtistPicker2.route) {
+            val fav = profileViewModel.favoriteArtist2
+            val excl = listOf(profileViewModel.favoriteArtist1, profileViewModel.favoriteArtist3)
             ArtistPickerScreen(
-                searchViewModel = searchViewModel,
-                onArtistSelected = { chosen ->
-                    navController.previousBackStackEntry
-                        ?.savedStateHandle
-                        ?.set("pickedArtist2", chosen)
-                    navController.popBackStack()
-                }
-            )
+                searchViewModel,
+                fav,
+                excl
+            ) { chosen ->
+                profileViewModel.changeFavoriteArtist(1, chosen)
+                navController.popBackStack()
+            }
         }
-        composable(route = Screen.ArtistPicker3.route) {
+        composable(Screen.ArtistPicker3.route) {
+            val fav = profileViewModel.favoriteArtist3
+            val excl = listOf(profileViewModel.favoriteArtist1, profileViewModel.favoriteArtist2)
             ArtistPickerScreen(
-                searchViewModel = searchViewModel,
-                onArtistSelected = { chosen ->
-                    navController.previousBackStackEntry
-                        ?.savedStateHandle
-                        ?.set("pickedArtist3", chosen)
-                    navController.popBackStack()
-                }
-            )
+                searchViewModel,
+                fav,
+                excl
+            ) { chosen ->
+                profileViewModel.changeFavoriteArtist(2, chosen)
+                navController.popBackStack()
+            }
         }
     }
 }

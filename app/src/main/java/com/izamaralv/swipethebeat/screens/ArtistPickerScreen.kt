@@ -40,34 +40,40 @@ import com.izamaralv.swipethebeat.viewmodel.SearchViewModel
 @Composable
 fun ArtistPickerScreen(
     searchViewModel: SearchViewModel,
+    currentFavorite: String,
+    excluded: List<String>,
     onArtistSelected: (String) -> Unit
 ) {
     var query by remember { mutableStateOf("") }
     val artists by searchViewModel.artistResults
 
     val context = LocalContext.current
-    val tokenManager = TokenManager(context)
-    val accessToken = tokenManager.getAccessToken()
+    val accessToken = TokenManager(context).getAccessToken().orEmpty()
 
+    // Clear previous search on entry
     LaunchedEffect(Unit) {
         searchViewModel.clearArtistResults()
     }
 
+    // Filter out already‐selected artists
+    val filtered = artists.filterNot { it in excluded }
+
     Column(
         Modifier
             .fillMaxSize()
-            .background(color = backgroundColor.value)
+            .background(backgroundColor.value)
             .padding(16.dp)
     ) {
+        // ─────────── Search bar ───────────
         TextField(
             value = query,
             onValueChange = {
                 query = it
-                searchViewModel.searchArtists(it, accessToken.toString())
+                searchViewModel.searchArtists(it, accessToken)
             },
             placeholder = {
                 Text(
-                    text = "Busca un artista...",
+                    "Busca un artista...",
                     color = textColor.value.copy(alpha = 0.6f)
                 )
             },
@@ -76,40 +82,68 @@ fun ArtistPickerScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(20.dp))
-                .border(
-                    2.dp,
-                    softComponentColor.value,
-                    RoundedCornerShape(20.dp)
-                ) // Adds a white border
+                .border(2.dp, softComponentColor.value, RoundedCornerShape(20.dp))
                 .background(cardColor.value)
-//                .padding(horizontal = 16.dp, vertical = 12.dp), // Keeps the background color,
         )
 
         Spacer(Modifier.height(12.dp))
 
-        if (artists.isEmpty()) {
-            Text(
-                text = "Empieza a escribir para ver resultados",
-                color = textColor.value,
-                modifier = Modifier.padding(horizontal = 10.dp)
-            )
-        } else {
-            LazyColumn(Modifier.fillMaxSize()) {
-                items(artists) { artist ->
+        // ─────────── Result states ───────────
+        when {
+            // 1️⃣ El usuario no ha escrito nada: mostramos "Reset" + invitación
+            query.isBlank() -> {
+                // Solo si ya hay un favorito existente
+                if (currentFavorite.isNotBlank()) {
                     ListItem(
-                        text = { Text(artist, color = textColor.value) },
+                        text = { Text("Quitar artista favorito", color = textColor.value) },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable { onArtistSelected(artist) }
+                            .clickable { onArtistSelected("") }
                     )
                     Divider(
                         color = softComponentColor.value,
                         thickness = 1.dp,
                         modifier = Modifier.padding(horizontal = 10.dp)
                     )
+                    Spacer(Modifier.height(8.dp))
+                }
+                // Invitación a buscar
+                Text(
+                    text = "Empieza a escribir para ver resultados",
+                    color = textColor.value,
+                    modifier = Modifier.padding(horizontal = 10.dp)
+                )
+            }
+
+            // 2️⃣ Ya buscó, pero no quedan resultados tras filtrar
+            query.isNotBlank() && filtered.isEmpty() -> {
+                Text(
+                    "No se han encontrado artistas",
+                    color = textColor.value,
+                    modifier = Modifier.padding(horizontal = 10.dp)
+                )
+            }
+            // 3️⃣ Hay resultados filtrados
+            else -> {
+                LazyColumn(Modifier.fillMaxSize()) {
+                    items(filtered) { artist ->
+                        ListItem(
+                            text = { Text(artist, color = textColor.value) },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { onArtistSelected(artist) }
+                        )
+                        Divider(
+                            color = softComponentColor.value,
+                            thickness = 1.dp,
+                            modifier = Modifier.padding(horizontal = 10.dp)
+                        )
+                    }
                 }
             }
         }
     }
 }
+
+
 

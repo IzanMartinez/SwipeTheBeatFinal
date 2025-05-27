@@ -26,7 +26,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -59,13 +59,18 @@ fun ProfileScreen(
     profileViewModel: ProfileViewModel,
     searchViewModel: SearchViewModel
 ) {
-    // System UI
+    // ▶ Apply status bar theming
     val systemUiController = rememberSystemUiController()
     systemUiController.setStatusBarColor(color = backgroundColor.value, darkIcons = false)
 
     val context = LocalContext.current
 
-    // Profile image
+    // ▶ Trigger loading user data (including favorite artists) once per composition
+    LaunchedEffect(Unit) {
+        profileViewModel.loadUserProfile(profileViewModel.getUserId())
+    }
+
+    // Profile image setup
     val profileImageUrl = profileViewModel.getProfileImageUrl()
     val painter = if (profileImageUrl.isEmpty()) {
         painterResource(id = R.drawable.default_profile)
@@ -174,31 +179,10 @@ fun ProfileScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-
-            // ▶ Three favorite-artist pickers
-            val pickedArtist1State = navController
-                .currentBackStackEntry
-                ?.savedStateHandle
-                ?.getLiveData<String>("pickedArtist1")
-                ?.observeAsState()
-
-            val pickedArtist1 = pickedArtist1State?.value
-
-            val pickedArtist2State = navController
-                .currentBackStackEntry
-                ?.savedStateHandle
-                ?.getLiveData<String>("pickedArtist2")
-                ?.observeAsState()
-
-            val pickedArtist2 = pickedArtist2State?.value
-
-            val pickedArtist3State = navController
-                .currentBackStackEntry
-                ?.savedStateHandle
-                ?.getLiveData<String>("pickedArtist3")
-                ?.observeAsState()
-
-            val pickedArtist3 = pickedArtist3State?.value
+            // ▶ Read favorite artists from ViewModel instead of savedStateHandle
+            val fav1 = profileViewModel.favoriteArtist1.ifBlank { "Artista favorito #1" }
+            val fav2 = profileViewModel.favoriteArtist2.ifBlank { "Artista favorito #2" }
+            val fav3 = profileViewModel.favoriteArtist3.ifBlank { "Artista favorito #3" }
 
             // Button #1
             OutlinedButton(
@@ -219,7 +203,7 @@ fun ProfileScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(pickedArtist1 ?: "Artista favorito #1")
+                    Text(fav1)
                     Icon(Icons.Default.Edit, contentDescription = null)
                 }
             }
@@ -245,7 +229,7 @@ fun ProfileScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(pickedArtist2 ?: "Artista favorito #2")
+                    Text(fav2)
                     Icon(Icons.Default.Edit, contentDescription = null)
                 }
             }
@@ -271,18 +255,18 @@ fun ProfileScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(pickedArtist3 ?: "Artista favorito #3")
+                    Text(fav3)
                     Icon(Icons.Default.Edit, contentDescription = null)
                 }
             }
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // Color picker
+            // Color picker (existing)
             ColorPickerMenu(profileViewModel)
         }
 
-        // Logout button
+        // Logout button (existing)
         Box(
             modifier = Modifier
                 .padding(top = 40.dp)
