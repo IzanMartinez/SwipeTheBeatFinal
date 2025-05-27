@@ -27,6 +27,8 @@ import com.izamaralv.swipethebeat.utils.TokenManager
 import com.izamaralv.swipethebeat.viewmodel.InitializationViewModel
 import com.izamaralv.swipethebeat.viewmodel.ProfileViewModel
 import com.izamaralv.swipethebeat.viewmodel.SearchViewModel
+import com.izamaralv.swipethebeat.viewmodel.SongViewModel
+import com.izamaralv.swipethebeat.viewmodel.SongViewModelFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -41,11 +43,19 @@ class MainActivity : ComponentActivity() {
     private val profileViewModel: ProfileViewModel by viewModels()
     private val initializationViewModel: InitializationViewModel by viewModels()
     private lateinit var searchViewModel: SearchViewModel
+    private lateinit var songViewModel: SongViewModel
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         val songRepository = SongRepository(applicationContext)
+        val accessToken = TokenManager(applicationContext).getAccessToken() ?: ""
+
+        songViewModel = SongViewModelFactory(songRepository, accessToken)
+            .create(SongViewModel::class.java)
+
         searchViewModel = SearchViewModel(songRepository) // ✅ Manual creation
         Log.d("MainActivity", "🚀 SearchViewModel initialized: $searchViewModel")
 
@@ -73,7 +83,8 @@ class MainActivity : ComponentActivity() {
                     NavGraph(
                         navController = navController,
                         profileViewModel = profileViewModel,
-                        searchViewModel = searchViewModel
+                        searchViewModel = searchViewModel,
+                        songViewModel = songViewModel
                     )
 
                     checkTokenAndNavigate()

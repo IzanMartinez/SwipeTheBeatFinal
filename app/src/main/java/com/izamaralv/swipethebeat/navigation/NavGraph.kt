@@ -11,19 +11,21 @@ import com.izamaralv.swipethebeat.screens.MainScreen
 import com.izamaralv.swipethebeat.screens.ProfileScreen
 import com.izamaralv.swipethebeat.viewmodel.ProfileViewModel
 import com.izamaralv.swipethebeat.viewmodel.SearchViewModel
+import com.izamaralv.swipethebeat.viewmodel.SongViewModel
 
 @Composable
 fun NavGraph(
     navController: NavHostController,
     profileViewModel: ProfileViewModel,
-    searchViewModel: SearchViewModel
+    searchViewModel: SearchViewModel,
+    songViewModel: SongViewModel
 ) {
     NavHost(navController = navController, startDestination = Screen.Login.route) {
         composable(route = Screen.Login.route) {
             LoginScreen(navController = navController)
         }
         composable(route = Screen.Main.route) {
-            MainScreen(navController = navController, profileViewModel = profileViewModel)
+            MainScreen(navController = navController, profileViewModel = profileViewModel, songViewModel = songViewModel)
         }
         composable(route = Screen.LikedSongs.route) {
             LikedSongsScreen(navController = navController, profileViewModel = profileViewModel)

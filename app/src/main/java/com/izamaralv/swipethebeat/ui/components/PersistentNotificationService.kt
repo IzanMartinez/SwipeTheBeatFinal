@@ -40,7 +40,9 @@ object NotificationHelper {
     @SuppressLint("MissingPermission")
     // Mostrar notificación persistente
     fun showPersistentNotification(context: Context) {
-        val intent = Intent(context, MainActivity::class.java)
+        val intent = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+        }
         val pendingIntent: PendingIntent = PendingIntent.getActivity(
             context,
             0,
