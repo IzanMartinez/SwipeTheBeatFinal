@@ -18,6 +18,7 @@ import androidx.compose.material.ListItem
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,6 +48,10 @@ fun ArtistPickerScreen(
     val context = LocalContext.current
     val tokenManager = TokenManager(context)
     val accessToken = tokenManager.getAccessToken()
+
+    LaunchedEffect(Unit) {
+        searchViewModel.clearArtistResults()
+    }
 
     Column(
         Modifier

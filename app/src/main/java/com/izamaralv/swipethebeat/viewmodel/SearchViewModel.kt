@@ -20,4 +20,8 @@ class SearchViewModel(private val songRepository: SongRepository) : ViewModel() 
         }
     }
 
+    fun clearArtistResults() {
+        _artistResults.value = emptyList()
+    }
+
 }
