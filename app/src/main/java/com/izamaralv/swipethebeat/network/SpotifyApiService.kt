@@ -49,7 +49,7 @@ interface SpotifyApiService {
         @Header("Authorization") token: String,
         @Query("q") query: String,
         @Query("type") type: String = "artist", // 🔥 Change to "artist"
-        @Query("limit") limit: Int = 10
+        @Query("limit") limit: Int = 15
     ): Response<SearchResponse> // Buscar artistas
 
 }

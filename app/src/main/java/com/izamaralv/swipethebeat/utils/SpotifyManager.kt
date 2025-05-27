@@ -5,15 +5,12 @@ import android.util.Log
 import androidx.navigation.NavHostController
 import com.adamratzman.spotify.SpotifyScope
 import com.adamratzman.spotify.getSpotifyAuthorizationUrl
+import com.izamaralv.swipethebeat.repository.SongRepository
+import com.izamaralv.swipethebeat.viewmodel.SongViewModel
+import com.izamaralv.swipethebeat.viewmodel.SongViewModelFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import com.izamaralv.swipethebeat.viewmodel.SongViewModel
-import com.izamaralv.swipethebeat.repository.SongRepository
-import com.izamaralv.swipethebeat.viewmodel.SongViewModelFactory
-import org.json.JSONObject
-import java.net.HttpURLConnection
-import java.net.URL
 
 class SpotifyManager(private val context: Context) {
 
@@ -35,6 +32,10 @@ class SpotifyManager(private val context: Context) {
         val songViewModelFactory = SongViewModelFactory(songRepository, accessToken)
         songViewModel = songViewModelFactory.create(SongViewModel::class.java)
         Log.d("SpotifyManager", "SongRepository and SongViewModel initialized")
+
+        // Carga las recomendaciones iniciales
+        songViewModel.loadInitialRecommendationsInternal()
+
     }
 
     fun exchangeCodeForToken(code: String, onTokenReceived: (accessToken: String, refreshToken: String) -> Unit) {

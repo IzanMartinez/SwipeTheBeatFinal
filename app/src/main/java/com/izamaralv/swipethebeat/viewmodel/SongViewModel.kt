@@ -1,5 +1,6 @@
 package com.izamaralv.swipethebeat.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -7,7 +8,6 @@ import androidx.lifecycle.viewModelScope
 import com.izamaralv.swipethebeat.models.Track
 import com.izamaralv.swipethebeat.repository.SongRepository
 import kotlinx.coroutines.launch
-import android.util.Log
 
 class SongViewModel(private val songRepository: SongRepository, private val accessToken: String) : ViewModel() {
 
@@ -22,11 +22,15 @@ class SongViewModel(private val songRepository: SongRepository, private val acce
 
     // Inicializa las recomendaciones iniciales
     init {
-        loadInitialRecommendations()
+        if (accessToken.isNotBlank()) {
+            viewModelScope.launch {
+                loadInitialRecommendationsInternal()
+            }
+        }
     }
 
     // Carga las recomendaciones iniciales
-    fun loadInitialRecommendations() {
+    fun loadInitialRecommendationsInternal() {
         viewModelScope.launch {
             try {
                 likedSongIds.clear()

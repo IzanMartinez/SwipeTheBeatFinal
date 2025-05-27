@@ -4,18 +4,28 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.izamaralv.swipethebeat.screens.*
+import com.izamaralv.swipethebeat.screens.ArtistPickerScreen
+import com.izamaralv.swipethebeat.screens.LikedSongsScreen
+import com.izamaralv.swipethebeat.screens.LoginScreen
+import com.izamaralv.swipethebeat.screens.MainScreen
+import com.izamaralv.swipethebeat.screens.ProfileScreen
 import com.izamaralv.swipethebeat.viewmodel.ProfileViewModel
 import com.izamaralv.swipethebeat.viewmodel.SearchViewModel
+import com.izamaralv.swipethebeat.viewmodel.SongViewModel
 
 @Composable
-fun NavGraph(navController: NavHostController, profileViewModel: ProfileViewModel, searchViewModel: SearchViewModel) {
+fun NavGraph(
+    navController: NavHostController,
+    profileViewModel: ProfileViewModel,
+    searchViewModel: SearchViewModel,
+    songViewModel: SongViewModel
+) {
     NavHost(navController = navController, startDestination = Screen.Login.route) {
         composable(route = Screen.Login.route) {
             LoginScreen(navController = navController)
         }
         composable(route = Screen.Main.route) {
-            MainScreen(navController = navController, profileViewModel = profileViewModel)
+            MainScreen(navController = navController, profileViewModel = profileViewModel, songViewModel = songViewModel)
         }
         composable(route = Screen.LikedSongs.route) {
             LikedSongsScreen(navController = navController, profileViewModel = profileViewModel)
@@ -25,6 +35,39 @@ fun NavGraph(navController: NavHostController, profileViewModel: ProfileViewMode
                 navController = navController,
                 profileViewModel = profileViewModel,
                 searchViewModel = searchViewModel // ✅ Pass SearchViewModel
+            )
+        }
+        composable(route = Screen.ArtistPicker1.route) {
+            ArtistPickerScreen(
+                searchViewModel = searchViewModel,
+                onArtistSelected = { chosen ->
+                    navController.previousBackStackEntry
+                        ?.savedStateHandle
+                        ?.set("pickedArtist1", chosen)
+                    navController.popBackStack()
+                }
+            )
+        }
+        composable(route = Screen.ArtistPicker2.route) {
+            ArtistPickerScreen(
+                searchViewModel = searchViewModel,
+                onArtistSelected = { chosen ->
+                    navController.previousBackStackEntry
+                        ?.savedStateHandle
+                        ?.set("pickedArtist2", chosen)
+                    navController.popBackStack()
+                }
+            )
+        }
+        composable(route = Screen.ArtistPicker3.route) {
+            ArtistPickerScreen(
+                searchViewModel = searchViewModel,
+                onArtistSelected = { chosen ->
+                    navController.previousBackStackEntry
+                        ?.savedStateHandle
+                        ?.set("pickedArtist3", chosen)
+                    navController.popBackStack()
+                }
             )
         }
     }
