@@ -20,6 +20,7 @@ fun NavGraph(
     searchViewModel: SearchViewModel,
     songViewModel: SongViewModel
 ) {
+
     NavHost(navController = navController, startDestination = Screen.Login.route) {
         composable(route = Screen.Login.route) {
             LoginScreen(navController = navController)
@@ -38,23 +39,40 @@ fun NavGraph(
             )
         }
         composable(Screen.ArtistPicker1.route) {
-            ArtistPickerScreen(searchViewModel) { chosen ->
+            val fav = profileViewModel.favoriteArtist1
+            val excl = listOf(profileViewModel.favoriteArtist2, profileViewModel.favoriteArtist3)
+            ArtistPickerScreen(
+                searchViewModel,
+                fav,
+                excl
+            ) { chosen ->
                 profileViewModel.changeFavoriteArtist(0, chosen)
                 navController.popBackStack()
             }
         }
         composable(Screen.ArtistPicker2.route) {
-            ArtistPickerScreen(searchViewModel) { chosen ->
+            val fav = profileViewModel.favoriteArtist2
+            val excl = listOf(profileViewModel.favoriteArtist1, profileViewModel.favoriteArtist3)
+            ArtistPickerScreen(
+                searchViewModel,
+                fav,
+                excl
+            ) { chosen ->
                 profileViewModel.changeFavoriteArtist(1, chosen)
                 navController.popBackStack()
             }
         }
         composable(Screen.ArtistPicker3.route) {
-            ArtistPickerScreen(searchViewModel) { chosen ->
+            val fav = profileViewModel.favoriteArtist3
+            val excl = listOf(profileViewModel.favoriteArtist1, profileViewModel.favoriteArtist2)
+            ArtistPickerScreen(
+                searchViewModel,
+                fav,
+                excl
+            ) { chosen ->
                 profileViewModel.changeFavoriteArtist(2, chosen)
                 navController.popBackStack()
             }
         }
-
     }
 }

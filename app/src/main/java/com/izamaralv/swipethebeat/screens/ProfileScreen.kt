@@ -180,9 +180,9 @@ fun ProfileScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             // ▶ Read favorite artists from ViewModel instead of savedStateHandle
-            val fav1 = profileViewModel.getFavoriteArtist1().ifBlank { "Artista favorito #1" }
-            val fav2 = profileViewModel.getFavoriteArtist2().ifBlank { "Artista favorito #2" }
-            val fav3 = profileViewModel.getFavoriteArtist3().ifBlank { "Artista favorito #3" }
+            val fav1 = profileViewModel.favoriteArtist1.ifBlank { "Artista favorito #1" }
+            val fav2 = profileViewModel.favoriteArtist2.ifBlank { "Artista favorito #2" }
+            val fav3 = profileViewModel.favoriteArtist3.ifBlank { "Artista favorito #3" }
 
             // Button #1
             OutlinedButton(

@@ -1,6 +1,9 @@
 package com.izamaralv.swipethebeat.viewmodel
 
 import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.core.graphics.toColorInt
 import androidx.lifecycle.ViewModel
@@ -18,17 +21,17 @@ class ProfileViewModel : ViewModel() {
     private var profileColor: String = ""
 
     // ▶ State for the 3 favorite‐artist slots
-    private var favoriteArtist1: String = ""
-    private var favoriteArtist2: String = ""
-    private var favoriteArtist3: String = ""
+    var favoriteArtist1 by mutableStateOf("")
+        private set
+    var favoriteArtist2 by mutableStateOf("")
+        private set
+    var favoriteArtist3 by mutableStateOf("")
+        private set
 
     fun getUserId(): String = userId
     fun getDisplayName(): String = displayName
     fun getProfileImageUrl(): String = profileImageUrl
     fun getProfileColor(): String = profileColor
-    fun getFavoriteArtist1(): String = favoriteArtist1
-    fun getFavoriteArtist2(): String = favoriteArtist2
-    fun getFavoriteArtist3(): String = favoriteArtist3
 
     fun saveUser(userData: Map<String, String>) {
         Log.d("ProfileViewModel", "Saving user to Firestore: $userData")
