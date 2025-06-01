@@ -146,7 +146,7 @@ class ProfileViewModel : ViewModel() {
                     name        = trackName,
                     artists     = artists,
                     album       = album,
-                    preview_url = null,                     // No guardamos preview_url
+                    previewUrl = null,                     // No guardamos preview_url
                     id          = trackId,
                     uri         = ""                        // No guardamos URI
                 )

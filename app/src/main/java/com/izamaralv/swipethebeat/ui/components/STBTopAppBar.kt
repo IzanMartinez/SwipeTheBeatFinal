@@ -80,7 +80,7 @@ fun STBTopAppBar(
 
     CenterAlignedTopAppBar(
         navigationIcon = {
-            IconButton(onClick = { /*TODO: nav to homeScreen*/ }) {
+            IconButton(onClick = { navController.navigate(Screen.Lobby.route) }) {
                 Icon(imageVector = Icons.Default.Home, contentDescription = "home icon")
             }
         },

@@ -177,7 +177,7 @@ class MainActivity : ComponentActivity() {
         val tokenManager = TokenManager(applicationContext)
         val accessToken = tokenManager.getAccessToken()
         if (accessToken != null) {
-            navController.navigate(Screen.Main.route) {
+            navController.navigate(Screen.Lobby.route) {
                 popUpTo(Screen.Login.route) { inclusive = true }
             }
         }

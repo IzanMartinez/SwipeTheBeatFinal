@@ -10,5 +10,6 @@ sealed class Screen(val route: String) {
     data object ArtistPicker2 : Screen("artist_picker_2_screen") // Ruta para la pantalla de selección de artistas
     data object ArtistPicker3 : Screen("artist_picker_3_screen") // Ruta para la pantalla de selección de artistas
     data object SavedSongs : Screen("saved_songs_screen") // Ruta para la pantalla de canciones guardadas
+    data object Lobby : Screen("lobby_screen") // Ruta para la pantalla de lobby
 }
 

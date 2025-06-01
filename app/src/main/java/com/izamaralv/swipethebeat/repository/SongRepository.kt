@@ -45,7 +45,7 @@ class SongRepository(context: Context) {
             try {
                 val response = apiService.getLikedSongs(
                     token = "Bearer $token",
-                    limit = 25
+                    limit = 50
                 )
                 if (response.isSuccessful) {
                     Log.d(
@@ -56,13 +56,13 @@ class SongRepository(context: Context) {
                 } else {
                     Log.e(
                         "SongRepository",
-                        "Failed to get last 25 liked songs: ${response.message()} (Code: ${response.code()})"
+                        "Failed to get last 50 liked songs: ${response.message()} (Code: ${response.code()})"
                     )
                     Log.e("SongRepository", "Response body: ${response.errorBody()?.string()}")
                     emptyList()
                 }
             } catch (e: Exception) {
-                Log.e("SongRepository", "Exception in getLast25LikedSongs: ${e.message}")
+                Log.e("SongRepository", "Exception in getLast50LikedSongs: ${e.message}")
                 emptyList()
             }
         }
@@ -85,7 +85,7 @@ class SongRepository(context: Context) {
                             name = it.name,
                             artists = it.artists,
                             album = it.album,
-                            preview_url = it.preview_url,
+                            previewUrl = it.previewUrl,
                             id = it.id,
                             uri = it.uri
                         )

@@ -6,6 +6,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.izamaralv.swipethebeat.screens.ArtistPickerScreen
 import com.izamaralv.swipethebeat.screens.LikedSongsScreen
+import com.izamaralv.swipethebeat.screens.LobbyScreen
 import com.izamaralv.swipethebeat.screens.LoginScreen
 import com.izamaralv.swipethebeat.screens.MainScreen
 import com.izamaralv.swipethebeat.screens.ProfileScreen
@@ -77,6 +78,9 @@ fun NavGraph(
         }
         composable(Screen.SavedSongs.route) {
             SavedSongsScreen(navController = navController, profileViewModel = profileViewModel)
+        }
+        composable(Screen.Lobby.route) {
+            LobbyScreen(navController = navController)
         }
     }
 }
