@@ -2,7 +2,6 @@ package com.izamaralv.swipethebeat.screens
 
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -16,11 +15,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccessTime
+import androidx.compose.material.icons.filled.Audiotrack
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Button
@@ -32,7 +30,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -44,6 +44,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
@@ -51,6 +52,7 @@ import com.izamaralv.swipethebeat.R
 import com.izamaralv.swipethebeat.common.backgroundColor
 import com.izamaralv.swipethebeat.common.cardColor
 import com.izamaralv.swipethebeat.common.softComponentColor
+import com.izamaralv.swipethebeat.models.Track
 import com.izamaralv.swipethebeat.navigation.Screen
 import com.izamaralv.swipethebeat.repository.SongRepository
 import com.izamaralv.swipethebeat.ui.components.NotificationHelper
@@ -59,61 +61,52 @@ import com.izamaralv.swipethebeat.ui.components.TinderCard
 import com.izamaralv.swipethebeat.utils.TokenManager
 import com.izamaralv.swipethebeat.viewmodel.ProfileViewModel
 import com.izamaralv.swipethebeat.viewmodel.SongViewModel
+import com.izamaralv.swipethebeat.viewmodel.SongViewModelFactory
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun MainScreen(
+fun SavedSongsScreen(
     navController: NavHostController,
-    profileViewModel: ProfileViewModel,
-    songViewModel: SongViewModel
+    profileViewModel: ProfileViewModel
 ) {
-
-
-    val displayName = profileViewModel.getDisplayName()
-
-    val context = LocalContext.current
-
+    // 1.1) Al montar la pantalla, cargamos la lista “saved_songs” en el ViewModel
     LaunchedEffect(Unit) {
-        profileViewModel.loadUserProfile(profileViewModel.getUserId()) // ✅ Load Firestore color
+        profileViewModel.loadSavedSongsToState()
     }
 
+    // 1.2) Observamos el estado Compose que contiene la cola de canciones guardadas
+    val savedSongs = profileViewModel.savedSongs
 
-    // Control de la barra de estado del sistema
+    // 1.3) Ajustamos la barra de estado del sistema
     val systemUiController = rememberSystemUiController()
     systemUiController.setStatusBarColor(color = softComponentColor.value, darkIcons = false)
 
+    val context = LocalContext.current
+
+    // 1.4) Para poder usar TinderCard igual que en MainScreen, instanciamos SongViewModel
     val songRepository = SongRepository(context)
-
-    // Obtener el token de acceso dinámicamente
     val tokenManager = TokenManager(context)
-    val accessToken = tokenManager.getAccessToken()
+    val accessToken = tokenManager.getAccessToken() ?: ""
+    val songViewModel: SongViewModel = viewModel(
+        factory = SongViewModelFactory(songRepository, accessToken)
+    )
 
-    accessToken?.let {
-        Log.d("MainScreen", "Access Token: $it")
-    }
-
-    LaunchedEffect(accessToken) {
-        accessToken?.let {
-            val userProfile = songRepository.getCurrentUserProfile(it)
-            userProfile?.let { profile ->
-                Log.d("MainScreen", "User Profile: $profile")
-            }
-        }
-    }
+    // 1.5) Obtener el nombre para el saludo
+    val displayName = profileViewModel.getDisplayName()
 
     Scaffold(
         topBar = {
             STBTopAppBar(
-                profileViewModel,
-                navController = navController,
-                customIcon1 = Icons.Filled.Favorite,
-                customFunction1 = { navController.navigate(Screen.LikedSongs.route) },
-                customText1 = "Últimos likes",
-                customIcon2 = Icons.Filled.AccessTime,
-                customFunction2 = { navController.navigate(Screen.SavedSongs.route) },
-                customText2 = "Ver más tarde"
+                profileViewModel    = profileViewModel,
+                navController       = navController,
+                customIcon1         = Icons.Filled.Favorite,
+                customFunction1     = { navController.navigate(Screen.LikedSongs.route) },
+                customText1         = "Últimos likes",
+                customIcon2         = Icons.Filled.Audiotrack,
+                customFunction2     = { navController.navigate(Screen.Main.route) },
+                customText2         = "Pantalla principal"
             )
-        },
+        }
     ) {
         Column(
             modifier = Modifier
@@ -122,9 +115,10 @@ fun MainScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            val currentSong by songViewModel.currentSong.observeAsState()
+             var index by remember { mutableStateOf(0) }
+             val song: Track? = savedSongs.getOrNull(index)
 
-            currentSong?.let { song ->
+            song?.let { song ->
                 Box(
                     modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
                 ) {
@@ -132,7 +126,7 @@ fun MainScreen(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = "Bienvenido/a $displayName",
+                            text = "Canciónes guardadas para más tarde",
                             color = softComponentColor.value,
                             modifier = Modifier.padding(bottom = 20.dp)
                         )
@@ -148,25 +142,16 @@ fun MainScreen(
                                     .padding(top = 10.dp)
                             )
 
+                            // ▶ Botón “Saltar” que solo avanza índice sin borrar
                             Button(
                                 onClick = {
-                                    Log.d(
-                                        "MainScreen",
-                                        "Save button clicked. currentSong = ${song.name}, id = ${song.id}"
-                                    )
-                                    profileViewModel.saveSongForLater(song)
-                                    songViewModel.dislikeCurrentSong()
-
+                                    // Avanzamos el índice sin llamar a deleteSavedSongAt
+                                    val newLast = profileViewModel.savedSongs.lastIndex
+                                    index = if (index < newLast) index + 1 else newLast
                                 },
-                                colors = ButtonDefaults.buttonColors(containerColor = softComponentColor.value),
+                                colors = ButtonDefaults.buttonColors(containerColor = softComponentColor.value)
                             ) {
-                                Text(text = "Guardar", color = Color.Black)
-                                Spacer(modifier = Modifier.width(8.dp)) // ✅ Spacing between text & icon
-                                Icon(
-                                    imageVector = Icons.Filled.AccessTime,
-                                    contentDescription = "Save for later",
-                                    tint = Color.Black
-                                )
+                                Text(text = "Saltar", color = Color.Black)
                             }
 
                             Image(
@@ -178,11 +163,41 @@ fun MainScreen(
                             )
                         }
 
+
+
                         Spacer(modifier = Modifier.height(16.dp))
 
                         TinderCard(
-                            onSwipeLeft = { songViewModel.dislikeCurrentSong() },
-                            onSwipeRight = { songViewModel.likeCurrentSong() }) {
+                            onSwipeLeft = {
+                                // 1) Guardamos índice antes de borrar
+                                val removedIndex = index
+
+                                // 2) Borramos la canción de Firestore y de la lista local
+                                profileViewModel.deleteSavedSongAt(removedIndex)
+
+                                // 3) Recalculamos índice
+                                val newLast = profileViewModel.savedSongs.lastIndex
+                                index = if (removedIndex <= newLast) removedIndex else newLast
+                            },
+                            onSwipeRight = {
+                                // 1) Guardamos índice antes de borrar
+                                val removedIndex = index
+
+                                // 2) Leemos el trackId DEL MISMO elemento justo antes de eliminarlo
+                                val trackId = profileViewModel.savedSongs.getOrNull(removedIndex)?.id
+                                    ?: return@TinderCard
+
+                                // 3) Borramos de Firestore y de la lista local
+                                profileViewModel.deleteSavedSongAt(removedIndex)
+
+                                // 4) Ahora sí llamamos a likeSongById con el ID correcto
+                                songViewModel.likeSongById(trackId)
+
+                                // 5) Recalculamos índice para la siguiente carta
+                                val newLast = profileViewModel.savedSongs.lastIndex
+                                index = if (removedIndex <= newLast) removedIndex else newLast
+                            }
+                        ) {
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()

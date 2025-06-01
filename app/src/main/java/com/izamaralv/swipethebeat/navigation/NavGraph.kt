@@ -9,6 +9,7 @@ import com.izamaralv.swipethebeat.screens.LikedSongsScreen
 import com.izamaralv.swipethebeat.screens.LoginScreen
 import com.izamaralv.swipethebeat.screens.MainScreen
 import com.izamaralv.swipethebeat.screens.ProfileScreen
+import com.izamaralv.swipethebeat.screens.SavedSongsScreen
 import com.izamaralv.swipethebeat.viewmodel.ProfileViewModel
 import com.izamaralv.swipethebeat.viewmodel.SearchViewModel
 import com.izamaralv.swipethebeat.viewmodel.SongViewModel
@@ -73,6 +74,9 @@ fun NavGraph(
                 profileViewModel.changeFavoriteArtist(2, chosen)
                 navController.popBackStack()
             }
+        }
+        composable(Screen.SavedSongs.route) {
+            SavedSongsScreen(navController = navController, profileViewModel = profileViewModel)
         }
     }
 }

@@ -92,6 +92,23 @@ class SongViewModel(private val songRepository: SongRepository, private val acce
         }
     }
 
+    /**
+     * Marca la canción con el ID dado como favorita en Spotify,
+     * sin depender de `_currentSong`.
+     */
+    fun likeSongById(trackId: String) {
+        viewModelScope.launch {
+            try {
+                // 1) Llamamos a la API de Spotify con ese trackId
+                songRepository.likeTrack(accessToken, trackId)
+                Log.d("SongViewModel", "✅ likeSongById($trackId) enviado a Spotify")
+            } catch (e: Exception) {
+                Log.e("SongViewModel", "❌ Error en likeSongById($trackId): ${e.message}")
+            }
+        }
+    }
+
+
     // Omite la canción actual
     fun dislikeCurrentSong() {
         searchNextTrack()

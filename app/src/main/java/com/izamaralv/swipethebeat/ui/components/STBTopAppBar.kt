@@ -50,9 +50,12 @@ import com.izamaralv.swipethebeat.viewmodel.ProfileViewModel
 fun STBTopAppBar(
     profileViewModel: ProfileViewModel,
     navController: NavController,
-    customText: String,
-    customFunction: () -> Unit,
-    customIcon: ImageVector
+    customText1: String,
+    customFunction1: () -> Unit,
+    customIcon1: ImageVector,
+    customText2: String,
+    customFunction2: () -> Unit,
+    customIcon2: ImageVector
 ) {
     var iconMenuExpanded by remember { mutableStateOf(false) }
     var colorMenuExpanded by remember { mutableStateOf(false) }
@@ -129,14 +132,28 @@ fun STBTopAppBar(
                     DropdownMenuItem(
                         leadingIcon = {
                             Icon(
-                                customIcon,
+                                customIcon1,
                                 contentDescription = "",
                                 tint = Color.Black
                             )
                         },
-                        text = { Text(customText, color = Color.Black) },
+                        text = { Text(customText1, color = Color.Black) },
                         onClick = {
-                            customFunction()
+                            customFunction1()
+                            iconMenuExpanded = false
+                        }
+                    )
+                    DropdownMenuItem(
+                        leadingIcon = {
+                            Icon(
+                                customIcon2,
+                                contentDescription = "",
+                                tint = Color.Black
+                            )
+                        },
+                        text = { Text(customText2, color = Color.Black) },
+                        onClick = {
+                            customFunction2()
                             iconMenuExpanded = false
                         }
                     )

@@ -19,6 +19,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Audiotrack
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -45,6 +46,7 @@ import com.izamaralv.swipethebeat.common.backgroundColor
 import com.izamaralv.swipethebeat.common.cardBorderColor
 import com.izamaralv.swipethebeat.common.cardColor
 import com.izamaralv.swipethebeat.common.softComponentColor
+import com.izamaralv.swipethebeat.navigation.Screen
 import com.izamaralv.swipethebeat.repository.SongRepository
 import com.izamaralv.swipethebeat.ui.components.STBTopAppBar
 import com.izamaralv.swipethebeat.utils.TokenManager
@@ -89,9 +91,12 @@ fun LikedSongsScreen(
             STBTopAppBar(
                 profileViewModel,
                 navController = navController,
-                customIcon = Icons.Filled.Audiotrack,
-                customFunction = { navController.navigate("main_screen") },
-                customText = "Pantalla principal"
+                customIcon1 = Icons.Filled.Audiotrack,
+                customFunction1 = { navController.navigate(Screen.Main.route) },
+                customText1 = "Pantalla principal",
+                customIcon2 = Icons.Filled.AccessTime,
+                customFunction2 = { navController.navigate(Screen.SavedSongs.route) },
+                customText2 = "Ver más tarde"
             )
         }
     ) {
