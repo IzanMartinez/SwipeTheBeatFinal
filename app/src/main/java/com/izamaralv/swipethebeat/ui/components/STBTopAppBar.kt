@@ -58,7 +58,6 @@ fun STBTopAppBar(
     customIcon2: ImageVector
 ) {
     var iconMenuExpanded by remember { mutableStateOf(false) }
-    var colorMenuExpanded by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
     // ✅ Optimized profile image selection logic

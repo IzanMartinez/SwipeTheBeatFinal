@@ -82,7 +82,7 @@ fun MainScreen(
     val systemUiController = rememberSystemUiController()
     systemUiController.setStatusBarColor(color = softComponentColor.value, darkIcons = false)
 
-    val songRepository = SongRepository(context)
+    val songRepository = SongRepository()
 
     // Obtener el token de acceso dinámicamente
     val tokenManager = TokenManager(context)

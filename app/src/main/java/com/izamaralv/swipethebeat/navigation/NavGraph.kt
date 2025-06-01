@@ -25,7 +25,7 @@ fun NavGraph(
 
     NavHost(navController = navController, startDestination = Screen.Login.route) {
         composable(route = Screen.Login.route) {
-            LoginScreen(navController = navController)
+            LoginScreen()
         }
         composable(route = Screen.Main.route) {
             MainScreen(navController = navController, profileViewModel = profileViewModel, songViewModel = songViewModel)
@@ -36,8 +36,8 @@ fun NavGraph(
         composable(route = Screen.Profile.route) {
             ProfileScreen(
                 navController = navController,
-                profileViewModel = profileViewModel,
-                searchViewModel = searchViewModel // ✅ Pass SearchViewModel
+                profileViewModel = profileViewModel
+                // ✅ Pass SearchViewModel
             )
         }
         composable(Screen.ArtistPicker1.route) {

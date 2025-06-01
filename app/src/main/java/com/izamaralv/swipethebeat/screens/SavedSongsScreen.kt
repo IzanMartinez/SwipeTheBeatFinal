@@ -100,7 +100,7 @@ fun SavedSongsScreen(
     systemUiController.setStatusBarColor(color = softComponentColor.value, darkIcons = false)
 
     val context = LocalContext.current
-    val songRepository = SongRepository(context)
+    val songRepository = SongRepository()
     val tokenManager = TokenManager(context)
     val accessToken = tokenManager.getAccessToken() ?: ""
     val songViewModel: SongViewModel = viewModel(
@@ -108,7 +108,6 @@ fun SavedSongsScreen(
     )
 
     // (6) Obtener nombre de usuario para saludo
-    val displayName = profileViewModel.getDisplayName()
 
     Scaffold(
         topBar = {

@@ -77,7 +77,7 @@ fun LikedSongsScreen(
     systemUiController.setStatusBarColor(color = softComponentColor.value, darkIcons = false)
 
     val context = LocalContext.current
-    val songRepository = SongRepository(context)
+    val songRepository = SongRepository()
 
     // Obtener token de Spotify
     val tokenManager = TokenManager(context)

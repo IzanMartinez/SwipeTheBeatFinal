@@ -27,7 +27,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavHostController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.izamaralv.swipethebeat.R
 import com.izamaralv.swipethebeat.common.backgroundColor
@@ -37,7 +36,7 @@ import com.izamaralv.swipethebeat.ui.theme.greenPastelColor
 import com.izamaralv.swipethebeat.utils.startSpotifyLogin
 
 @Composable
-fun LoginScreen(navController: NavHostController, modifier: Modifier = Modifier) {
+fun LoginScreen(modifier: Modifier = Modifier) {
     // Control de la barra de estado del sistema
     val systemUiController = rememberSystemUiController()
     systemUiController.setStatusBarColor(color = backgroundColor.value, darkIcons = false)

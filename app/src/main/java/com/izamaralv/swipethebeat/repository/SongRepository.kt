@@ -1,6 +1,5 @@
 package com.izamaralv.swipethebeat.repository
 
-import android.content.Context
 import android.util.Log
 import com.izamaralv.swipethebeat.models.Track
 import com.izamaralv.swipethebeat.models.UserProfile
@@ -11,7 +10,7 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-class SongRepository(context: Context) {
+class SongRepository() {
 
     private val apiService: SpotifyApiService
 

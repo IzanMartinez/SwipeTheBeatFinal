@@ -50,7 +50,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val songRepository = SongRepository(applicationContext)
+        val songRepository = SongRepository()
         val accessToken = TokenManager(applicationContext).getAccessToken() ?: ""
 
         songViewModel = SongViewModelFactory(songRepository, accessToken)
