@@ -148,7 +148,7 @@ fun MainScreen(navController: NavHostController, profileViewModel: ProfileViewMo
                                 onClick = { /* TODO */ },
                                 colors = ButtonDefaults.buttonColors(containerColor = softComponentColor.value),
                             ) {
-                                Text(text = "Save", color = Color.Black)
+                                Text(text = "Guardar", color = Color.Black)
                                 Spacer(modifier = Modifier.width(8.dp)) // ✅ Spacing between text & icon
                                 Icon(
                                     imageVector = Icons.Filled.AccessTime,
