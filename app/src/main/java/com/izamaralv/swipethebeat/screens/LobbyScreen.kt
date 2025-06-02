@@ -32,6 +32,8 @@ import com.izamaralv.swipethebeat.common.backgroundColor
 import com.izamaralv.swipethebeat.common.cardColor
 import com.izamaralv.swipethebeat.common.softComponentColor
 import com.izamaralv.swipethebeat.navigation.Screen
+import com.izamaralv.swipethebeat.utils.changeColor
+import com.izamaralv.swipethebeat.viewmodel.ProfileViewModel
 
 /**
  * LobbyScreen: todas las Cards ocupan el mismo “peso” y se distribuyen uniformemente.
@@ -39,12 +41,13 @@ import com.izamaralv.swipethebeat.navigation.Screen
  */
 @Composable
 fun LobbyScreen(
-    navController: NavHostController
+    navController: NavHostController,
+    profileViewModel: ProfileViewModel
 ) {
-
     // Control de la barra de estado del sistema
     val systemUiController = rememberSystemUiController()
     systemUiController.setStatusBarColor(color = backgroundColor.value, darkIcons = false)
+    changeColor(softComponentColor.value, userId = profileViewModel.getUserId(), profileViewModel)
 
     Column(
         modifier = Modifier

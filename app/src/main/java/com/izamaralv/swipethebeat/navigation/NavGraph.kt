@@ -80,7 +80,7 @@ fun NavGraph(
             SavedSongsScreen(navController = navController, profileViewModel = profileViewModel)
         }
         composable(Screen.Lobby.route) {
-            LobbyScreen(navController = navController)
+            LobbyScreen(navController = navController, profileViewModel = profileViewModel)
         }
     }
 }
