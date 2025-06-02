@@ -66,10 +66,13 @@ class ProfileViewModel : ViewModel() {
                 displayName = userData["name"] ?: "Invitado"
                 profileImageUrl = userData["avatar_url"] ?: ""
                 profileColor = userData["profile_color"] ?: "#4444"
+                Log.d("ProfileViewModel", "Color cargado: $profileColor")
                 Log.d("ProfileViewModel", "▶ Campos asignados: displayName='$displayName', profileImageUrl='$profileImageUrl', profileColor='$profileColor'")
 
                 // ▶ Immediately apply color
                 softComponentColor.value = Color(profileColor.toColorInt())
+                Log.d("ProfileViewModel", "✔ softComponentColor seteado a $profileColor")
+
                 changeColor(Color(profileColor.toColorInt()), userId, this)
                 Log.d("ProfileViewModel", "✅ Profile color applied: $profileColor")
 
@@ -79,8 +82,8 @@ class ProfileViewModel : ViewModel() {
                 Log.d("ProfileViewModel", "▶ Artistas cargados: '$favoriteArtist1', '$favoriteArtist2', '$favoriteArtist3'")
 
                 // Aplicar color
-                softComponentColor.value = Color(profileColor.toColorInt())
-                Log.d("ProfileViewModel", "✔ softComponentColor seteado a $profileColor")
+//                softComponentColor.value = Color(profileColor.toColorInt())
+//                Log.d("ProfileViewModel", "✔ softComponentColor seteado a $profileColor")
             } else {
                 Log.e("ProfileViewModel", "❌ ¡No se encontró usuario en Firestore para $userId!")
             }

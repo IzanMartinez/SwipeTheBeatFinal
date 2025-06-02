@@ -45,8 +45,8 @@ class ProfileManager(
                     profileViewModel.saveUser(nonNullProfile) {
                         Log.d("ProfileManager", "✔ Guardado básico en Firestore: $nonNullProfile")
                         // 2) Ahora que Firestore ya tiene el documento, lo leemos
-                        profileViewModel.loadUserProfile(userId)
-                        Log.d("ProfileManager", "✔ Llamado a profileViewModel.loadUserProfile('$userId')")
+//                        profileViewModel.loadUserProfile(userId)
+//                        Log.d("ProfileManager", "✔ Llamado a profileViewModel.loadUserProfile('$userId')")
                     }
                 }
 
