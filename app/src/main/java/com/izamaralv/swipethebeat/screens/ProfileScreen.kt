@@ -51,13 +51,11 @@ import com.izamaralv.swipethebeat.common.textColor
 import com.izamaralv.swipethebeat.navigation.Screen
 import com.izamaralv.swipethebeat.ui.components.ColorPickerMenu
 import com.izamaralv.swipethebeat.viewmodel.ProfileViewModel
-import com.izamaralv.swipethebeat.viewmodel.SearchViewModel
 
 @Composable
 fun ProfileScreen(
     navController: NavHostController,
-    profileViewModel: ProfileViewModel,
-    searchViewModel: SearchViewModel
+    profileViewModel: ProfileViewModel
 ) {
     // ▶ Apply status bar theming
     val systemUiController = rememberSystemUiController()

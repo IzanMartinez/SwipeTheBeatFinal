@@ -3,11 +3,12 @@ package com.izamaralv.swipethebeat.repository
 import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
+import java.util.UUID
 
 class UserRepository {
 
     private val firestore = FirebaseFirestore.getInstance().apply {
-        Log.d("Firestore", "Firestore instance initialized: $this")
+        Log.d("UserRepository", "Firestore instance inicializada: $this")
     }
 
     /**
@@ -165,6 +166,66 @@ class UserRepository {
             }
             .addOnFailureListener { e ->
                 Log.e("Firestore", "❌ Error updating profile color: ${e.message}")
+            }
+    }
+
+    /**
+     * Inserta una canción en la subcolección "saved_songs" del usuario.
+     * Espera recibir un map con las claves: "id", "name", "artists", "album", "imageUrl".
+     */
+    fun addSavedSong(userId: String, songData: Map<String, String>) {
+        Log.d("UserRepository", "addSavedSong() llamado: userId='$userId', songData=$songData")
+
+        val documentId = songData["id"] ?: UUID.randomUUID().toString()
+        firestore.collection("users")
+            .document(userId)
+            .collection("saved_songs")
+            .document(documentId)
+            .set(songData)
+            .addOnSuccessListener {
+                Log.d("UserRepository", "✅ saved_songs/$documentId guardado correctamente para user $userId")
+            }
+            .addOnFailureListener { e ->
+                Log.e("UserRepository", "❌ Error guardando saved_songs/$documentId para user $userId: ${e.message}")
+            }
+    }
+
+    fun deleteSavedSong(userId: String, songId: String) {
+        firestore.collection("users")
+            .document(userId)
+            .collection("saved_songs")
+            .document(songId)
+            .delete()
+            .addOnSuccessListener {
+                Log.d("UserRepository", "✅ saved_song/$songId eliminado para user $userId")
+            }
+            .addOnFailureListener { e ->
+                Log.e("UserRepository", "❌ Error borrando saved_song/$songId: ${e.message}")
+            }
+    }
+
+
+
+    /**
+     * Recupera todas las canciones guardadas en "saved_songs" y las devuelve por callback.
+     * El resultado es una lista de Map<String,String>, donde cada mapa tiene los campos de la canción.
+     */
+    fun getSavedSongs(userId: String, onResult: (List<Map<String, String>>) -> Unit) {
+        Log.d("UserRepository", "getSavedSongs() llamado para userId='$userId'")
+
+        firestore.collection("users")
+            .document(userId)
+            .collection("saved_songs")
+            .get()
+            .addOnSuccessListener { snapshot ->
+                Log.d("UserRepository", "getSavedSongs: se recuperaron ${snapshot.size()} documentos")
+                val list = snapshot.documents.mapNotNull { doc ->
+                    doc.data?.mapValues { it.value.toString() }
+                }
+                onResult(list)
+            }
+            .addOnFailureListener {
+                onResult(emptyList())
             }
     }
 }

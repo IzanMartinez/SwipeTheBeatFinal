@@ -26,15 +26,7 @@ class TokenManager(context: Context) {
         return sharedPreferences.getString("REFRESH_TOKEN", null)
     }
 
-    // Limpia los tokens almacenados en las preferencias compartidas
-    fun clearTokens() {
-        sharedPreferences.edit {
-            remove("ACCESS_TOKEN")
-                .remove("REFRESH_TOKEN")
-        }
-    }
-
-        // ✅ New function to store the refreshed access token
+    // ✅ New function to store the refreshed access token
         fun saveAccessToken(newAccessToken: String) {
             sharedPreferences.edit { putString("ACCESS_TOKEN", newAccessToken) }
             Log.d("TokenManager", "✅ Saved new access token: $newAccessToken")

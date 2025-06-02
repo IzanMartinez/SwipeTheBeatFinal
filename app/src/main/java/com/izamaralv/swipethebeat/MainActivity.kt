@@ -50,7 +50,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val songRepository = SongRepository(applicationContext)
+        val songRepository = SongRepository()
         val accessToken = TokenManager(applicationContext).getAccessToken() ?: ""
 
         songViewModel = SongViewModelFactory(songRepository, accessToken)
@@ -177,7 +177,7 @@ class MainActivity : ComponentActivity() {
         val tokenManager = TokenManager(applicationContext)
         val accessToken = tokenManager.getAccessToken()
         if (accessToken != null) {
-            navController.navigate(Screen.Main.route) {
+            navController.navigate(Screen.Lobby.route) {
                 popUpTo(Screen.Login.route) { inclusive = true }
             }
         }

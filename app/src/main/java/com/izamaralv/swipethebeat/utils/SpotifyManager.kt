@@ -2,7 +2,6 @@ package com.izamaralv.swipethebeat.utils
 
 import android.content.Context
 import android.util.Log
-import androidx.navigation.NavHostController
 import com.adamratzman.spotify.SpotifyScope
 import com.adamratzman.spotify.getSpotifyAuthorizationUrl
 import com.izamaralv.swipethebeat.repository.SongRepository
@@ -28,7 +27,7 @@ class SpotifyManager(private val context: Context) {
     fun initializeSongRepository(accessToken: String) {
         // Inicializa SongRepository con el token de acceso
         Log.d("SpotifyManager", "Initializing SongRepository with accessToken = $accessToken")
-        val songRepository = SongRepository(context)
+        val songRepository = SongRepository()
         val songViewModelFactory = SongViewModelFactory(songRepository, accessToken)
         songViewModel = songViewModelFactory.create(SongViewModel::class.java)
         Log.d("SpotifyManager", "SongRepository and SongViewModel initialized")
@@ -74,15 +73,6 @@ class SpotifyManager(private val context: Context) {
         return authorizationUrl
     }
 
-    fun logout(navController: NavHostController) {
-        // Limpia los tokens y navega a la pantalla de inicio de sesión
-        val tokenManager = TokenManager(context)
-        tokenManager.clearTokens()
-        navController.navigate("login_screen") {
-            popUpTo("main_screen") { inclusive = true }
-        }
-    }
 
-
-    }
+}
 

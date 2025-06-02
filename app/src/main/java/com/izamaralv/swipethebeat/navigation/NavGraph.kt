@@ -6,9 +6,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.izamaralv.swipethebeat.screens.ArtistPickerScreen
 import com.izamaralv.swipethebeat.screens.LikedSongsScreen
+import com.izamaralv.swipethebeat.screens.LobbyScreen
 import com.izamaralv.swipethebeat.screens.LoginScreen
 import com.izamaralv.swipethebeat.screens.MainScreen
 import com.izamaralv.swipethebeat.screens.ProfileScreen
+import com.izamaralv.swipethebeat.screens.SavedSongsScreen
 import com.izamaralv.swipethebeat.viewmodel.ProfileViewModel
 import com.izamaralv.swipethebeat.viewmodel.SearchViewModel
 import com.izamaralv.swipethebeat.viewmodel.SongViewModel
@@ -23,7 +25,7 @@ fun NavGraph(
 
     NavHost(navController = navController, startDestination = Screen.Login.route) {
         composable(route = Screen.Login.route) {
-            LoginScreen(navController = navController)
+            LoginScreen()
         }
         composable(route = Screen.Main.route) {
             MainScreen(navController = navController, profileViewModel = profileViewModel, songViewModel = songViewModel)
@@ -34,8 +36,8 @@ fun NavGraph(
         composable(route = Screen.Profile.route) {
             ProfileScreen(
                 navController = navController,
-                profileViewModel = profileViewModel,
-                searchViewModel = searchViewModel // ✅ Pass SearchViewModel
+                profileViewModel = profileViewModel
+                // ✅ Pass SearchViewModel
             )
         }
         composable(Screen.ArtistPicker1.route) {
@@ -73,6 +75,12 @@ fun NavGraph(
                 profileViewModel.changeFavoriteArtist(2, chosen)
                 navController.popBackStack()
             }
+        }
+        composable(Screen.SavedSongs.route) {
+            SavedSongsScreen(navController = navController, profileViewModel = profileViewModel)
+        }
+        composable(Screen.Lobby.route) {
+            LobbyScreen(navController = navController)
         }
     }
 }

@@ -17,8 +17,6 @@ data class Artist(
     val name: String, // Nombre del artista
     @SerializedName("images") val images: List<Image>? // ✅ Some artists have images, some don’t
 )
- {
-}
 
 // Lista de tracks
 data class TrackList(
@@ -30,7 +28,7 @@ data class Track(
     val name: String, // Nombre del track
     val artists: List<Artist>, // Lista de artistas
     val album: Album, // Información del álbum
-    val preview_url: String?, // URL de vista previa
+    val previewUrl: String?, // URL de vista previa
     val id: String, // ID del track
     val uri: String // URI del track
 )

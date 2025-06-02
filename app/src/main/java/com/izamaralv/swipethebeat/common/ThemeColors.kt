@@ -12,6 +12,5 @@ var cardColor = mutableStateOf(StandardCard) // Color de las tarjetas estándar
 var softComponentColor = mutableStateOf(StandardField) // Color de los componentes suaves
 var textColor = mutableStateOf(Color.White) // Color del texto
 var cardBorderColor = mutableStateOf(StandardCard) // Color del borde de las tarjetas
-var basicBorder = mutableStateOf(Color.Black) // Color del borde básico
 
 

@@ -62,7 +62,11 @@ import com.izamaralv.swipethebeat.viewmodel.SongViewModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun MainScreen(navController: NavHostController, profileViewModel: ProfileViewModel, songViewModel: SongViewModel) {
+fun MainScreen(
+    navController: NavHostController,
+    profileViewModel: ProfileViewModel,
+    songViewModel: SongViewModel
+) {
 
 
     val displayName = profileViewModel.getDisplayName()
@@ -78,7 +82,7 @@ fun MainScreen(navController: NavHostController, profileViewModel: ProfileViewMo
     val systemUiController = rememberSystemUiController()
     systemUiController.setStatusBarColor(color = softComponentColor.value, darkIcons = false)
 
-    val songRepository = SongRepository(context)
+    val songRepository = SongRepository()
 
     // Obtener el token de acceso dinámicamente
     val tokenManager = TokenManager(context)
@@ -102,9 +106,12 @@ fun MainScreen(navController: NavHostController, profileViewModel: ProfileViewMo
             STBTopAppBar(
                 profileViewModel,
                 navController = navController,
-                customIcon = Icons.Filled.Favorite,
-                customFunction = { navController.navigate(Screen.LikedSongs.route) },
-                customText = "Últimos likes"
+                customIcon1 = Icons.Filled.Favorite,
+                customFunction1 = { navController.navigate(Screen.LikedSongs.route) },
+                customText1 = "Últimos likes",
+                customIcon2 = Icons.Filled.AccessTime,
+                customFunction2 = { navController.navigate(Screen.SavedSongs.route) },
+                customText2 = "Ver más tarde"
             )
         },
     ) {
@@ -119,9 +126,7 @@ fun MainScreen(navController: NavHostController, profileViewModel: ProfileViewMo
 
             currentSong?.let { song ->
                 Box(
-                    modifier = Modifier
-                        .fillMaxSize(),
-                    contentAlignment = Alignment.Center
+                    modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
                 ) {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally
@@ -132,8 +137,7 @@ fun MainScreen(navController: NavHostController, profileViewModel: ProfileViewMo
                             modifier = Modifier.padding(bottom = 20.dp)
                         )
                         Row(
-                            modifier = Modifier
-                                .fillMaxWidth(),
+                            modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceEvenly
                         ) {
                             Image(
@@ -145,7 +149,15 @@ fun MainScreen(navController: NavHostController, profileViewModel: ProfileViewMo
                             )
 
                             Button(
-                                onClick = { /* TODO */ },
+                                onClick = {
+                                    Log.d(
+                                        "MainScreen",
+                                        "Save button clicked. currentSong = ${song.name}, id = ${song.id}"
+                                    )
+                                    profileViewModel.saveSongForLater(song)
+                                    songViewModel.dislikeCurrentSong()
+
+                                },
                                 colors = ButtonDefaults.buttonColors(containerColor = softComponentColor.value),
                             ) {
                                 Text(text = "Guardar", color = Color.Black)
@@ -170,8 +182,7 @@ fun MainScreen(navController: NavHostController, profileViewModel: ProfileViewMo
 
                         TinderCard(
                             onSwipeLeft = { songViewModel.dislikeCurrentSong() },
-                            onSwipeRight = { songViewModel.likeCurrentSong() }
-                        ) {
+                            onSwipeRight = { songViewModel.likeCurrentSong() }) {
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -198,13 +209,11 @@ fun MainScreen(navController: NavHostController, profileViewModel: ProfileViewMo
                                     Spacer(modifier = Modifier.height(12.dp))
 
                                     Text(
-                                        text = song.name,
-                                        style = TextStyle(
+                                        text = song.name, style = TextStyle(
                                             color = softComponentColor.value,
                                             fontSize = 24.sp,
                                             fontWeight = FontWeight.Bold
-                                        ),
-                                        textAlign = TextAlign.Center
+                                        ), textAlign = TextAlign.Center
                                     )
 
                                     Spacer(modifier = Modifier.height(10.dp))
@@ -212,8 +221,7 @@ fun MainScreen(navController: NavHostController, profileViewModel: ProfileViewMo
                                     Text(
                                         text = song.artists.joinToString(", ") { it.name },
                                         style = TextStyle(
-                                            color = softComponentColor.value,
-                                            fontSize = 18.sp
+                                            color = softComponentColor.value, fontSize = 18.sp
                                         ),
                                         textAlign = TextAlign.Center
                                     )
@@ -221,12 +229,9 @@ fun MainScreen(navController: NavHostController, profileViewModel: ProfileViewMo
                                     Spacer(modifier = Modifier.height(10.dp))
 
                                     Text(
-                                        text = song.album.name,
-                                        style = TextStyle(
-                                            color = softComponentColor.value,
-                                            fontSize = 18.sp
-                                        ),
-                                        textAlign = TextAlign.Center
+                                        text = song.album.name, style = TextStyle(
+                                            color = softComponentColor.value, fontSize = 18.sp
+                                        ), textAlign = TextAlign.Center
                                     )
 
                                     Spacer(modifier = Modifier.height(16.dp))
@@ -252,8 +257,7 @@ fun MainScreen(navController: NavHostController, profileViewModel: ProfileViewMo
                             modifier = Modifier
                                 .size(60.dp) // ✅ Keeps a slightly larger button for the circular background
                                 .background(
-                                    softComponentColor.value,
-                                    shape = CircleShape
+                                    softComponentColor.value, shape = CircleShape
                                 ) // ✅ Adds round background (placeholder color)
                         ) {
                             Icon(

@@ -23,7 +23,7 @@ object SpotifyApi {
             Request.Builder().url("https://accounts.spotify.com/api/token").post(formBody).build()
 
         // Registro de la solicitud de intercambio de código por token
-        Log.d("SpotifyApi", "Exchange code for token request: ${formBody.toString()}")
+        Log.d("SpotifyApi", "Exchange code for token request: $formBody")
 
         client.newCall(request).execute().use { response ->
             val responseBody = response.body?.string()

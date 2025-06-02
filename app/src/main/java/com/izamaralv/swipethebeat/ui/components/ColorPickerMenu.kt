@@ -41,9 +41,7 @@ fun ColorPickerMenu(profileViewModel: ProfileViewModel) {
         Pair(yellowHighContrastColor, R.drawable.black)
     )
 
-    Box(
-
-    ) {
+    Box {
         LazyRow(
             modifier = Modifier
                 .fillMaxWidth()
