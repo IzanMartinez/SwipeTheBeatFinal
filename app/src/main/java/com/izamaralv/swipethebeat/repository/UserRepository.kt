@@ -15,22 +15,23 @@ class UserRepository {
      * Guarda los datos básicos del usuario tras el login.
      * ▶ Ahora SIN pisar jamás los artistas favoritos.
      */
-    fun saveUserToFirestore(userData: Map<String, String>) {
+    // UserRepository.kt
+
+    fun saveUserToFirestore(
+        userData: Map<String, String>,
+        onComplete: (() -> Unit)? = null
+    ) {
         val userId = userData["user_id"]
         if (userId.isNullOrEmpty()) {
             Log.e("Firestore", "❌ Invalid user ID! Cannot save user data.")
             return
         }
 
-        // 1. Leemos el color existente para preservarlo si no viene en userData
         firestore.collection("users")
             .document(userId)
             .get()
             .addOnSuccessListener { document ->
                 val existingColor = document.getString("profile_color") ?: "#1DB954"
-
-                // 2. Construimos sólo los campos que realmente vienen del login
-                // ▶ Quitamos favorite_artist1–3 de aquí para no resetearlos
                 val user = hashMapOf(
                     "user_id"      to userId,
                     "name"         to userData["name"],
@@ -41,18 +42,21 @@ class UserRepository {
 
                 Log.d("Firestore", "🔍 Attempting to save user: $userId with data: $user")
 
-                // 3. Usamos merge para no borrar ningún campo extra (p.ej. artistas favoritos)
                 firestore.collection("users")
                     .document(userId)
                     .set(user, SetOptions.merge())
                     .addOnSuccessListener {
                         Log.d("Firestore", "✅ User data saved successfully for ID: $userId")
+                        // Avisamos al que llame que ha terminado la escritura
+                        onComplete?.invoke()
                     }
                     .addOnFailureListener { error ->
                         Log.e("Firestore", "❌ Firestore permission error: ${error.message}")
                     }
             }
     }
+
+
 
     /**
      * Actualiza un slot de artista favorito (0→favorite_artist1, 1→favorite_artist2, 2→favorite_artist3)

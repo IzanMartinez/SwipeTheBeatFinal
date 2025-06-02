@@ -31,12 +31,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
-            <!-- Add this intent-filter to handle the redirect URI from Spotify -->
-            <intent-filter>
+            <intent-filter android:label="SpotifyRedirect">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="myapp" android:host="callback" />
+
+                <!-- Permite rutas que comiencen por “/callback”, incluyendo el caso /callback?code=… -->
+                <data
+                    android:scheme="myapp"
+                    android:host="callback"
+                    android:pathPrefix="/" />
             </intent-filter>
         </activity>
 

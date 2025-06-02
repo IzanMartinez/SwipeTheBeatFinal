@@ -152,8 +152,12 @@ class MainActivity : ComponentActivity() {
         super.onResume()
         val intent = intent
         intent?.data?.let { uri ->
+            Log.d("LoginCallback", "onResume: URI recibido = $uri")  // ◀ Añade esto
+
             if (uri.scheme == "myapp" && uri.host == "callback") {
                 val code = uri.getQueryParameter("code")
+                Log.d("LoginCallback", "Código extraído = $code")   // ◀ Y esto
+
                 code?.let {
                     spotifyManager.exchangeCodeForToken(it) { accessToken, refreshToken ->
                         Log.d("MainActivity", "Access Token: $accessToken") // Registra el token también aquí

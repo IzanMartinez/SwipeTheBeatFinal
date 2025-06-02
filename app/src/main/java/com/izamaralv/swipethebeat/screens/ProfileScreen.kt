@@ -1,5 +1,6 @@
 package com.izamaralv.swipethebeat.screens
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -15,8 +16,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Icon
@@ -63,10 +66,15 @@ fun ProfileScreen(
 
     val context = LocalContext.current
 
-    // ▶ Trigger loading user data (including favorite artists) once per composition
-    LaunchedEffect(Unit) {
-        profileViewModel.loadUserProfile(profileViewModel.getUserId())
+    LaunchedEffect(profileViewModel.getUserId()) {
+        val uid = profileViewModel.getUserId()
+        Log.d("ProfileScreen", "LaunchedEffect: userId actual = '$uid'")
+        if (uid.isNotBlank()) {
+            Log.d("ProfileScreen", "▶ Llamando a loadUserProfile('$uid') desde UI")
+            profileViewModel.loadUserProfile(uid)
+        }
     }
+
 
     // Profile image setup
     val profileImageUrl = profileViewModel.getProfileImageUrl()
@@ -81,10 +89,12 @@ fun ProfileScreen(
         )
     }
 
+    // ▶ Hacemos que el Column sea desplazable con verticalScroll(...)
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(color = backgroundColor.value)
+            .verticalScroll(rememberScrollState()) // ▶ Aquí añadimos scroll
     ) {
         Spacer(modifier = Modifier.height(40.dp))
 
@@ -280,5 +290,7 @@ fun ProfileScreen(
                 )
             }
         }
+
+        Spacer(modifier = Modifier.height(40.dp))
     }
 }

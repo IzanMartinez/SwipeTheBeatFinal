@@ -34,6 +34,10 @@ class ProfileViewModel : ViewModel() {
     var favoriteArtist3 by mutableStateOf("")
         private set
 
+    fun setUserId(uid: String) {
+        userId = uid
+    }
+
     fun getUserId(): String = userId
     fun getDisplayName(): String = displayName
     fun getProfileImageUrl(): String = profileImageUrl
@@ -41,44 +45,48 @@ class ProfileViewModel : ViewModel() {
 
     val savedSongs: SnapshotStateList<Track> = mutableStateListOf()
 
-    fun saveUser(userData: Map<String, String>) {
+    fun saveUser(
+        userData: Map<String, String>,
+        onComplete: (() -> Unit)? = null
+    ) {
         Log.d("ProfileViewModel", "Saving user to Firestore: $userData")
-        userRepository.saveUserToFirestore(userData)
-
-        val uid = userData["user_id"] ?: return
-        userRepository.initializeUserProfile(uid, userData)
-        userRepository.saveUserToFirestore(userData)
+        userRepository.saveUserToFirestore(userData) {
+            // este bloque se ejecutará tras el addOnSuccessListener del repositorio
+            onComplete?.invoke()
+        }
     }
-
     fun loadUserProfile(userId: String) {
-        Log.d("ProfileViewModel", "Loading user profile for ID: $userId")
+        Log.d("ProfileViewModel", "➜ loadUserProfile() recibido userId = '$userId'")
         this.userId = userId
 
         userRepository.getUserFromFirestore(userId) { userData ->
             if (userData != null) {
-                Log.d("ProfileViewModel", "User data retrieved: $userData")
+                Log.d("ProfileViewModel", "⬇ userData de Firestore: $userData")
 
-                // ▶ Core profile fields
                 displayName = userData["name"] ?: "Invitado"
                 profileImageUrl = userData["avatar_url"] ?: ""
                 profileColor = userData["profile_color"] ?: "#4444"
+                Log.d("ProfileViewModel", "▶ Campos asignados: displayName='$displayName', profileImageUrl='$profileImageUrl', profileColor='$profileColor'")
 
                 // ▶ Immediately apply color
                 softComponentColor.value = Color(profileColor.toColorInt())
                 changeColor(Color(profileColor.toColorInt()), userId, this)
                 Log.d("ProfileViewModel", "✅ Profile color applied: $profileColor")
 
-                // ▶ Load favorite artists
                 favoriteArtist1 = userData["favorite_artist1"] ?: ""
                 favoriteArtist2 = userData["favorite_artist2"] ?: ""
                 favoriteArtist3 = userData["favorite_artist3"] ?: ""
-                Log.d("ProfileViewModel", "✅ Favorite artists loaded: " +
-                        "$favoriteArtist1, $favoriteArtist2, $favoriteArtist3")
+                Log.d("ProfileViewModel", "▶ Artistas cargados: '$favoriteArtist1', '$favoriteArtist2', '$favoriteArtist3'")
+
+                // Aplicar color
+                softComponentColor.value = Color(profileColor.toColorInt())
+                Log.d("ProfileViewModel", "✔ softComponentColor seteado a $profileColor")
             } else {
-                Log.e("ProfileViewModel", "User not found in Firestore!")
+                Log.e("ProfileViewModel", "❌ ¡No se encontró usuario en Firestore para $userId!")
             }
         }
     }
+
 
     /**
      * ▶ Single method to update any of the three favorite‐artist slots.
@@ -158,9 +166,6 @@ class ProfileViewModel : ViewModel() {
             Log.d("ProfileViewModel", "✅ savedSongs actualizadas: ${tracks.map { it.name }}")
         }
     }
-
-
-
 
     /**
      * Guarda la canción en Firestore bajo saved_songs.
