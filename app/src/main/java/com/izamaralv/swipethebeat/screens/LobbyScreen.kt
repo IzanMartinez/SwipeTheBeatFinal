@@ -27,6 +27,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.izamaralv.swipethebeat.common.backgroundColor
 import com.izamaralv.swipethebeat.common.cardColor
 import com.izamaralv.swipethebeat.common.softComponentColor
@@ -40,6 +41,11 @@ import com.izamaralv.swipethebeat.navigation.Screen
 fun LobbyScreen(
     navController: NavHostController
 ) {
+
+    // Control de la barra de estado del sistema
+    val systemUiController = rememberSystemUiController()
+    systemUiController.setStatusBarColor(color = backgroundColor.value, darkIcons = false)
+
     Column(
         modifier = Modifier
             .fillMaxSize()
