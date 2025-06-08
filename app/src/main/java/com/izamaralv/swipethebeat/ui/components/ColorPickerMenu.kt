@@ -31,6 +31,8 @@ import com.izamaralv.swipethebeat.viewmodel.ProfileViewModel
 
 @Composable
 fun ColorPickerMenu(profileViewModel: ProfileViewModel) {
+
+    // Opciones de colores
     val colorOptions = listOf(
         Pair(greenPastelColor, R.drawable.green),
         Pair(orangePastelColor, R.drawable.orange),
@@ -69,7 +71,7 @@ fun ColorPickerMenu(profileViewModel: ProfileViewModel) {
                                 yellowHighContrastColor,
                                 CircleShape
                             ) else Modifier
-                        ), // ✅ Add border only if it's yellowHighContrastColor
+                        ),
                     contentScale = ContentScale.Crop
                 )
             }

@@ -21,7 +21,7 @@ object SpotifyClient {
                     automaticRefresh = true
                     onTokenRefresh = {
                         Log.d("SpotifyClient", "Token refreshed at ${System.currentTimeMillis()}")
-                        // Update tokens
+                        // Acutalizamos tokens
                         val updatedAccessToken = spotifyApi.token.accessToken
                         val updatedRefreshToken = spotifyApi.token.refreshToken
                         if (updatedRefreshToken != null) {
@@ -37,9 +37,8 @@ object SpotifyClient {
     }
 
     private fun saveTokens(accessToken: String, refreshToken: String) {
-        // Implement token saving logic here
+        // Implementamos la lógica para guardar los tokens
         Log.d("SpotifyClient", "Tokens saved: Access token - $accessToken, Refresh token - $refreshToken")
-        // Example: Save tokens to SharedPreferences or other storage
     }
 
     fun forceTokenRefresh() {

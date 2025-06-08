@@ -20,13 +20,12 @@ import com.izamaralv.swipethebeat.utils.changeColor
 class ProfileViewModel : ViewModel() {
     private val userRepository = UserRepository()
 
-    // ✅ Replace LiveData with simple variables
     private var userId: String = ""
     private var displayName: String = ""
     private var profileImageUrl: String = ""
     private var profileColor: String = ""
 
-    // ▶ State for the 3 favorite‐artist slots
+    // Estado para los artistas favoritos
     var favoriteArtist1 by mutableStateOf("")
         private set
     var favoriteArtist2 by mutableStateOf("")
@@ -51,7 +50,6 @@ class ProfileViewModel : ViewModel() {
     ) {
         Log.d("ProfileViewModel", "Saving user to Firestore: $userData")
         userRepository.saveUserToFirestore(userData) {
-            // este bloque se ejecutará tras el addOnSuccessListener del repositorio
             onComplete?.invoke()
         }
     }
@@ -81,9 +79,6 @@ class ProfileViewModel : ViewModel() {
                 favoriteArtist3 = userData["favorite_artist3"] ?: ""
                 Log.d("ProfileViewModel", "▶ Artistas cargados: '$favoriteArtist1', '$favoriteArtist2', '$favoriteArtist3'")
 
-                // Aplicar color
-//                softComponentColor.value = Color(profileColor.toColorInt())
-//                Log.d("ProfileViewModel", "✔ softComponentColor seteado a $profileColor")
             } else {
                 Log.e("ProfileViewModel", "❌ ¡No se encontró usuario en Firestore para $userId!")
             }
@@ -92,24 +87,20 @@ class ProfileViewModel : ViewModel() {
 
 
     /**
-     * ▶ Single method to update any of the three favorite‐artist slots.
-     * slot: 0→favorite_artist1, 1→favorite_artist2, 2→favorite_artist3
+     * Actualiza el campo favorite_artistX en Firestore.
      */
     fun changeFavoriteArtist(slot: Int, artist: String) {
         if (userId.isBlank() || slot !in 0..2) return
 
-        // ▶ Update local variable
         when (slot) {
             0 -> favoriteArtist1 = artist
             1 -> favoriteArtist2 = artist
             2 -> favoriteArtist3 = artist
         }
 
-        // ▶ Log uses the correct field name
         val fieldName = "favorite_artist${slot + 1}"
         Log.d("ProfileViewModel", "🔄 Updating $fieldName in Firestore: $artist")
 
-        // ▶ Delegate to repository
         userRepository.updateFavoriteArtist(userId, slot, artist)
     }
 
@@ -197,8 +188,8 @@ class ProfileViewModel : ViewModel() {
     }
 
     /**
-     * 2) Elimina la canción con ID = songId de Firestore y luego la remueve del
-     *    SnapshotStateList savedSongs, disparando recomposición automática en UI.
+     *  Elimina la canción con ID = songId de Firestore y luego la elimina del
+     *  SnapshotStateList savedSongs, disparando recomposición automática en UI.
      */
     /**
      * Borra de Firestore y de la lista local la canción en la posición `index`.
@@ -207,23 +198,16 @@ class ProfileViewModel : ViewModel() {
         if (userId.isBlank()) return
         if (index !in savedSongs.indices) return
 
-        // 1) Obtener ID antes de eliminar (para Firestore)
+        // Obtener ID antes de eliminar (para Firestore)
         val trackId = savedSongs[index].id
 
-        // 2) Borrar de Firestore
+        // Borrar de Firestore
         userRepository.deleteSavedSong(userId, trackId)
 
-        // 3) Remover la posición exacta del SnapshotStateList
+        // Eliminar la posición exacta del SnapshotStateList
         savedSongs.removeAt(index)
         Log.d("ProfileViewModel", "✅ Track $trackId eliminado de savedSongs en posición $index")
     }
-
-
-
-
-
-
-
 
     /**
      * Recupera las canciones guardadas y las devuelve por callback.

@@ -26,7 +26,7 @@ class TokenManager(context: Context) {
         return sharedPreferences.getString("REFRESH_TOKEN", null)
     }
 
-    // ✅ New function to store the refreshed access token
+    // Guarda un nuevo token de acceso
         fun saveAccessToken(newAccessToken: String) {
             sharedPreferences.edit { putString("ACCESS_TOKEN", newAccessToken) }
             Log.d("TokenManager", "✅ Saved new access token: $newAccessToken")

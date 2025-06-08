@@ -60,7 +60,7 @@ fun ProfileScreen(
     navController: NavHostController,
     profileViewModel: ProfileViewModel
 ) {
-    // ▶ Apply status bar theming
+    // Ajuste del color de la barra de estado
     val systemUiController = rememberSystemUiController()
     systemUiController.setStatusBarColor(color = backgroundColor.value, darkIcons = false)
 
@@ -75,8 +75,7 @@ fun ProfileScreen(
         }
     }
 
-
-    // Profile image setup
+    // Carga de imagen de perfil
     val profileImageUrl = profileViewModel.getProfileImageUrl()
     val painter = if (profileImageUrl.isEmpty()) {
         painterResource(id = R.drawable.default_profile)
@@ -89,17 +88,16 @@ fun ProfileScreen(
         )
     }
 
-    // ▶ Hacemos que el Column sea desplazable con verticalScroll(...)
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(color = backgroundColor.value)
-            .verticalScroll(rememberScrollState()) // ▶ Aquí añadimos scroll
+            .verticalScroll(rememberScrollState())
     ) {
         Spacer(modifier = Modifier.height(40.dp))
 
         Box(modifier = Modifier.fillMaxWidth()) {
-            // Back button
+            // Botón atrás
             Button(
                 onClick = { navController.popBackStack() },
                 modifier = Modifier
@@ -120,7 +118,6 @@ fun ProfileScreen(
                 )
             }
 
-            // Profile image centered
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center
@@ -139,7 +136,6 @@ fun ProfileScreen(
 
         Spacer(modifier = Modifier.height(40.dp))
 
-        // Card container
         Column(
             modifier = Modifier
                 .padding(horizontal = 15.dp)
@@ -148,7 +144,6 @@ fun ProfileScreen(
                 .background(color = cardColor.value, shape = RoundedCornerShape(16.dp))
                 .border(5.dp, cardBorderColor.value, RoundedCornerShape(16.dp))
         ) {
-            // Username section
             Column(
                 verticalArrangement = Arrangement.SpaceEvenly,
                 modifier = Modifier.height(100.dp)
@@ -174,7 +169,6 @@ fun ProfileScreen(
 
             Spacer(modifier = Modifier.height(30.dp))
 
-            // ▶ Header for favorite-artist pickers
             Text(
                 modifier = Modifier.padding(horizontal = 20.dp),
                 text = "Elige tus artistas favoritos:",
@@ -187,12 +181,12 @@ fun ProfileScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // ▶ Read favorite artists from ViewModel instead of savedStateHandle
+            // Leer artistas favoritos
             val fav1 = profileViewModel.favoriteArtist1.ifBlank { "Artista favorito #1" }
             val fav2 = profileViewModel.favoriteArtist2.ifBlank { "Artista favorito #2" }
             val fav3 = profileViewModel.favoriteArtist3.ifBlank { "Artista favorito #3" }
 
-            // Button #1
+            // Botones de artistas
             OutlinedButton(
                 onClick = { navController.navigate(Screen.ArtistPicker1.route) },
                 shape = RoundedCornerShape(50),
@@ -218,7 +212,6 @@ fun ProfileScreen(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Button #2
             OutlinedButton(
                 onClick = { navController.navigate(Screen.ArtistPicker2.route) },
                 shape = RoundedCornerShape(50),
@@ -244,7 +237,6 @@ fun ProfileScreen(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Button #3
             OutlinedButton(
                 onClick = { navController.navigate(Screen.ArtistPicker3.route) },
                 shape = RoundedCornerShape(50),
@@ -270,11 +262,11 @@ fun ProfileScreen(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // Color picker (existing)
+            // Selección de color
             ColorPickerMenu(profileViewModel)
         }
 
-        // Logout button (existing)
+        // Cerrar sesión
         Box(
             modifier = Modifier
                 .padding(top = 40.dp)

@@ -9,6 +9,7 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.runtime.LaunchedEffect
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
@@ -18,12 +19,13 @@ import com.izamaralv.swipethebeat.navigation.NavGraph
 import com.izamaralv.swipethebeat.navigation.Screen
 import com.izamaralv.swipethebeat.repository.SongRepository
 import com.izamaralv.swipethebeat.repository.UserRepository
-import com.izamaralv.swipethebeat.ui.components.NotificationHelper
 import com.izamaralv.swipethebeat.utils.Credentials
 import com.izamaralv.swipethebeat.utils.ProfileManager
 import com.izamaralv.swipethebeat.utils.SpotifyApi
 import com.izamaralv.swipethebeat.utils.SpotifyManager
 import com.izamaralv.swipethebeat.utils.TokenManager
+import com.izamaralv.swipethebeat.viewmodel.GeminiRecommendationViewModel
+import com.izamaralv.swipethebeat.viewmodel.GeminiRecommendationViewModelFactory
 import com.izamaralv.swipethebeat.viewmodel.InitializationViewModel
 import com.izamaralv.swipethebeat.viewmodel.ProfileViewModel
 import com.izamaralv.swipethebeat.viewmodel.SearchViewModel
@@ -36,55 +38,71 @@ import kotlinx.coroutines.withContext
 
 class MainActivity : ComponentActivity() {
 
-    // Declaración de variables para la navegación y gestión de Spotify y perfiles
     private lateinit var navController: NavHostController
     private lateinit var spotifyManager: SpotifyManager
     private lateinit var profileManager: ProfileManager
+    private lateinit var songRepository: SongRepository
+
     private val profileViewModel: ProfileViewModel by viewModels()
     private val initializationViewModel: InitializationViewModel by viewModels()
     private lateinit var searchViewModel: SearchViewModel
     private lateinit var songViewModel: SongViewModel
 
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val songRepository = SongRepository()
+        songRepository = SongRepository()
         val accessToken = TokenManager(applicationContext).getAccessToken() ?: ""
 
         songViewModel = SongViewModelFactory(songRepository, accessToken)
             .create(SongViewModel::class.java)
 
-        searchViewModel = SearchViewModel(songRepository) // ✅ Manual creation
+        searchViewModel = SearchViewModel(songRepository)
         Log.d("MainActivity", "🚀 SearchViewModel initialized: $searchViewModel")
 
-        // ✅ Handle notification permissions
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
-            ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.POST_NOTIFICATIONS), 100)
+            ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+            != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                100
+            )
         }
 
-        // ✅ Create notification channel
-        NotificationHelper.createNotificationChannel(this)
-
-        // ✅ Initialize managers
         spotifyManager = SpotifyManager(applicationContext)
         profileManager = ProfileManager(applicationContext, profileViewModel)
 
-        // ✅ Fetch user profile on startup
         fetchUserProfileOnStart()
 
-        // ✅ Observe initialization state and set the UI content
         initializationViewModel.isInitialized.observe(this) { isInitialized ->
             if (isInitialized) {
                 setContent {
                     navController = rememberNavController()
+
+                    val tokenManager = TokenManager(applicationContext)
+                    val geminiVm: GeminiRecommendationViewModel = viewModels<GeminiRecommendationViewModel> {
+                        GeminiRecommendationViewModelFactory(
+                            songRepository   = songRepository,
+                            profileViewModel = profileViewModel,
+                            geminiClient     = com.izamaralv.swipethebeat.utils.GeminiClient,
+                            tokenManager     = tokenManager,
+                            userRepository   = UserRepository()
+                        )
+                    }.value
+
+                    // Lanzamos la carga asíncrona en cuanto la Composable entre en composición
+                    LaunchedEffect(Unit) {
+                        Log.d("MainActivity", "Triggering Gemini loadRecommendations() test")
+                        geminiVm.loadRecommendations()
+                    }
+
                     NavGraph(
                         navController = navController,
                         profileViewModel = profileViewModel,
                         searchViewModel = searchViewModel,
-                        songViewModel = songViewModel
+                        songViewModel = songViewModel,
+                        geminiViewModel = geminiVm
                     )
 
                     checkTokenAndNavigate()
@@ -93,49 +111,35 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-
     private fun fetchUserProfileOnStart() {
         val tokenManager = TokenManager(applicationContext)
         val accessToken = tokenManager.getAccessToken()
         val refreshToken = tokenManager.getRefreshToken()
-
         val expiresIn = 3600
 
         if (accessToken != null && refreshToken != null) {
-            // ✅ Initialize Spotify components
             spotifyManager.initializeSpotifyClient(accessToken, refreshToken, expiresIn)
             spotifyManager.initializeSongRepository(accessToken)
             profileManager.fetchUserProfile(accessToken)
 
-            // ✅ Use coroutine for background processing
             CoroutineScope(Dispatchers.IO).launch {
-                val spotifyUserProfile = SpotifyApi.getUserProfile(accessToken, applicationContext) // ✅ Fetch latest Spotify data
+                val spotifyUserProfile = SpotifyApi.getUserProfile(accessToken, applicationContext)
                 val spotifyUserId = spotifyUserProfile?.get("user_id")
 
-                withContext(Dispatchers.Main) { // ✅ Ensure UI updates happen on the main thread
+                withContext(Dispatchers.Main) {
                     if (spotifyUserId.isNullOrEmpty()) {
                         Log.e("Firestore", "❌ Spotify User ID is null—Firestore can't retrieve profile!")
                     } else {
-                        Log.d("Firestore", "✅ Using Spotify User ID: $spotifyUserId for Firestore")
-
-                        // ✅ Ensure data is properly formatted for Firestore
-                        val userProfileMap = spotifyUserProfile.mapValues { it.value ?: "" }
-                        Log.d("Firestore", "✅ Updating Firestore with latest Spotify profile data: $userProfileMap")
-
-
-                        // ✅ Call Firestore update function in UserRepository
                         val userRepository = UserRepository()
-
+                        val userProfileMap = spotifyUserProfile.mapValues { it.value ?: "" }
                         userRepository.saveUserToFirestore(userProfileMap)
-
                         profileViewModel.loadUserProfile(spotifyUserId)
-                    }
 
-                    initializationViewModel.setInitialized()
+                        initializationViewModel.setInitialized()
+                    }
                 }
             }
         } else {
-            // ✅ Start the OAuth authentication flow if no tokens exists
             initiateOAuthFlow()
         }
     }
@@ -144,23 +148,16 @@ class MainActivity : ComponentActivity() {
         val clientId = Credentials.SPOTIFY_CLIENT_ID
         val redirectUri = Credentials.REDIRECT_URI
         val authorizationUrl = spotifyManager.getAuthorizationUrl(clientId, redirectUri)
-        val intent = Intent(Intent.ACTION_VIEW, authorizationUrl.toUri())
-        startActivity(intent)
+        startActivity(Intent(Intent.ACTION_VIEW, authorizationUrl.toUri()))
     }
 
     override fun onResume() {
         super.onResume()
-        val intent = intent
         intent?.data?.let { uri ->
-            Log.d("LoginCallback", "onResume: URI recibido = $uri")  // ◀ Añade esto
-
             if (uri.scheme == "myapp" && uri.host == "callback") {
                 val code = uri.getQueryParameter("code")
-                Log.d("LoginCallback", "Código extraído = $code")   // ◀ Y esto
-
                 code?.let {
                     spotifyManager.exchangeCodeForToken(it) { accessToken, refreshToken ->
-                        Log.d("MainActivity", "Access Token: $accessToken") // Registra el token también aquí
                         spotifyManager.initializeSpotifyClient(accessToken, refreshToken, 3600)
                         spotifyManager.initializeSongRepository(accessToken)
                         profileManager.fetchUserProfile(accessToken)
@@ -178,8 +175,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun checkTokenAndNavigate() {
-        val tokenManager = TokenManager(applicationContext)
-        val accessToken = tokenManager.getAccessToken()
+        val accessToken = TokenManager(applicationContext).getAccessToken()
         if (accessToken != null) {
             navController.navigate(Screen.Lobby.route) {
                 popUpTo(Screen.Login.route) { inclusive = true }

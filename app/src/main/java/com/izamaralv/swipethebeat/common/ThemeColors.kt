@@ -6,11 +6,20 @@ import com.izamaralv.swipethebeat.ui.theme.StandardBackground
 import com.izamaralv.swipethebeat.ui.theme.StandardCard
 import com.izamaralv.swipethebeat.ui.theme.StandardField
 
-// ✅ Declare mutable state variables
-var backgroundColor = mutableStateOf(StandardBackground) // Color de fondo estándar
-var cardColor = mutableStateOf(StandardCard) // Color de las tarjetas estándar
-var softComponentColor = mutableStateOf(StandardField) // Color de los componentes suaves
-var textColor = mutableStateOf(Color.White) // Color del texto
-var cardBorderColor = mutableStateOf(StandardCard) // Color del borde de las tarjetas
+// Estas variables controlan los colores dinámicos de la UI. Se usan a lo largo de la app para mantener una
+// apariencia coherente y permitir cambios en tiempo real.
 
+// Color principal de fondo de la pantalla
+var backgroundColor = mutableStateOf(StandardBackground)
 
+// Color default para las tarjetas de contenido
+var cardColor = mutableStateOf(StandardCard)
+
+// Color para elementos suaves como campos de texto y botones secundarios
+var softComponentColor = mutableStateOf(StandardField)
+
+// Color predeterminado del texto en la UI
+var textColor = mutableStateOf(Color.White)
+
+// Color del borde en las tarjetas (coincide con el cardColor excepto en el tema de accesibilidad)
+var cardBorderColor = mutableStateOf(StandardCard)

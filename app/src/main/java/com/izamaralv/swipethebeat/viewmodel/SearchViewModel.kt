@@ -15,7 +15,7 @@ class SearchViewModel(private val songRepository: SongRepository) : ViewModel() 
     fun searchArtists(query: String, token: String) {
         viewModelScope.launch {
             val results = songRepository.searchArtists(token, query)
-            Log.d("SearchViewModel", "✅ API Response: $results") // ✅ Debug API results
+            Log.d("SearchViewModel", "✅ API Response: $results")
             _artistResults.value = results
         }
     }

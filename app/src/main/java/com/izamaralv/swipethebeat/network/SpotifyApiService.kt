@@ -29,7 +29,7 @@ interface SpotifyApiService {
         @Header("Authorization") token: String,
         @Query("q") query: String,
         @Query("type") type: String = "track",
-        @Query("limit") limit: Int = 25
+        @Query("limit") limit: Int = 50
     ): Response<SearchResponse> // Buscar tracks
 
     @PUT("v1/me/tracks")
@@ -48,9 +48,17 @@ interface SpotifyApiService {
     suspend fun searchArtists(
         @Header("Authorization") token: String,
         @Query("q") query: String,
-        @Query("type") type: String = "artist", // 🔥 Change to "artist"
+        @Query("type") type: String = "artist",
         @Query("limit") limit: Int = 15
     ): Response<SearchResponse> // Buscar artistas
+
+    @GET("v1/search")
+    suspend fun searchExactTrack(
+        @Header("Authorization") token: String,
+        @Query("q") query: String,
+        @Query("type") type: String = "track",
+        @Query("limit") limit: Int = 1
+    ): Response<SearchResponse> // Buscar track exacta
 
 }
 

@@ -15,6 +15,8 @@ import com.izamaralv.swipethebeat.viewmodel.ProfileViewModel
 
 fun changeColor(color: Color, userId: String, profileViewModel: ProfileViewModel) {
     Log.d("ProfileViewModel", "🔄 Updating profile color to: $color")
+
+    // comprobamos si es el tema de alto contraste
     if (color == yellowHighContrastColor) {
         softComponentColor.value = color
         textColor.value = color
@@ -23,17 +25,15 @@ fun changeColor(color: Color, userId: String, profileViewModel: ProfileViewModel
         backgroundColor.value = Color.Black
 
     } else {
-        // ✅ Apply color change globally
         softComponentColor.value = color
         textColor.value = Color.White
         cardColor.value = StandardCard
         cardBorderColor.value = StandardCard
         backgroundColor.value = StandardBackground
     }
-        // ✅ Convert color to HEX format for Firestore storage
+        // COnvertimos el color a hexadecimal para firestore
         val hexColor = String.format("#%06X", (color.toArgb() and 0xFFFFFF))
         Log.d("ProfileViewModel", "✅ Profile color applied: $hexColor")
 
-        // ✅ Update Firestore and ViewModel
         profileViewModel.changeColorInFirebase(userId, hexColor)
 }

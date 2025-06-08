@@ -50,12 +50,12 @@ fun ArtistPickerScreen(
     val context = LocalContext.current
     val accessToken = TokenManager(context).getAccessToken().orEmpty()
 
-    // Clear previous search on entry
+    // Al entrar, limpiamos resultados anteriores
     LaunchedEffect(Unit) {
         searchViewModel.clearArtistResults()
     }
 
-    // Filter out already‐selected artists
+    // Quitamos de la lista los ya seleccionados
     val filtered = artists.filterNot { it in excluded }
 
     Column(
@@ -64,7 +64,7 @@ fun ArtistPickerScreen(
             .background(backgroundColor.value)
             .padding(16.dp)
     ) {
-        // ─────────── Search bar ───────────
+        // Barra de búsqueda
         TextField(
             value = query,
             onValueChange = {
@@ -88,11 +88,9 @@ fun ArtistPickerScreen(
 
         Spacer(Modifier.height(12.dp))
 
-        // ─────────── Result states ───────────
         when {
-            // 1️⃣ El usuario no ha escrito nada: mostramos "Reset" + invitación
             query.isBlank() -> {
-                // Solo si ya hay un favorito existente
+                // Opción para quitar favorito si ya existe uno
                 if (currentFavorite.isNotBlank()) {
                     ListItem(
                         text = { Text("Quitar artista favorito", color = textColor.value) },
@@ -107,7 +105,6 @@ fun ArtistPickerScreen(
                     )
                     Spacer(Modifier.height(8.dp))
                 }
-                // Invitación a buscar
                 Text(
                     text = "Empieza a escribir para ver resultados",
                     color = textColor.value,
@@ -115,7 +112,6 @@ fun ArtistPickerScreen(
                 )
             }
 
-            // 2️⃣ Ya buscó, pero no quedan resultados tras filtrar
             query.isNotBlank() && filtered.isEmpty() -> {
                 Text(
                     "No se han encontrado artistas",
@@ -123,8 +119,8 @@ fun ArtistPickerScreen(
                     modifier = Modifier.padding(horizontal = 10.dp)
                 )
             }
-            // 3️⃣ Hay resultados filtrados
             else -> {
+                // Mostramos lista de resultados
                 LazyColumn(Modifier.fillMaxSize()) {
                     items(filtered) { artist ->
                         ListItem(

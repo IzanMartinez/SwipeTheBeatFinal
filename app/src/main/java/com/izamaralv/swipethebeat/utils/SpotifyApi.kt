@@ -76,7 +76,7 @@ object SpotifyApi {
             if (newAccessToken != null) {
                 Log.d("SpotifyApi", "New access token: $newAccessToken")
 
-                // ✅ Store the new access token globally in TokenManager
+                // Guarda el nuevo token en SharedPreferences
                 TokenManager(context).saveAccessToken(newAccessToken)
                 return newAccessToken
             }
@@ -93,11 +93,11 @@ object SpotifyApi {
         client.newCall(request).execute().use { response ->
             val responseBody = response.body?.string()
             Log.d("SpotifyApi", "User profile response body: $responseBody")
-            if (response.code == 401) { // 🔥 El token ha expirado -> refresca
+            if (response.code == 401) { // El token ha expirado -> refresca
                 val newAccessToken = refreshAccessToken(context, TokenManager(context).getRefreshToken() ?: "")
                 Log.d("SpotifyApi", "Refreshed access token: $newAccessToken")
                 if (newAccessToken != null) {
-                    return getUserProfile(newAccessToken, context) // 🔄 Retry with new token
+                    return getUserProfile(newAccessToken, context) // Recursivamente
                 }
             }
 

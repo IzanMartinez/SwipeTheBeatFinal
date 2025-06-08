@@ -99,7 +99,7 @@ class SongViewModel(private val songRepository: SongRepository, private val acce
     fun likeSongById(trackId: String) {
         viewModelScope.launch {
             try {
-                // 1) Llamamos a la API de Spotify con ese trackId
+                // Llamamos a la API de Spotify con ese trackId
                 songRepository.likeTrack(accessToken, trackId)
                 Log.d("SongViewModel", "✅ likeSongById($trackId) enviado a Spotify")
             } catch (e: Exception) {

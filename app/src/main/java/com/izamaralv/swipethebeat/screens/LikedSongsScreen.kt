@@ -72,30 +72,28 @@ fun LikedSongsScreen(
     navController: NavHostController,
     profileViewModel: ProfileViewModel,
 ) {
-    // Ajuste de la barra de estado
+    // Ajuste del color de la barra de estado
     val systemUiController = rememberSystemUiController()
     systemUiController.setStatusBarColor(color = softComponentColor.value, darkIcons = false)
 
     val context = LocalContext.current
     val songRepository = SongRepository()
-
-    // Obtener token de Spotify
     val tokenManager = TokenManager(context)
     val accessToken = tokenManager.getAccessToken()
 
-    // ViewModel de Spotify
+    // Creamos el ViewModel para manejar las canciones favoritas
     val songViewModel: SongViewModel = viewModel(
         factory = SongViewModelFactory(songRepository, accessToken ?: "")
     )
 
-    // Observamos la lista de liked songs
+    // Lista de canciones favoritas
     val likedSongsPool by songViewModel.likedSongsPool.observeAsState(emptyList())
 
-    // Estados para el filtro
+    // Control para mostrar u ocultar la barra de búsqueda
     var searchActive by remember { mutableStateOf(false) }
     var query by remember { mutableStateOf("") }
 
-    // Filtrar likedSongsPool según query
+    // Filtramos la lista según la búsqueda
     val songsToShow: List<Track> = if (query.isBlank()) {
         if (likedSongsPool.size > 50) likedSongsPool.takeLast(50)
         else likedSongsPool
@@ -130,7 +128,7 @@ fun LikedSongsScreen(
         ) {
             Spacer(modifier = Modifier.height(80.dp))
 
-            // ─── (1) Fila con título + lupa ───
+            // Encabezado con título y botón de búsqueda
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -157,7 +155,7 @@ fun LikedSongsScreen(
                 }
             }
 
-            // ─── (2) Si está activo, mostrar TextField para filtrar ───
+            // Campo de búsqueda
             if (searchActive) {
                 TextField(
                     value = query,
@@ -165,7 +163,7 @@ fun LikedSongsScreen(
                     placeholder = {
                         Text(
                             text  = "Filtrar por nombre o artista...",
-                            color = textColor.value.copy(alpha = 0.6f)
+                            color = softComponentColor.value.copy(alpha = 0.6f)
                         )
                     },
                     singleLine = true,
@@ -190,7 +188,7 @@ fun LikedSongsScreen(
                 Spacer(modifier = Modifier.height(8.dp))
             }
 
-            // ─── (3) Lista filtrada ───
+            // Lista de canciones
             LazyColumn {
                 items(songsToShow) { song ->
                     Box(
@@ -200,7 +198,7 @@ fun LikedSongsScreen(
                             .background(color = cardColor.value, shape = RoundedCornerShape(16.dp))
                             .border(1.dp, cardBorderColor.value, shape = RoundedCornerShape(16.dp))
                             .clickable {
-                                // Abrir Spotify al tocar
+                                // Abrir en Spotify al pulsar
                                 val spotifyUri = "spotify:track:${song.id}"
                                 val intent = Intent(Intent.ACTION_VIEW, spotifyUri.toUri())
                                 intent.putExtra(
@@ -247,7 +245,7 @@ fun LikedSongsScreen(
                             }
                             Spacer(modifier = Modifier.width(8.dp))
 
-                            // Botón “X” para dar dislike en Spotify
+                            // Botón para quitar de favoritos en Spotify
                             IconButton(onClick = {
                                 songViewModel.dislikeCurrentSong(song.id)
                             }) {
