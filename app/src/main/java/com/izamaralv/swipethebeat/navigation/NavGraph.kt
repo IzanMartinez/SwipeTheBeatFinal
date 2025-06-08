@@ -11,6 +11,7 @@ import com.izamaralv.swipethebeat.screens.LoginScreen
 import com.izamaralv.swipethebeat.screens.MainScreen
 import com.izamaralv.swipethebeat.screens.ProfileScreen
 import com.izamaralv.swipethebeat.screens.SavedSongsScreen
+import com.izamaralv.swipethebeat.viewmodel.GeminiRecommendationViewModel
 import com.izamaralv.swipethebeat.viewmodel.ProfileViewModel
 import com.izamaralv.swipethebeat.viewmodel.SearchViewModel
 import com.izamaralv.swipethebeat.viewmodel.SongViewModel
@@ -20,7 +21,8 @@ fun NavGraph(
     navController: NavHostController,
     profileViewModel: ProfileViewModel,
     searchViewModel: SearchViewModel,
-    songViewModel: SongViewModel
+    songViewModel: SongViewModel,
+    geminiViewModel: GeminiRecommendationViewModel
 ) {
 
     NavHost(navController = navController, startDestination = Screen.Login.route) {
@@ -28,7 +30,7 @@ fun NavGraph(
             LoginScreen()
         }
         composable(route = Screen.Main.route) {
-            MainScreen(navController = navController, profileViewModel = profileViewModel, songViewModel = songViewModel)
+            MainScreen(navController = navController, profileViewModel = profileViewModel, geminiViewModel = geminiViewModel)
         }
         composable(route = Screen.LikedSongs.route) {
             LikedSongsScreen(navController = navController, profileViewModel = profileViewModel)

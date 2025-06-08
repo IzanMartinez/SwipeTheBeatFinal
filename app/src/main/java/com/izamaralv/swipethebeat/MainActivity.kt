@@ -83,16 +83,18 @@ class MainActivity : ComponentActivity() {
                 setContent {
                     navController = rememberNavController()
 
-                    // INSTANTIATE AND TRIGGER GEMINI TEST
                     val tokenManager = TokenManager(applicationContext)
                     val geminiVm: GeminiRecommendationViewModel = viewModels<GeminiRecommendationViewModel> {
                         GeminiRecommendationViewModelFactory(
                             songRepository   = songRepository,
                             profileViewModel = profileViewModel,
                             geminiClient     = com.izamaralv.swipethebeat.utils.GeminiClient,
-                            tokenManager     = tokenManager
+                            tokenManager     = tokenManager,
+                            userRepository   = UserRepository()
                         )
                     }.value
+
+                    // 2) Lanzamos la carga asíncrona en cuanto la Composable entre en composición
                     LaunchedEffect(Unit) {
                         Log.d("MainActivity", "Triggering Gemini loadRecommendations() test")
                         geminiVm.loadRecommendations()
@@ -102,7 +104,8 @@ class MainActivity : ComponentActivity() {
                         navController = navController,
                         profileViewModel = profileViewModel,
                         searchViewModel = searchViewModel,
-                        songViewModel = songViewModel
+                        songViewModel = songViewModel,
+                        geminiViewModel = geminiVm
                     )
 
                     checkTokenAndNavigate()

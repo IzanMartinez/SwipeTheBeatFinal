@@ -51,7 +51,8 @@ class SongRepository() {
                         "SongRepository",
                         "Liked songs response: ${response.body()?.tracks?.map { it.track.name }}"
                     )
-                    response.body()?.tracks?.map { it.track } ?: emptyList() // Devuelve las canciones favoritas
+                    response.body()?.tracks?.map { it.track }
+                        ?: emptyList() // Devuelve las canciones favoritas
                 } else {
                     Log.e(
                         "SongRepository",
@@ -103,6 +104,35 @@ class SongRepository() {
         }
     }
 
+    suspend fun searchExactTrack(token: String, query: String): Track? =
+        withContext(Dispatchers.IO) {
+            try {
+                val response: Response<com.izamaralv.swipethebeat.models.SearchResponse> =
+                    apiService.searchExactTrack("Bearer $token", query)
+                if (response.isSuccessful) {
+                    response.body()?.tracks?.items?.firstOrNull()?.let {
+                        Track(
+                            name = it.name,
+                            artists = it.artists,
+                            album = it.album,
+                            previewUrl = it.previewUrl,
+                            id = it.id,
+                            uri = it.uri
+                        )
+                    }
+                } else {
+                    Log.e(
+                        "SongRepository",
+                        "Failed to search exact track: ${response.message()} (Code: ${response.code()})"
+                    )
+                    null
+                }
+            } catch (e: Exception) {
+                Log.e("SongRepository", "Exception in searchExactTrack: ${e.message}")
+                null
+            }
+        }
+
     suspend fun likeTrack(accessToken: String, trackId: String): Boolean {
         return withContext(Dispatchers.IO) {
             try {
@@ -126,7 +156,8 @@ class SongRepository() {
     suspend fun dislikeTrack(token: String, trackId: String): Boolean {
         return withContext(Dispatchers.IO) {
             try {
-                val response: Response<Unit> = apiService.removeTrackFromLibrary(token = "Bearer $token", trackId = trackId)
+                val response: Response<Unit> =
+                    apiService.removeTrackFromLibrary(token = "Bearer $token", trackId = trackId)
                 if (response.isSuccessful) {
                     true // Retorna true si la respuesta es exitosa
                 } else {
@@ -139,6 +170,7 @@ class SongRepository() {
             }
         }
     }
+
     suspend fun searchArtists(token: String, query: String): List<String> {
         return withContext(Dispatchers.IO) {
             try {
@@ -148,10 +180,17 @@ class SongRepository() {
                 )
 
                 if (response.isSuccessful) {
-                    Log.d("SongRepository", "Search artists response: ${response.body()?.artists?.items?.map { it.name }}")
-                    response.body()?.artists?.items?.map { it.name } ?: emptyList() // ✅ Returns artist names only
+                    Log.d(
+                        "SongRepository",
+                        "Search artists response: ${response.body()?.artists?.items?.map { it.name }}"
+                    )
+                    response.body()?.artists?.items?.map { it.name }
+                        ?: emptyList() // ✅ Returns artist names only
                 } else {
-                    Log.e("SongRepository", "Failed to search artists: ${response.message()} (Code: ${response.code()})")
+                    Log.e(
+                        "SongRepository",
+                        "Failed to search artists: ${response.message()} (Code: ${response.code()})"
+                    )
                     emptyList()
                 }
             } catch (e: Exception) {

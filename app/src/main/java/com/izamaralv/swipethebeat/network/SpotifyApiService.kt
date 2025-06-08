@@ -52,5 +52,13 @@ interface SpotifyApiService {
         @Query("limit") limit: Int = 15
     ): Response<SearchResponse> // Buscar artistas
 
+    @GET("v1/search")
+    suspend fun searchExactTrack(
+        @Header("Authorization") token: String,
+        @Query("q") query: String,
+        @Query("type") type: String = "track",
+        @Query("limit") limit: Int = 1
+    ): Response<SearchResponse>
+
 }
 

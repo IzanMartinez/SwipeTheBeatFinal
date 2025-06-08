@@ -3,6 +3,7 @@ package com.izamaralv.swipethebeat.repository
 import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
+import kotlinx.coroutines.tasks.await
 import java.util.UUID
 
 class UserRepository {
@@ -13,10 +14,8 @@ class UserRepository {
 
     /**
      * Guarda los datos básicos del usuario tras el login.
-     * ▶ Ahora SIN pisar jamás los artistas favoritos.
+     * ▶ Ahora sin pisar jamás los artistas favoritos.
      */
-    // UserRepository.kt
-
     fun saveUserToFirestore(
         userData: Map<String, String>,
         onComplete: (() -> Unit)? = null
@@ -33,21 +32,19 @@ class UserRepository {
             .addOnSuccessListener { document ->
                 val existingColor = document.getString("profile_color") ?: "#1DB954"
                 val user = hashMapOf(
-                    "user_id"      to userId,
-                    "name"         to userData["name"],
-                    "email"        to userData["email"],
-                    "avatar_url"   to userData["avatar_url"],
+                    "user_id"       to userId,
+                    "name"          to userData["name"],
+                    "email"         to userData["email"],
+                    "avatar_url"    to userData["avatar_url"],
                     "profile_color" to (userData["profile_color"] ?: existingColor)
                 )
 
                 Log.d("Firestore", "🔍 Attempting to save user: $userId with data: $user")
-
                 firestore.collection("users")
                     .document(userId)
                     .set(user, SetOptions.merge())
                     .addOnSuccessListener {
                         Log.d("Firestore", "✅ User data saved successfully for ID: $userId")
-                        // Avisamos al que llame que ha terminado la escritura
                         onComplete?.invoke()
                     }
                     .addOnFailureListener { error ->
@@ -56,10 +53,8 @@ class UserRepository {
             }
     }
 
-
-
     /**
-     * Actualiza un slot de artista favorito (0→favorite_artist1, 1→favorite_artist2, 2→favorite_artist3)
+     * Actualiza un slot de artista favorito (0→favorite_artist1, 1→favorite_artist2, 2→favorite_artist3).
      */
     fun updateFavoriteArtist(userId: String, slot: Int, artist: String) {
         val field = "favorite_artist${slot + 1}"
@@ -71,10 +66,7 @@ class UserRepository {
                 Log.d("Firestore", "✅ $field updated successfully for user $userId")
             }
             .addOnFailureListener { e ->
-                Log.e(
-                    "Firestore",
-                    "❌ Error updating $field for user $userId: ${e.message}"
-                )
+                Log.e("Firestore", "❌ Error updating $field for user $userId: ${e.message}")
             }
     }
 
@@ -100,13 +92,10 @@ class UserRepository {
                     document.getString("email")?.let      { userData["email"] = it }
                     document.getString("avatar_url")?.let { userData["avatar_url"] = it }
                     document.getString("profile_color")?.let { userData["profile_color"] = it }
-
-                    // ▶ Cargamos también los 3 artistas favoritos
                     for (i in 1..3) {
                         val field = "favorite_artist$i"
                         userData[field] = document.getString(field) ?: ""
                     }
-
                     Log.d("Firestore", "User data retrieved: $userData")
                     onResult(userData)
                 } else {
@@ -121,46 +110,63 @@ class UserRepository {
     }
 
     /**
-     * Si el usuario NO existe, lo creamos con todos los campos esenciales de inicio:
-     * → profile_color por defecto y tres slots vacíos de artista.
+     * Inserta una canción en la subcolección "saved_songs" del usuario.
      */
-    fun initializeUserProfile(userId: String, userData: Map<String, String>) {
-        val userRef = firestore.collection("users").document(userId)
-        userRef.get().addOnSuccessListener { document ->
-            if (!document.exists()) {
-                // ▶ Definimos aquí TODOS los campos iniciales de una sola vez
-                val fullUser = hashMapOf(
-                    "user_id"          to userId,
-                    "name"             to userData["name"],
-                    "email"            to userData["email"],
-                    "avatar_url"       to userData["avatar_url"],
-                    "profile_color"    to (userData["profile_color"] ?: "#1DB954"),
-                    "favorite_artist1" to "",
-                    "favorite_artist2" to "",
-                    "favorite_artist3" to ""
-                )
-                userRef.set(fullUser)
-                    .addOnSuccessListener {
-                        Log.d("Firestore", "✅ New user profile created: $fullUser")
-                        // placeholder liked_songs…
-                        firestore.collection("users")
-                            .document(userId)
-                            .collection("liked_songs")
-                            .document("initial_song")
-                            .set(mapOf("info" to "Liked songs will be stored here"))
-                    }
-                    .addOnFailureListener { e ->
-                        Log.e("Firestore", "❌ Error creating user profile: ${e.message}")
-                    }
-            } else {
-                Log.d("Firestore", "✅ User already exists in Firestore: $userId")
-            }
-        }
+    fun addSavedSong(userId: String, songData: Map<String, String>) {
+        val documentId = songData["id"] ?: UUID.randomUUID().toString()
+        firestore.collection("users")
+            .document(userId)
+            .collection("saved_songs")
+            .document(documentId)
+            .set(songData)
     }
 
     /**
-     * Actualiza únicamente el color de perfil (igual que antes).
+     * Borra una canción guardada.
      */
+    fun deleteSavedSong(userId: String, songId: String) {
+        firestore.collection("users")
+            .document(userId)
+            .collection("saved_songs")
+            .document(songId)
+            .delete()
+    }
+
+    /**
+     * Recupera las canciones guardadas (no confundir con recomendaciones).
+     */
+    fun getSavedSongs(userId: String, onResult: (List<Map<String, String>>) -> Unit) {
+        firestore.collection("users")
+            .document(userId)
+            .collection("saved_songs")
+            .get()
+            .addOnSuccessListener { snapshot ->
+                val list = snapshot.documents.mapNotNull { doc ->
+                    doc.data?.mapValues { it.value.toString() }
+                }
+                onResult(list)
+            }
+            .addOnFailureListener {
+                onResult(emptyList())
+            }
+    }
+
+    /**
+     * Guarda la lista de recomendaciones en Firestore bajo el campo "recommendations".
+     */
+    fun saveRecommendations(userId: String, recs: List<Map<String, String>>) {
+        Log.d("UserRepository", "Saving recommendations for user $userId: $recs")
+        firestore.collection("users")
+            .document(userId)
+            .update("recommendations", recs)
+            .addOnSuccessListener {
+                Log.d("UserRepository", "✅ Recommendations saved for user $userId")
+            }
+            .addOnFailureListener { e ->
+                Log.e("UserRepository", "❌ Error saving recommendations: ${e.message}")
+            }
+    }
+
     fun updateUserColor(userId: String, color: String) {
         firestore.collection("users")
             .document(userId)
@@ -174,62 +180,38 @@ class UserRepository {
     }
 
     /**
-     * Inserta una canción en la subcolección "saved_songs" del usuario.
-     * Espera recibir un map con las claves: "id", "name", "artists", "album", "imageUrl".
+     * Carga la lista de recomendaciones desde Firestore.
      */
-    fun addSavedSong(userId: String, songData: Map<String, String>) {
-        Log.d("UserRepository", "addSavedSong() llamado: userId='$userId', songData=$songData")
-
-        val documentId = songData["id"] ?: UUID.randomUUID().toString()
+    fun loadRecommendations(userId: String, onComplete: (List<Map<String, String>>) -> Unit) {
         firestore.collection("users")
             .document(userId)
-            .collection("saved_songs")
-            .document(documentId)
-            .set(songData)
-            .addOnSuccessListener {
-                Log.d("UserRepository", "✅ saved_songs/$documentId guardado correctamente para user $userId")
-            }
-            .addOnFailureListener { e ->
-                Log.e("UserRepository", "❌ Error guardando saved_songs/$documentId para user $userId: ${e.message}")
-            }
-    }
-
-    fun deleteSavedSong(userId: String, songId: String) {
-        firestore.collection("users")
-            .document(userId)
-            .collection("saved_songs")
-            .document(songId)
-            .delete()
-            .addOnSuccessListener {
-                Log.d("UserRepository", "✅ saved_song/$songId eliminado para user $userId")
-            }
-            .addOnFailureListener { e ->
-                Log.e("UserRepository", "❌ Error borrando saved_song/$songId: ${e.message}")
-            }
-    }
-
-
-
-    /**
-     * Recupera todas las canciones guardadas en "saved_songs" y las devuelve por callback.
-     * El resultado es una lista de Map<String,String>, donde cada mapa tiene los campos de la canción.
-     */
-    fun getSavedSongs(userId: String, onResult: (List<Map<String, String>>) -> Unit) {
-        Log.d("UserRepository", "getSavedSongs() llamado para userId='$userId'")
-
-        firestore.collection("users")
-            .document(userId)
-            .collection("saved_songs")
             .get()
-            .addOnSuccessListener { snapshot ->
-                Log.d("UserRepository", "getSavedSongs: se recuperaron ${snapshot.size()} documentos")
-                val list = snapshot.documents.mapNotNull { doc ->
-                    doc.data?.mapValues { it.value.toString() }
-                }
-                onResult(list)
+            .addOnSuccessListener { doc ->
+                val list = doc.get("recommendations") as? List<Map<String, String>> ?: emptyList()
+                Log.d("UserRepository", "Loaded recommendations for $userId: $list")
+                onComplete(list)
             }
-            .addOnFailureListener {
-                onResult(emptyList())
+            .addOnFailureListener { e ->
+                Log.e("UserRepository", "❌ Error loading recommendations: ${e.message}")
+                onComplete(emptyList())
             }
     }
+
+    suspend fun loadRecommendationsSuspend(userId: String): List<Map<String, String>> =
+        try {
+            val snap = firestore
+                .collection("users")
+                .document(userId)
+                .get()
+                .await()
+
+            @Suppress("UNCHECKED_CAST")
+            snap.get("recommendations") as? List<Map<String, String>> ?: emptyList()
+        } catch (e: Exception) {
+            Log.e("UserRepository", "Error loading recommendations", e)
+            emptyList()
+        }
 }
+
+
+
