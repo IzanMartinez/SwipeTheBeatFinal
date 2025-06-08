@@ -54,13 +54,13 @@ class SpotifyManager(private val context: Context) {
     fun getAuthorizationUrl(clientId: String, redirectUri: String): String {
         // Define los alcances necesarios para la autorización
         val scopes = listOf(
-            SpotifyScope.USER_READ_PRIVATE,          // Acceso a la información del perfil del usuario (nombre, imagen, etc.)
-            SpotifyScope.USER_READ_EMAIL,            // Acceso al correo electrónico del usuario
-            SpotifyScope.USER_LIBRARY_READ,          // Recuperar canciones guardadas
-            SpotifyScope.USER_LIBRARY_MODIFY,        // Guardar canciones
-            SpotifyScope.USER_READ_RECENTLY_PLAYED,  // Acceso a canciones reproducidas recientemente
-            SpotifyScope.PLAYLIST_READ_PRIVATE,      // Necesario para acceder a playlists
-            SpotifyScope.USER_TOP_READ               // Recuperar las mejores canciones/artistas
+            SpotifyScope.UserReadPrivate,          // Acceso a la información del perfil del usuario (nombre, imagen, etc.)
+            SpotifyScope.UserReadEmail,            // Acceso al correo electrónico del usuario
+            SpotifyScope.UserLibraryRead,          // Recuperar canciones guardadas
+            SpotifyScope.UserLibraryModify,        // Guardar canciones
+            SpotifyScope.UserReadRecentlyPlayed,  // Acceso a canciones reproducidas recientemente
+            SpotifyScope.PlaylistReadPrivate,      // Necesario para acceder a playlists
+            SpotifyScope.UserTopRead               // Recuperar las mejores canciones/artistas
         )
 
         // Obtiene la URL de autorización de Spotify con los alcances definidos

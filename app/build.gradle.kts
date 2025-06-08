@@ -1,11 +1,12 @@
-import org.gradle.internal.impldep.org.junit.experimental.categories.Categories.CategoryFilter.exclude
-
 plugins {
     id("com.android.application")
     id("com.google.gms.google-services")
     id("org.jetbrains.kotlin.android")
+    id("org.jetbrains.kotlin.plugin.compose")
     id("kotlin-parcelize")
+
 }
+
 
 android {
     namespace = "com.izamaralv.swipethebeat"
@@ -60,11 +61,14 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.9.1")
     implementation ("androidx.activity:activity-compose:1.9.3")
     implementation ("com.google.accompanist:accompanist-systemuicontroller:0.30.1")
+    implementation("dev.shreyaspatil.generativeai:generativeai-google:0.9.0-1.1.0")
+
+    implementation("com.pnikosis:materialish-progress:1.7")
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib:1.8.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
-    implementation("com.adamratzman:spotify-api-kotlin-core:3.8.6")
+    implementation("com.adamratzman:spotify-api-kotlin-core:4.0.1")
     implementation("io.coil-kt:coil-compose:2.5.0")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.7")
     implementation("androidx.compose.runtime:runtime-livedata:1.7.5")
@@ -86,6 +90,12 @@ dependencies {
     implementation("androidx.navigation:navigation-runtime-ktx:2.8.4")
     implementation("androidx.navigation:navigation-compose:2.8.4")
     implementation("com.google.firebase:firebase-firestore-ktx:25.1.4")
+
+    implementation("io.ktor:ktor-client-core:3.1.2")
+    implementation("io.ktor:ktor-client-cio:3.1.2")
+    implementation("io.ktor:ktor-client-logging:3.1.2")
+    implementation("io.ktor:ktor-client-serialization:3.1.2")
+
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")

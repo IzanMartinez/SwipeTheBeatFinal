@@ -29,7 +29,7 @@ interface SpotifyApiService {
         @Header("Authorization") token: String,
         @Query("q") query: String,
         @Query("type") type: String = "track",
-        @Query("limit") limit: Int = 25
+        @Query("limit") limit: Int = 50
     ): Response<SearchResponse> // Buscar tracks
 
     @PUT("v1/me/tracks")

@@ -218,13 +218,6 @@ class ProfileViewModel : ViewModel() {
         Log.d("ProfileViewModel", "✅ Track $trackId eliminado de savedSongs en posición $index")
     }
 
-
-
-
-
-
-
-
     /**
      * Recupera las canciones guardadas y las devuelve por callback.
      */
