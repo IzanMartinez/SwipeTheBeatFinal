@@ -37,12 +37,12 @@ import com.izamaralv.swipethebeat.utils.startSpotifyLogin
 
 @Composable
 fun LoginScreen(modifier: Modifier = Modifier) {
-    // Control de la barra de estado del sistema
+    // Ajuste del color de la barra de estado
     val systemUiController = rememberSystemUiController()
     systemUiController.setStatusBarColor(color = backgroundColor.value, darkIcons = false)
 
     val context = LocalContext.current
-    // Layout general de la pantalla
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -56,7 +56,6 @@ fun LoginScreen(modifier: Modifier = Modifier) {
                 .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Logo
             Image(
                 painter = painterResource(id = R.drawable.border_logo_green),
                 contentDescription = "Logo",

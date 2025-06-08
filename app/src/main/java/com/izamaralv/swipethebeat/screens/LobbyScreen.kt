@@ -35,18 +35,16 @@ import com.izamaralv.swipethebeat.navigation.Screen
 import com.izamaralv.swipethebeat.utils.changeColor
 import com.izamaralv.swipethebeat.viewmodel.ProfileViewModel
 
-/**
- * LobbyScreen: todas las Cards ocupan el mismo “peso” y se distribuyen uniformemente.
- * Ahora cada Card muestra un Icon + Text centrados.
- */
 @Composable
 fun LobbyScreen(
     navController: NavHostController,
     profileViewModel: ProfileViewModel
 ) {
-    // Control de la barra de estado del sistema
+    // Ajuste del color de la barra de estado
     val systemUiController = rememberSystemUiController()
     systemUiController.setStatusBarColor(color = backgroundColor.value, darkIcons = false)
+
+    // Cambio de color de la aplicación al acceder a la pantalla
     changeColor(softComponentColor.value, userId = profileViewModel.getUserId(), profileViewModel)
 
     Column(
@@ -70,7 +68,6 @@ fun LobbyScreen(
             colors    = CardDefaults.cardColors(containerColor = cardColor.value),
             elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
         ) {
-            // Contenedor que centra icon + texto
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center

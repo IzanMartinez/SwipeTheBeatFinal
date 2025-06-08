@@ -60,7 +60,6 @@ fun STBTopAppBar(
     var iconMenuExpanded by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
-    // ✅ Optimized profile image selection logic
     val painter = if (profileViewModel.getProfileImageUrl().isEmpty()) {
         painterResource(id = R.drawable.default_profile)
     } else {

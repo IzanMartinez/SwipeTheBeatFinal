@@ -102,7 +102,6 @@ fun RecommendationCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .aspectRatio(0.75f)
-//                    .background(softComponentColor.value, shape = RoundedCornerShape(16.dp))
                     .padding(16.dp)
             ) {
                 Column(
@@ -159,7 +158,6 @@ fun RecommendationCard(
                     Intent.EXTRA_REFERRER,
                     "android-app://${context.packageName}".toUri()
                 )
-                NotificationHelper.showPersistentNotification(context)
                 context.startActivity(intent)
             },
             modifier = Modifier

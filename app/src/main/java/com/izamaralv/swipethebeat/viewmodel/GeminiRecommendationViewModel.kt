@@ -45,15 +45,15 @@ class GeminiRecommendationViewModel(
                 val userId = profileViewModel.getUserId()
                 val token  = tokenManager.getAccessToken().orEmpty()
 
-                // 1) Cargar JSON guardado
+                // Cargamos JSON guardado
                 val savedJson = userRepository.loadRecommendationsSuspend(userId)
-                // 2) Resolver cada título en Track
+                // Resolvemos cada título en Track
                 val savedTracks = savedJson.mapNotNull { rec ->
                     songRepository.searchExactTrack(token, rec["name"].orEmpty())
                 }
                 _state.value = RecommendationState.Success(savedTracks)
 
-                // 3) Refill si bajo umbral
+                // Refilleamos si bajamos del umbral
                 if (savedTracks.size < REFILL_THRESHOLD) {
                     refillRecommendations()
                 }

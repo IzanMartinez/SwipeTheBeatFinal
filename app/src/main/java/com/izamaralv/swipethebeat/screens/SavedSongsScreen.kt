@@ -72,19 +72,18 @@ import com.izamaralv.swipethebeat.viewmodel.SongViewModelFactory
 fun SavedSongsScreen(
     navController: NavHostController, profileViewModel: ProfileViewModel
 ) {
-    // (1) Cargar las guardadas al montar la pantalla
+    // Cargar canciones guardadas desde Firebase
     LaunchedEffect(Unit) {
         profileViewModel.loadSavedSongsToState()
     }
 
-    // (2) Estado observable de la lista de guardadas
+    // Obtener las canciones guardadas
     val savedSongs = profileViewModel.savedSongs
 
-    // (3) Estado para controlar la búsqueda
     var searchActive by remember { mutableStateOf(false) }
     var query by remember { mutableStateOf("") }
 
-    // (4) Filtrar según nombre de canción o artista
+    // Filtro
     val filteredSongs: List<Track> = if (query.isBlank()) {
         savedSongs
     } else {
@@ -95,7 +94,7 @@ fun SavedSongsScreen(
         }
     }
 
-    // (5) Ajuste de la barra de estado
+    // Ajuste del color de la barra de estado
     val systemUiController = rememberSystemUiController()
     systemUiController.setStatusBarColor(color = softComponentColor.value, darkIcons = false)
 
@@ -106,8 +105,6 @@ fun SavedSongsScreen(
     val songViewModel: SongViewModel = viewModel(
         factory = SongViewModelFactory(songRepository, accessToken)
     )
-
-    // (6) Obtener nombre de usuario para saludo
 
     Scaffold(
         topBar = {
@@ -130,7 +127,6 @@ fun SavedSongsScreen(
         ) {
             Spacer(modifier = Modifier.height(80.dp))
 
-            // (7) Título con búsqueda en la misma fila
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -154,33 +150,23 @@ fun SavedSongsScreen(
                 }
             }
 
-            // (8) Si está activo, mostrar el TextField debajo del título
             if (searchActive) {
                 TextField(
                     value = query, onValueChange = { query = it }, placeholder = {
                     Text(
                         text = "Filtrar por nombre o artista...",
-                        color = textColor.value.copy(alpha = 0.6f)
+                        color = softComponentColor.value.copy(alpha = 0.6f)
                     )
                 }, singleLine = true,
 
                     colors = TextFieldDefaults.colors(
-                        // Color del texto cuando está enfocado / desenfocado
                         focusedTextColor = textColor.value,
                         unfocusedTextColor = textColor.value,
-
-                        // Color del fondo (container) siempre igual aquí
                         focusedContainerColor = cardColor.value,
                         unfocusedContainerColor = cardColor.value,
-
-                        // Color del cursor
                         cursorColor = softComponentColor.value,
-
-                        // Color de la línea inferior cuando está enfocado / desenfocado
                         focusedIndicatorColor = softComponentColor.value,
                         unfocusedIndicatorColor = textColor.value.copy(alpha = 0.4f),
-
-                        // Color del placeholder (texto gris cuando no escribes)
                         focusedPlaceholderColor = textColor.value.copy(alpha = 0.6f),
                         unfocusedPlaceholderColor = textColor.value.copy(alpha = 0.6f)
                     ),
@@ -195,7 +181,6 @@ fun SavedSongsScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // (9) Lista en LazyColumn usando filteredSongs
             if (filteredSongs.isNotEmpty()) {
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
                     items(filteredSongs) { song ->
@@ -210,7 +195,7 @@ fun SavedSongsScreen(
                                     1.dp, cardBorderColor.value, shape = RoundedCornerShape(16.dp)
                                 )
                                 .clickable {
-                                    // Al tocar la fila, abrimos Spotify
+                                    // Abrir la canción en Spotify
                                     val spotifyUri = "spotify:track:${song.id}"
                                     val intent = Intent(Intent.ACTION_VIEW, spotifyUri.toUri())
                                     intent.putExtra(
@@ -255,7 +240,6 @@ fun SavedSongsScreen(
 
                                 Spacer(modifier = Modifier.width(8.dp))
 
-                                // (9.1) Botón “Eliminar” de Firebase + lista local
                                 IconButton(onClick = {
                                     val idx = profileViewModel.savedSongs.indexOf(song)
                                     if (idx != -1) {
@@ -272,7 +256,6 @@ fun SavedSongsScreen(
 
                                 Spacer(modifier = Modifier.width(8.dp))
 
-                                // (9.2) Botón “Like” enviándolo a Spotify y eliminando
                                 IconButton(onClick = {
                                     val idx = profileViewModel.savedSongs.indexOf(song)
                                     if (idx != -1) {
@@ -291,7 +274,6 @@ fun SavedSongsScreen(
                     }
                 }
             } else {
-                // (10) Lista vacía o sin coincidencias de búsqueda
                 Text(
                     text = if (query.isBlank()) "No has guardado canciones para más tarde"
                     else "No se encontraron coincidencias para \"$query\"", style = TextStyle(

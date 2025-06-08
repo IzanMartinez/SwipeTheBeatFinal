@@ -19,7 +19,6 @@ import com.izamaralv.swipethebeat.navigation.NavGraph
 import com.izamaralv.swipethebeat.navigation.Screen
 import com.izamaralv.swipethebeat.repository.SongRepository
 import com.izamaralv.swipethebeat.repository.UserRepository
-import com.izamaralv.swipethebeat.ui.components.NotificationHelper
 import com.izamaralv.swipethebeat.utils.Credentials
 import com.izamaralv.swipethebeat.utils.ProfileManager
 import com.izamaralv.swipethebeat.utils.SpotifyApi
@@ -61,7 +60,6 @@ class MainActivity : ComponentActivity() {
         searchViewModel = SearchViewModel(songRepository)
         Log.d("MainActivity", "🚀 SearchViewModel initialized: $searchViewModel")
 
-        // Request notification permission if needed
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
             ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
             != PackageManager.PERMISSION_GRANTED) {
@@ -72,7 +70,6 @@ class MainActivity : ComponentActivity() {
             )
         }
 
-        NotificationHelper.createNotificationChannel(this)
         spotifyManager = SpotifyManager(applicationContext)
         profileManager = ProfileManager(applicationContext, profileViewModel)
 
@@ -94,7 +91,7 @@ class MainActivity : ComponentActivity() {
                         )
                     }.value
 
-                    // 2) Lanzamos la carga asíncrona en cuanto la Composable entre en composición
+                    // Lanzamos la carga asíncrona en cuanto la Composable entre en composición
                     LaunchedEffect(Unit) {
                         Log.d("MainActivity", "Triggering Gemini loadRecommendations() test")
                         geminiVm.loadRecommendations()

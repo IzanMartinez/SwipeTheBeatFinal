@@ -48,7 +48,7 @@ interface SpotifyApiService {
     suspend fun searchArtists(
         @Header("Authorization") token: String,
         @Query("q") query: String,
-        @Query("type") type: String = "artist", // 🔥 Change to "artist"
+        @Query("type") type: String = "artist",
         @Query("limit") limit: Int = 15
     ): Response<SearchResponse> // Buscar artistas
 
@@ -58,7 +58,7 @@ interface SpotifyApiService {
         @Query("q") query: String,
         @Query("type") type: String = "track",
         @Query("limit") limit: Int = 1
-    ): Response<SearchResponse>
+    ): Response<SearchResponse> // Buscar track exacta
 
 }
 

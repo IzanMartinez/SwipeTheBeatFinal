@@ -30,7 +30,7 @@ object GeminiClient {
     suspend fun getRecommendations(
         prompt: String,
     ): List<RecommendationJson> = withContext(Dispatchers.IO) {
-        // 1) Envolvemos prompt en instrucciones estrictas de solo JSON
+        // Envolvemos prompt en instrucciones estrictas de solo JSON
         val wrapperPrompt = """
             Please respond with ONLY a JSON array of 30 song recommendation titles.
             Do NOT include any commentary or explanation, just the JSON array of names.
@@ -41,26 +41,26 @@ object GeminiClient {
         Log.d("GeminiClient", "Prompt:\n$wrapperPrompt")
 
         try {
-            // 2) Inicializa el cliente
+            // Inicializamos el cliente
             val model = GenerativeModel(
                 modelName = DEFAULT_MODEL,
                 apiKey     = Credentials.GEMINI_API_KEY
             )
 
-            // 3) Llamada síncrona para asegurar contenido completo
+            // Llamada síncrona para asegurar contenido completo
             val response: GenerateContentResponse = model.generateContent(wrapperPrompt)
 
-            // 4) Texto bruto (puede venir con fences o escapado)
+            // Texto bruto
             var raw = response.text?.trim().orEmpty()
             Log.d("GeminiClient", "Raw response:\n$raw")
 
-            // 5) Si está entre comillas dobles (JSON escapado), desempaquétalo
+            // Si está entre comillas dobles, lo desempaquetamos
             if (raw.startsWith("\"") && raw.endsWith("\"")) {
                 raw = GsonBuilder().create().fromJson(raw, String::class.java)
                 Log.d("GeminiClient", "Unwrapped JSON array:\n$raw")
             }
 
-            // 6) Eliminar fences Markdown (``` o ```json)
+            // Eliminamos las fences Markdown (``` o ```json)
             if (raw.startsWith("```") ) {
                 // Quita la línea de apertura con posible etiqueta de lenguaje
                 raw = raw.replaceFirst("^```[a-zA-Z]*\\r?\\n".toRegex(), "")
@@ -69,18 +69,18 @@ object GeminiClient {
                 Log.d("GeminiClient", "Cleaned fences, JSON array:\n$raw")
             }
 
-            // 7) Asegúrate de que empieza con '['
+            // Nos aseguramos de que empieza con '['
             if (!raw.trimStart().startsWith("[")) {
                 throw IOException("Expected JSON array but got: ${raw.take(200)}")
             }
 
-            // 8) Normalizar y parsear con lenient
+            // Normalizamos y parseamos con lenient
             val normalized = raw.replace(Regex(",\\s*]"), "]")
             val gson = GsonBuilder().setLenient().create()
             val listType = object : TypeToken<List<String>>() {}.type
             val titles: List<String> = gson.fromJson(normalized, listType)
 
-            // 9) Mapear a RecommendationJson
+            // Mapeamos a RecommendationJson
             return@withContext titles.map { RecommendationJson(it) }
 
         } catch (e: Exception) {

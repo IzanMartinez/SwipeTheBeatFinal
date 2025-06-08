@@ -2,45 +2,47 @@ package com.izamaralv.swipethebeat.models
 
 import com.google.gson.annotations.SerializedName
 
-// Respuesta de búsqueda
+// Resultado completo de una búsqueda en Spotify
 data class SearchResponse(
-    @SerializedName("tracks") val tracks: TrackList?, // ✅ Nullable if searching artists
-    @SerializedName("artists") val artists: ArtistList? // 🔥 Add support for artist search
+    @SerializedName("tracks") val tracks: TrackList?,
+    @SerializedName("artists") val artists: ArtistList?
 )
 
+// Lista de artistas devueltos por la búsqueda
 data class ArtistList(
-    @SerializedName("items") val items: List<Artist> // ✅ Artists list from search results
+    @SerializedName("items") val items: List<Artist>
 )
 
+// Representa un artista
 data class Artist(
-    val id: String, // ID del artista
-    val name: String, // Nombre del artista
-    @SerializedName("images") val images: List<Image>? // ✅ Some artists have images, some don’t
+    val id: String,
+    val name: String,
+    @SerializedName("images") val images: List<Image>?
 )
 
-// Lista de tracks
+// Lista de pistas devueltas por la búsqueda
 data class TrackList(
-    @SerializedName("items") val items: List<Track> // Items de tracks
+    @SerializedName("items") val items: List<Track>
 )
 
-// Información de un track
+// Detalles de una canción
 data class Track(
-    val name: String, // Nombre del track
-    val artists: List<Artist>, // Lista de artistas
-    val album: Album, // Información del álbum
-    val previewUrl: String?, // URL de vista previa
-    val id: String, // ID del track
-    val uri: String // URI del track
+    val name: String,
+    val artists: List<Artist>,
+    val album: Album,
+    val previewUrl: String?,
+    val id: String,
+    val uri: String
 )
 
-// Información de un álbum
+// Detalles de un álbum
 data class Album(
-    val id: String, // ID del álbum
-    val name: String, // Nombre del álbum
-    val images: List<Image> // Lista de imágenes del álbum
+    val id: String,
+    val name: String,
+    val images: List<Image>
 )
 
-// Información de una imagen
+// URL de una imagen asociada a álbum o artista
 data class Image(
-    val url: String // URL de la imagen
+    val url: String
 )

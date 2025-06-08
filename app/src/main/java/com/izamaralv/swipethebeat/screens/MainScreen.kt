@@ -43,6 +43,7 @@ fun MainScreen(
         profileViewModel.loadUserProfile(profileViewModel.getUserId())
     }
 
+    // Ajuste del color de la barra de estado
     val systemUiController = rememberSystemUiController()
     systemUiController.setStatusBarColor(softComponentColor.value, darkIcons = false)
 
@@ -68,20 +69,20 @@ fun MainScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.height(16.dp))
-            // -- Cabecera de bienvenida fuera de la tarjeta --
+
+            // Cabecera de bienvenida
             WelcomeHeader(displayName)
 
             Spacer(modifier = Modifier.height(40.dp))
 
+            // Componente de recomendaciones
             RecommendationsSection(
                 state = state,
                 onSave = {
-                    // 1) Guarda en Firestore
                     val current =
                         (state as GeminiRecommendationViewModel.RecommendationState.Success)
                             .recommendations.first()
                     profileViewModel.saveSongForLater(current)
-                    // 2) Descarta la carta
                     geminiViewModel.onSongSwiped()
                 },
                 onLike = { track ->
