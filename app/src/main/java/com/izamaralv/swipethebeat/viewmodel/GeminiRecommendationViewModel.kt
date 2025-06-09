@@ -167,6 +167,7 @@ class GeminiRecommendationViewModel(
             These are the last ${likedTracks.size} liked songs:
             $likesText
 
+            Do NOT repeat any of the previous songs.
             Please respond with ONLY a JSON array of $REFILL_BATCH_SIZE song titles in the format "Title - Artist".
             Do NOT include any commentary, explanation, or metadata—only the array of strings.
         """.trimIndent()
