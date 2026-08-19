@@ -73,7 +73,7 @@ fun MainScreen(
             // Cabecera de bienvenida
             WelcomeHeader(displayName)
 
-            Spacer(modifier = Modifier.height(40.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
             // Componente de recomendaciones
             RecommendationsSection(

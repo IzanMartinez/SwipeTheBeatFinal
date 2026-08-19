@@ -47,7 +47,7 @@ fun TinderCard(
         contentAlignment = Alignment.Center,
         modifier = Modifier
             .fillMaxWidth(.8f)
-            .fillMaxHeight(.65f)
+            .fillMaxHeight(.75f)
             .graphicsLayer(
                 translationX = offsetX,
                 translationY = offsetY,

@@ -28,6 +28,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.Divider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
@@ -140,7 +141,7 @@ fun ProfileScreen(
             modifier = Modifier
                 .padding(horizontal = 15.dp)
                 .fillMaxWidth()
-                .height(470.dp)
+                .height(430.dp)
                 .background(color = cardColor.value, shape = RoundedCornerShape(16.dp))
                 .border(5.dp, cardBorderColor.value, RoundedCornerShape(16.dp))
         ) {
@@ -167,7 +168,7 @@ fun ProfileScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(30.dp))
+            Spacer(modifier = Modifier.height(14.dp))
 
             Text(
                 modifier = Modifier.padding(horizontal = 20.dp),
@@ -269,7 +270,7 @@ fun ProfileScreen(
         // Cerrar sesión
         Box(
             modifier = Modifier
-                .padding(top = 40.dp)
+                .padding(top = 10.dp)
                 .align(Alignment.CenterHorizontally)
         ) {
             Button(
@@ -282,7 +283,5 @@ fun ProfileScreen(
                 )
             }
         }
-
-        Spacer(modifier = Modifier.height(40.dp))
     }
 }

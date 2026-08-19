@@ -22,6 +22,7 @@ import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -101,8 +102,8 @@ fun RecommendationCard(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .aspectRatio(0.75f)
-                    .padding(16.dp)
+                    .aspectRatio(0.55f)
+                    .padding(top = 50.dp, start = 16.dp, end = 16.dp, bottom = 16.dp)
             ) {
                 Column(
                     modifier = Modifier.fillMaxSize(),
@@ -116,7 +117,7 @@ fun RecommendationCard(
                             .size(200.dp)
                             .padding(8.dp)
                     )
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = track.name,
                         style = TextStyle(
@@ -126,7 +127,9 @@ fun RecommendationCard(
                         ),
                         textAlign = TextAlign.Center
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(27.dp))
+                    Divider(color = softComponentColor.value.copy(alpha = .3f))
+                    Spacer(modifier = Modifier.height(27.dp))
                     Text(
                         text = track.artists.joinToString(", ") { it.name },
                         style = TextStyle(
@@ -135,7 +138,7 @@ fun RecommendationCard(
                         ),
                         textAlign = TextAlign.Center
                     )
-                    Spacer(modifier = Modifier.height(4.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = track.album.name,
                         style = TextStyle(
