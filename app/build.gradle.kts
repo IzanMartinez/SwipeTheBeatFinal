@@ -61,7 +61,6 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.9.1")
     implementation ("androidx.activity:activity-compose:1.9.3")
     implementation ("com.google.accompanist:accompanist-systemuicontroller:0.30.1")
-    implementation("dev.shreyaspatil.generativeai:generativeai-google:0.9.0-1.1.0")
 
     implementation("com.pnikosis:materialish-progress:1.7")
 

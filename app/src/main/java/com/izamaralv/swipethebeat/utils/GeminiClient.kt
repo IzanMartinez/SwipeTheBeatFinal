@@ -3,89 +3,131 @@ package com.izamaralv.swipethebeat.utils
 import android.util.Log
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
-import dev.shreyaspatil.ai.client.generativeai.GenerativeModel
-import dev.shreyaspatil.ai.client.generativeai.type.GenerateContentResponse
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody
 import java.io.IOException
 
-/**
- * Cliente para generar recomendaciones de canciones usando Gemini (Generative AI SDK).
- */
 object GeminiClient {
 
-    // Modelo predeterminado de tu proyecto AI Studio
-    private const val DEFAULT_MODEL = "gemini-2.0-flash"
+    private const val DEFAULT_MODEL = "gemini-flash-lite-latest"
 
-    /**
-     * Representa solo el título devuelto.
-     */
-    data class RecommendationJson(
-        val name: String
-    )
+    private const val MAX_RETRIES = 4
+    private const val RETRY_DELAY_MS = 1200L
 
-    /**
-     * Envía el prompt y obtiene un JSON array de títulos de canción.
-     */
-    suspend fun getRecommendations(
-        prompt: String,
-    ): List<RecommendationJson> = withContext(Dispatchers.IO) {
-        // Envolvemos prompt en instrucciones estrictas de solo JSON
-        val wrapperPrompt = """
-            Please respond with ONLY a JSON array of 30 song recommendation titles.
-            Do NOT include any commentary or explanation, just the JSON array of names.
-            Data:
-            $prompt
-        """.trimIndent()
+    data class RecommendationJson(val name: String)
 
-        Log.d("GeminiClient", "Prompt:\n$wrapperPrompt")
+    suspend fun getRecommendations(prompt: String): List<RecommendationJson> =
+        withContext(Dispatchers.IO) {
 
-        try {
-            // Inicializamos el cliente
-            val model = GenerativeModel(
-                modelName = DEFAULT_MODEL,
-                apiKey     = Credentials.GEMINI_API_KEY
-            )
+            val wrapperPrompt = """
+                Please respond with ONLY a JSON array of 30 song recommendation titles.
+                Do NOT include any commentary or explanation, just the JSON array of names.
+                Data:
+                $prompt
+            """.trimIndent()
 
-            // Llamada síncrona para asegurar contenido completo
-            val response: GenerateContentResponse = model.generateContent(wrapperPrompt)
+            Log.d("GeminiClient", "Prompt:\n$wrapperPrompt")
 
-            // Texto bruto
-            var raw = response.text?.trim().orEmpty()
-            Log.d("GeminiClient", "Raw response:\n$raw")
+            val gson = GsonBuilder().create()
+            val escapedPrompt = gson.toJson(wrapperPrompt)
 
-            // Si está entre comillas dobles, lo desempaquetamos
-            if (raw.startsWith("\"") && raw.endsWith("\"")) {
-                raw = GsonBuilder().create().fromJson(raw, String::class.java)
-                Log.d("GeminiClient", "Unwrapped JSON array:\n$raw")
+            val jsonBody = """
+            {
+              "contents": [
+                {
+                  "role": "user",
+                  "parts": [
+                    { "text": $escapedPrompt }
+                  ]
+                }
+              ]
+            }
+            """.trimIndent()
+
+            val client = OkHttpClient()
+
+            repeat(MAX_RETRIES) { attempt ->
+
+                try {
+                    val url =
+                        "https://generativelanguage.googleapis.com/v1beta/models/$DEFAULT_MODEL:generateContent?key=${Credentials.GEMINI_API_KEY}"
+
+                    val request = Request.Builder()
+                        .url(url)
+                        .post(RequestBody.create("application/json".toMediaType(), jsonBody))
+                        .build()
+
+                    val response = client.newCall(request).execute()
+                    val rawResponse = response.body?.string().orEmpty()
+
+                    Log.d("GeminiClient", "Raw REST response:\n$rawResponse")
+
+                    val root = gson.fromJson(rawResponse, Map::class.java)
+
+                    // Manejo de errores de la API
+                    if (root.containsKey("error")) {
+                        val err = root["error"] as Map<*, *>
+                        val message = err["message"]?.toString() ?: "Unknown error"
+
+                        // Si es saturación o límite de cuota, reintentar
+                        if (message.contains("high demand", ignoreCase = true) ||
+                            message.contains("quota", ignoreCase = true)
+                        ) {
+                            Log.w("GeminiClient", "Retrying attempt ${attempt + 1} due to: $message")
+                            delay(RETRY_DELAY_MS)
+                            return@repeat
+                        }
+
+                        throw IOException("Gemini API error: $message")
+                    }
+
+                    // Extraer candidatos
+                    val candidates = root["candidates"] as? List<*>
+                        ?: throw IOException("Missing candidates in response: $rawResponse")
+
+                    val content = (candidates[0] as Map<*, *>)["content"] as Map<*, *>
+                    val parts = content["parts"] as List<*>
+                    var raw = (parts[0] as Map<*, *>)["text"] as String
+
+                    raw = raw.trim()
+
+                    // Quitar comillas si viene como string literal
+                    if (raw.startsWith("\"") && raw.endsWith("\"")) {
+                        raw = gson.fromJson(raw, String::class.java)
+                    }
+
+                    // Quitar fences ``` si los añade el modelo
+                    if (raw.startsWith("```")) {
+                        raw = raw.replaceFirst("^```[a-zA-Z]*\\r?\\n".toRegex(), "")
+                        raw = raw.replaceFirst("\\r?\\n```$".toRegex(), "")
+                    }
+
+                    // Validar que sea un array JSON
+                    if (!raw.trimStart().startsWith("[")) {
+                        throw IOException("Expected JSON array but got: ${raw.take(200)}")
+                    }
+
+                    val normalized = raw.replace(Regex(",\\s*]"), "]")
+                    val listType = object : TypeToken<List<String>>() {}.type
+                    val titles: List<String> = gson.fromJson(normalized, listType)
+
+                    return@withContext titles.map { RecommendationJson(it) }
+                } catch (e: Exception) {
+                    Log.e("GeminiClient", "Attempt ${attempt + 1} failed:", e)
+
+                    if (attempt == MAX_RETRIES - 1) {
+                        throw IOException("Error in GeminiClient(): ${e.message}", e)
+                    }
+
+                    delay(RETRY_DELAY_MS)
+                }
             }
 
-            // Eliminamos las fences Markdown (``` o ```json)
-            if (raw.startsWith("```") ) {
-                // Quita la línea de apertura con posible etiqueta de lenguaje
-                raw = raw.replaceFirst("^```[a-zA-Z]*\\r?\\n".toRegex(), "")
-                // Quita la línea de cierre
-                raw = raw.replaceFirst("\\r?\\n```$".toRegex(), "")
-                Log.d("GeminiClient", "Cleaned fences, JSON array:\n$raw")
-            }
-
-            // Nos aseguramos de que empieza con '['
-            if (!raw.trimStart().startsWith("[")) {
-                throw IOException("Expected JSON array but got: ${raw.take(200)}")
-            }
-
-            // Normalizamos y parseamos con lenient
-            val normalized = raw.replace(Regex(",\\s*]"), "]")
-            val gson = GsonBuilder().setLenient().create()
-            val listType = object : TypeToken<List<String>>() {}.type
-            val titles: List<String> = gson.fromJson(normalized, listType)
-
-            // Mapeamos a RecommendationJson
-            return@withContext titles.map { RecommendationJson(it) }
-
-        } catch (e: Exception) {
-            Log.e("GeminiClient", "Error fetching recommendations:", e)
-            throw IOException("Error in GeminiClient(): ${e.message}", e)
+            throw IOException("GeminiClient failed after retries")
         }
-    }
 }
